@@ -16,6 +16,26 @@ Last updated: 2026-08-15
 - Git action taken: local commits on `main`; no remote push, tag, Release, or
   visibility change
 
+## 2026-08-15 C# bilingualization start
+
+- Approved behavior: one WPF build with live `English` / `中文` switching,
+  remembered preference, first-launch system-language selection, and neutral
+  English fallback.
+- Scientific scope: presentation only; calculations, canonical units, error
+  codes, workflow state, export schemas, and invariant numeric values must not
+  change.
+- Implementation plan:
+  `docs/superpowers/plans/2026-08-15-ipce-csharp-bilingual-localization.md`.
+- Research application contract: `docs/scientific/research-app-spec.md`.
+- Numerical contract: `docs/scientific/numerical-contract.md`.
+- Acceptance checklist:
+  `docs/scientific/bilingual-acceptance-checklist.md`.
+- Isolated implementation branch: `codex/csharp-bilingual`.
+- Baseline verification before implementation: Release build passed with zero
+  warnings/errors; Core 58, IO 44, Desktop 97, total 199 tests passed with
+  zero failures/skips.
+- Implementation and final portable-release verification: pending.
+
 ## Environment
 
 - .NET SDK: `10.0.302`
