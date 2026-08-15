@@ -71,15 +71,15 @@ Test-first evidence:
 Fresh self-contained C# archive:
 
 - path: `csharp/dist/IPCEApp_Windows_x64.zip`;
-- bytes: `85,510,862`;
+- bytes: `85,510,823`;
 - SHA-256:
-  `c75120f5b2d29fd641ecd4805b561124283a7a893491f49fe19a7bfb5725f73f`;
+  `6c2fb6c32c3637bb80c1c9f4ab305afa5ee6d1a82bb309db37a35b3ed116a004`;
 - entries: 441;
 - `zh-CN/IPCEApp.resources.dll`: present;
 - self-contained `win-x64`: true;
 - MATLAB Runtime included: false;
 - published and extracted smoke exit codes: `0` and `0`;
-- manifest generated UTC: `2026-08-15T09:43:57.669742Z`;
+- manifest generated UTC: `2026-08-15T10:08:18.6435330Z`;
 - the release script now derives all test counts from fresh per-project TRX
   files; a regression test prevents reuse of hard-coded historical counts.
 
@@ -121,6 +121,10 @@ Test-first evidence:
 - review follow-up added real anchor/export-dialog, plot-label, populated
   standalone external-IPCE, shared JSON-schema, scalar-validation, stable-error,
   and Windows UI-culture coverage;
+- UI tests use an injected temporary preference file rather than reading the
+  real user setting; populated external-IPCE verification imports real
+  temporary CSV files and runs the production spectrum integrator, with no
+  direct synthetic-result state hook;
 - complete MATLAB self-test passed, including numerical/oracle, import, export,
   standalone external-IPCE, localization, and real-window assertions;
 - separate real UI construction/`isvalid`/close smoke passed;
@@ -130,9 +134,9 @@ Test-first evidence:
 Fresh MATLAB Compiler archive:
 
 - path: `matlab/dist/IPCEApp_R2023b_Windows_x64.zip`;
-- bytes: `790,064` (`0.753464 MiB`);
+- bytes: `790,342` (`0.753729 MiB`);
 - SHA-256:
-  `482d600d93ee9c13f67059a4723d423fe7ddd80d04cd529bed608d585392097e`;
+  `a0ec3317f41a01b258f1af4a380d452b569655668744b875f74db8c866c461e5`;
 - entries: 7;
 - Runtime installer markers: 0;
 - English-first bilingual `README_运行说明.txt`: present;

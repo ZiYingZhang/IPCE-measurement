@@ -57,7 +57,7 @@ end
 end
 
 function savePreference(path, language)
-if ~any(language == ["en-US", "zh-CN"])
+if ~isscalar(language) || ~any(language == ["en-US", "zh-CN"])
     return
 end
 folder = string(fileparts(path));

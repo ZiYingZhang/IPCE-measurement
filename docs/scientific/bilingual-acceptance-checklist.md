@@ -69,8 +69,11 @@ Last updated: 2026-08-15
   (Core 58, IO 44, Desktop 129).
 - [x] MATLAB Compiler build, archive extraction verification, Runtime-payload
   rejection, and compiled `--smoke-test` pass.
-- [x] Fresh MATLAB ZIP: 790,064 bytes, 7 entries, Runtime markers 0,
-  SHA-256 `482d600d93ee9c13f67059a4723d423fe7ddd80d04cd529bed608d585392097e`.
+- [x] UI regression tests use an injected temporary preference path and real
+  temporary external-IPCE/spectrum files through production import/integration
+  paths; no test hook writes fabricated scientific results directly.
+- [x] Fresh MATLAB ZIP: 790,342 bytes, 7 entries, Runtime markers 0,
+  SHA-256 `a0ec3317f41a01b258f1af4a380d452b569655668744b875f74db8c866c461e5`.
 
 ## External gates
 

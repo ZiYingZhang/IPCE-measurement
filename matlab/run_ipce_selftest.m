@@ -382,6 +382,9 @@ for preferenceIndex = 1:numel(invalidPreferences)
     writelines(invalidPreferences(preferenceIndex), preferencePath);
     assert(ipceLanguagePreference("load", preferencePath) == "");
 end
+nonScalarSavePath = fullfile(preferenceFolder, "nonscalar-save.json");
+ipceLanguagePreference("save", nonScalarSavePath, ["en-US", "zh-CN"]);
+assert(~isfile(nonScalarSavePath));
 writelines("not json", preferencePath);
 assert(ipceLanguagePreference("load", preferencePath) == "");
 assert(ipceLanguagePreference( ...
@@ -409,6 +412,9 @@ localizedTraceError = ipceLocalizeException("en-US", ...
     "IPCE:InvalidTrace", "i-t 文件中有效数据少于两个点。");
 assert(localizedTraceError == ...
     "The i-t data are invalid or contain too few usable points.");
+assert(ipceLocalizeException("en-US", ...
+    "IPCE:ExportVerificationFailed", "导出验证失败") == ...
+    "The exported file could not be verified on disk.");
 unknownLocalizedError = ipceLocalizeException("en-US", ...
     "IPCE:FutureError", "未来错误文案");
 assert(contains(unknownLocalizedError, "IPCE:FutureError"));
@@ -417,7 +423,9 @@ assert(isempty(regexp(unknownLocalizedError, ...
 fprintf("  Runtime message localization: passed\n");
 
 % 15) Verify the real UI switches language without recreating state.
-localizationApp = IPCEApp;
+uiPreferencePath = fullfile(preferenceFolder, "ui-settings.json");
+localizationApp = IPCEApp( ...
+    LanguagePreferencePath=uiPreferencePath, SystemLocale="en-US");
 cleanupLocalizationApp = onCleanup(@()closeIfValid(localizationApp));
 drawnow;
 hooks = localizationApp.UserData;
@@ -425,11 +433,15 @@ assert(isfield(hooks, "SetLanguage"));
 assert(isfield(hooks, "StateSignature"));
 assert(isfield(hooks, "VisibleTexts"));
 assert(isfield(hooks, "SetStatusForTest"));
-assert(isfield(hooks, "SetDynamicSurfaceForTest"));
+assert(~isfield(hooks, "SetDynamicSurfaceForTest"));
 assert(isfield(hooks, "DynamicSurfaceSnapshot"));
 assert(isfield(hooks, "OpenAnchorDialogForTest"));
 assert(isfield(hooks, "OpenExportDialogForTest"));
-assert(isfield(hooks, "PopulateExternalWorkflowForTest"));
+assert(~isfield(hooks, "PopulateExternalWorkflowForTest"));
+assert(isfield(hooks, "LoadExternalIPCEForTest"));
+assert(isfield(hooks, "LoadSpectrumForTest"));
+assert(isfield(hooks, "ComputeSpectrumForTest"));
+assert(isfield(hooks, "SetStartupErrorForTest"));
 assert(isfield(hooks, "PlotTexts"));
 beforeLanguageSwitch = hooks.StateSignature();
 hooks.SetLanguage("en-US");
@@ -460,10 +472,18 @@ drawnow;
 assert(localizationApp.Name == "IPCE 测量与分析");
 assert(any(string(hooks.VisibleTexts()) == "导出成功：result.xlsx"));
 assert(isequaln(beforeLanguageSwitch, hooks.StateSignature()));
-hooks.SetDynamicSurfaceForTest( ...
-    "C:\data\calibration.xlsx", ["Lambda", "Irradiance"], [1, 3]);
+externalWorkflowPath = fullfile(preferenceFolder, "external-ipce.csv");
+spectrumWorkflowPath = fullfile(preferenceFolder, "spectrum.csv");
+writetable(table([300; 700; 1100], [40; 55; 65], ...
+    'VariableNames', {'Wavelength_nm', 'IPCE_percent'}), ...
+    externalWorkflowPath);
+writetable(table([300; 700; 1100], [1.0; 1.1; 1.0], ...
+    'VariableNames', {'Wavelength_nm', 'Irradiance_W_m2_nm'}), ...
+    spectrumWorkflowPath);
+assert(hooks.LoadExternalIPCEForTest(externalWorkflowPath));
+assert(hooks.LoadSpectrumForTest(spectrumWorkflowPath));
+hooks.ComputeSpectrumForTest();
 dynamicSurfaceBefore = hooks.DynamicSurfaceSnapshot();
-hooks.PopulateExternalWorkflowForTest();
 externalWorkflowBefore = hooks.StateSignature();
 hooks.SetLanguage("en-US");
 drawnow;
@@ -471,6 +491,14 @@ assert(localizationApp.Name == "IPCE Measurement and Analysis");
 assert(isequaln(dynamicSurfaceBefore, hooks.DynamicSurfaceSnapshot()));
 assert(isequaln(externalWorkflowBefore, hooks.StateSignature()));
 assertNoHanExceptChineseLabel(string(hooks.PlotTexts()));
+hooks.SetStartupErrorForTest( ...
+    "IPCE:InvalidAnchorFile", "锚点文件中存在重复波长。");
+hooks.SetLanguage("en-US");
+assert(any(contains(string(hooks.VisibleTexts()), ...
+    "Detector-anchor load failed")));
+hooks.SetLanguage("zh-CN");
+assert(any(contains(string(hooks.VisibleTexts()), ...
+    "锚点文件中存在重复波长")));
 close(localizationApp);
 clear cleanupLocalizationApp
 fprintf("  Live bilingual UI state preservation: passed\n");

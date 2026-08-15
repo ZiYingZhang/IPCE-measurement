@@ -1,12 +1,24 @@
-function appFigure = IPCEApp
+function appFigure = IPCEApp(options)
 %IPCEAPP Interactive workflow for power-density calibration and IPCE.
 %   Run IPCEApp from the MATLAB command window. This is a programmatic
 %   MATLAB UI and does not require an App Designer .mlapp file.
 
+arguments
+    options.LanguagePreferencePath (1, 1) string = ""
+    options.SystemLocale (1, 1) string = ""
+end
+
 defaults = ipceDefaultConfig();
-languagePreferencePath = ipceLanguagePreference("defaultpath");
+languagePreferencePath = options.LanguagePreferencePath;
+if strlength(languagePreferencePath) == 0
+    languagePreferencePath = ipceLanguagePreference("defaultpath");
+end
+systemLocale = options.SystemLocale;
+if strlength(systemLocale) == 0
+    systemLocale = ipceSystemLocale();
+end
 currentLanguage = ipceLanguagePreference( ...
-    "resolve", languagePreferencePath, ipceSystemLocale());
+    "resolve", languagePreferencePath, systemLocale);
 localizationRegistry = cell(0, 3);
 state = struct( ...
     "calibration", table(), ...
@@ -566,11 +578,15 @@ appFigure.UserData = struct( ...
     "StateSignature", @()state, ...
     "VisibleTexts", @()visibleTextsForTest(), ...
     "SetStatusForTest", @setLocalizedStatus, ...
-    "SetDynamicSurfaceForTest", @setDynamicSurfaceForTest, ...
     "DynamicSurfaceSnapshot", @dynamicSurfaceSnapshot, ...
     "OpenAnchorDialogForTest", @openNewAnchorDialog, ...
     "OpenExportDialogForTest", @openExportDialog, ...
-    "PopulateExternalWorkflowForTest", @populateExternalWorkflowForTest, ...
+    "LoadExternalIPCEForTest", ...
+    @(filePath)loadExternalIPCEFile(string(filePath), false), ...
+    "LoadSpectrumForTest", ...
+    @(filePath)loadSpectrumFile(string(filePath), false), ...
+    "ComputeSpectrumForTest", @computeSpectrumForTest, ...
+    "SetStartupErrorForTest", @setStartupErrorForTest, ...
     "PlotTexts", @plotTextsForTest);
 
 onAlignmentModeChanged();
@@ -640,6 +656,22 @@ end
             errorText = ipceLocalizeException(currentLanguage, ...
                 statusArguments{1}, statusArguments{2});
             statusLabel.Text = localized("错误：%s", errorText);
+        elseif statusSource == "__IPCE_STARTUP__"
+            messages = string(statusArguments{1});
+            errors = statusArguments{2};
+            rendered = strings(0, 1);
+            for messageIndex = 1:numel(messages)
+                rendered(end + 1, 1) = localized(messages(messageIndex)); %#ok<AGROW>
+            end
+            for errorIndex = 1:numel(errors)
+                errorText = ipceLocalizeException(currentLanguage, ...
+                    errors(errorIndex).Identifier, errors(errorIndex).Message);
+                rendered(end + 1, 1) = localized( ...
+                    "标探锚点载入失败：%s", errorText); %#ok<AGROW>
+            end
+            statusLabel.Text = localized( ...
+                "启动检查：%s。请核对数据批次与参数。", ...
+                strjoin(rendered, "; "));
         else
             statusLabel.Text = localized(statusSource, statusArguments{:});
         end
@@ -654,6 +686,23 @@ end
     function output = localizedException(exception)
         output = ipceLocalizeException(currentLanguage, ...
             string(exception.identifier), string(exception.message));
+    end
+
+    function setLocalizedStartupStatus(messages, errors)
+        statusSource = "__IPCE_STARTUP__";
+        statusArguments = {string(messages), errors};
+        renderLocalizedStatus();
+    end
+
+    function setStartupErrorForTest(identifier, message)
+        errors = struct( ...
+            "Identifier", string(identifier), ...
+            "Message", string(message));
+        setLocalizedStartupStatus(strings(0, 1), errors);
+    end
+
+    function computeSpectrumForTest()
+        onComputeSpectrum([], []);
     end
 
     function refreshDynamicControls()
@@ -685,16 +734,6 @@ end
         end
     end
 
-    function setDynamicSurfaceForTest(filePath, labels, indices)
-        updateFileLabel(calibrationPathLabel, string(filePath));
-        spectrumWavelengthColumnDropDown.Items = string(labels);
-        spectrumWavelengthColumnDropDown.ItemsData = indices;
-        spectrumWavelengthColumnDropDown.Value = indices(1);
-        spectrumIrradianceColumnDropDown.Items = string(labels);
-        spectrumIrradianceColumnDropDown.ItemsData = indices;
-        spectrumIrradianceColumnDropDown.Value = indices(end);
-    end
-
     function snapshot = dynamicSurfaceSnapshot()
         snapshot = struct( ...
             "CalibrationText", string(calibrationPathLabel.Text), ...
@@ -705,26 +744,6 @@ end
             "IrradianceItems", string(spectrumIrradianceColumnDropDown.Items), ...
             "IrradianceItemsData", spectrumIrradianceColumnDropDown.ItemsData, ...
             "IrradianceValue", spectrumIrradianceColumnDropDown.Value);
-    end
-
-    function populateExternalWorkflowForTest()
-        state.externalIPCE = table( ...
-            [400; 500; 600], [40; 55; 65], ...
-            'VariableNames', {'Wavelength_nm', 'IPCE_percent'});
-        state.externalIPCEFile = "external_test.csv";
-        state.spectrum = table( ...
-            [400; 500; 600], [1.0; 1.1; 1.0], ...
-            'VariableNames', ...
-            {'Wavelength_nm', 'Irradiance_W_m2_nm'});
-        state.spectrumFile = "spectrum_test.csv";
-        state.spectrumIPCESource = "external";
-        ipceSourceDropDown.Value = "external";
-        [state.spectrumSummary, state.spectrumCurve] = ...
-            ipceIntegrateSpectrum(state.externalIPCE, state.spectrum, 400, 600);
-        spectrumResultTable.Data = state.spectrumSummary;
-        updateFileLabel(externalIPCEPathLabel, state.externalIPCEFile);
-        updateFileLabel(spectrumPathLabel, state.spectrumFile);
-        plotSpectrumPreview();
     end
 
     function texts = plotTextsForTest()
@@ -1498,7 +1517,8 @@ end
                 localized("导出成功"), "Icon", "success");
         catch exception
             if isvalid(dialog)
-                uialert(dialog, localized(exception.message), localized("导出失败"));
+                uialert(dialog, localizedException(exception), ...
+                    localized("导出失败"));
             else
                 showError(exception);
             end
@@ -2366,6 +2386,8 @@ end
         anchorPath = ipceResolveStartupFile( ...
             defaults.SiliconAnchorFile, defaults.SiliconAnchorFile);
         messages = strings(0, 1);
+        startupErrors = struct( ...
+            "Identifier", {}, "Message", {});
         if calibrationPath ~= ""
             loadCalibration(calibrationPath, false);
             if ~isempty(state.calibration)
@@ -2391,8 +2413,9 @@ end
                     size(siliconAnchorTable.Data, 1));
                 plotAlignmentPreview();
             catch exception
-                messages(end + 1) = "标探锚点载入失败：" + ...
-                    string(exception.message);
+                startupErrors(end + 1) = struct( ...
+                    "Identifier", string(exception.identifier), ...
+                    "Message", string(exception.message));
             end
         else
             messages(end + 1) = "未找到指定标探锚点";
@@ -2404,9 +2427,8 @@ end
                 messages(end + 1) = "标准太阳能光谱";
             end
         end
-        if ~isempty(messages)
-            setLocalizedStatus("启动检查：" + strjoin(messages, "；") + ...
-                "。请核对数据批次与参数。");
+        if ~isempty(messages) || ~isempty(startupErrors)
+            setLocalizedStartupStatus(messages, startupErrors);
         end
     end
 
