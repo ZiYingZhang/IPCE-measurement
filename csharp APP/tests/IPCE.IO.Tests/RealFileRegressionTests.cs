@@ -12,16 +12,15 @@ public sealed class RealFileRegressionTests
     [TestMethod]
     public void SuppliedMeasurementFiles_RunBothCompleteMeasurementStages()
     {
-        string root = TestPaths.RepositoryRoot;
         CalibrationData calibration = CalibrationReader.Read(Path.Combine(
-            root,
+            TestPaths.DefaultsRoot,
             "标准硅探测器校准结果_证书编号 GXgf2026-01645.xlsx"));
         TraceData siliconTrace = ItTraceReader.Read(Path.Combine(
-            root,
+            TestPaths.DefaultsRoot,
             "Si-i t [300 1100] nm-grating 2-filter.txt"));
         IReadOnlyList<AnchorPoint> siliconAnchors = AnchorReader.Read(
             Path.Combine(
-                root,
+                TestPaths.DefaultsRoot,
                 "Si-i t [300 1100] nm-grating 2-filter-time match.txt"));
         double[] siliconWavelengths = Enumerable.Range(0, 161)
             .Select(index => 300d + 5 * index)
@@ -46,10 +45,12 @@ public sealed class RealFileRegressionTests
                 0.36);
 
         TraceData sampleTrace = ItTraceReader.Read(Path.Combine(
-            root,
+            TestPaths.ExamplesRoot,
             "MBVO-IT-300-600 nm.txt"));
         IReadOnlyList<AnchorPoint> sampleAnchors = AnchorReader.Read(
-            Path.Combine(root, "MBVO-300-600-match time.txt"));
+            Path.Combine(
+                TestPaths.ExamplesRoot,
+                "MBVO-300-600-match time.txt"));
         double[] sampleWavelengths = Enumerable.Range(0, 61)
             .Select(index => 300d + 5 * index)
             .ToArray();
@@ -84,7 +85,7 @@ public sealed class RealFileRegressionTests
     {
         IReadOnlyList<SpectrumPoint> spectrum = SpectrumReader.Read(
             Path.Combine(
-                TestPaths.RepositoryRoot,
+                TestPaths.DefaultsRoot,
                 "标准太阳能光谱数据.xls"),
             "Spectra",
             1,

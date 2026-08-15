@@ -7,6 +7,7 @@ $csharpDirectory = [System.IO.Path]::GetFullPath(
     (Join-Path $scriptDirectory ".."))
 $repositoryRoot = [System.IO.Path]::GetFullPath(
     (Join-Path $csharpDirectory ".."))
+$matlabDirectory = Join-Path $repositoryRoot "matlab"
 $distDirectory = Join-Path $csharpDirectory "dist"
 $publishDirectory = Join-Path $distDirectory "publish"
 $archivePath = Join-Path $distDirectory "IPCEApp_Windows_x64.zip"
@@ -58,7 +59,10 @@ function Remove-SafeDirectory {
 Push-Location $repositoryRoot
 try {
     Write-Output "Running MATLAB regression..."
-    & matlab -batch "run_ipce_selftest; app = IPCEApp; drawnow; assert(isvalid(app)); close(app)"
+    $matlabCommand = "cd('" + $matlabDirectory.Replace("'", "''") +
+        "'); run_ipce_selftest; app = IPCEApp; drawnow; " +
+        "assert(isvalid(app)); close(app)"
+    & matlab -batch $matlabCommand
     Assert-LastExitCode -Operation "MATLAB regression"
 
     Write-Output "Running .NET regression..."
@@ -149,9 +153,9 @@ try {
         publishedSmokeExitCode = $publishedSmokeExitCode
         archiveSmokeExitCode = $archiveSmokeExitCode
         dotnetTests = [ordered]@{
-            total = 197
+            total = 198
             core = 58
-            io = 42
+            io = 43
             desktop = 97
             failed = 0
             skipped = 0

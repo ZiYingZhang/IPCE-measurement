@@ -3,34 +3,35 @@ function run_ipce_selftest
 
 fprintf("Running IPCE self-test...\n");
 
-% 1) Verify the files supplied with this workspace.
-calibrationFiles = dir("*校准*.xlsx");
-traceFiles = dir("*.txt");
-preferredTrace = find(strcmp({traceFiles.name}, ...
-    "Si-i t [300 1100] nm-grating 2-filter.txt"), 1);
-if ~isempty(preferredTrace)
-    traceFiles = traceFiles(preferredTrace);
-end
-if ~isempty(calibrationFiles)
-    calibrationPath = fullfile(calibrationFiles(1).folder, calibrationFiles(1).name);
-    importedCalibration = ipceReadReference(string(calibrationPath));
-    assert(height(importedCalibration) >= 2);
-    assert(all(importedCalibration.Responsivity_A_per_W > 0));
-    fprintf("  Calibration import: %d points, %.6g-%.6g nm\n", ...
-        height(importedCalibration), ...
-        min(importedCalibration.Wavelength_nm), ...
-        max(importedCalibration.Wavelength_nm));
-end
+paths = ipceRepositoryPaths();
+assert(isfolder(paths.MatlabRoot));
+assert(isfolder(paths.DefaultsRoot));
+assert(isfolder(paths.ExamplesRoot));
+assert(string(fileparts(mfilename("fullpath"))) == paths.MatlabRoot);
 
-if ~isempty(traceFiles)
-    tracePath = fullfile(traceFiles(1).folder, traceFiles(1).name);
-    importedTrace = ipceReadIT(string(tracePath));
-    assert(height(importedTrace) >= 2);
-    assert(all(diff(importedTrace.Time_s) >= 0));
-    assert(any(diff(importedTrace.Time_s) > 0));
-    fprintf("  i-t import: %d points, %.4g-%.4g s\n", ...
-        height(importedTrace), importedTrace.Time_s(1), importedTrace.Time_s(end));
-end
+% 1) Verify the files supplied with this workspace.
+defaults = ipceDefaultConfig();
+defaultPaths = fullfile(paths.DefaultsRoot, [ ...
+    defaults.CalibrationFile; ...
+    defaults.SpectrumFile; ...
+    defaults.SiliconTraceFile; ...
+    defaults.SiliconAnchorFile]);
+assert(all(isfile(defaultPaths)));
+
+importedCalibration = ipceReadReference(defaultPaths(1));
+assert(height(importedCalibration) >= 2);
+assert(all(importedCalibration.Responsivity_A_per_W > 0));
+fprintf("  Calibration import: %d points, %.6g-%.6g nm\n", ...
+    height(importedCalibration), ...
+    min(importedCalibration.Wavelength_nm), ...
+    max(importedCalibration.Wavelength_nm));
+
+importedTrace = ipceReadIT(defaultPaths(3));
+assert(height(importedTrace) >= 2);
+assert(all(diff(importedTrace.Time_s) >= 0));
+assert(any(diff(importedTrace.Time_s) > 0));
+fprintf("  i-t import: %d points, %.4g-%.4g s\n", ...
+    height(importedTrace), importedTrace.Time_s(1), importedTrace.Time_s(end));
 
 % 2) Verify i-t header units are converted to canonical seconds/amperes.
 unitTracePath = fullfile(pwd, "IPCE_units_selftest.txt");
@@ -85,7 +86,6 @@ assert(abs(standaloneCurve.CumulativeCurrentDensity_mA_cm2(end) - ...
 fprintf("  External IPCE import: passed\n");
 
 % 4) Verify startup defaults and requested automatic-load files.
-defaults = ipceDefaultConfig();
 assert(defaults.CalibrationFile == ...
     "标准硅探测器校准结果_证书编号 GXgf2026-01645.xlsx");
 assert(defaults.SpectrumFile == "标准太阳能光谱数据.xls");
@@ -96,11 +96,8 @@ assert(defaults.SiliconAnchorFile == ...
 assert(defaults.SubtractDark);
 assert(isequal(defaults.SiliconDarkRange_s, [0.1, 10]));
 assert(isequal(defaults.SampleDarkRange_s, [50, 60]));
-assert(isfile(defaults.CalibrationFile));
-assert(isfile(defaults.SpectrumFile));
-assert(isfile(defaults.SiliconTraceFile));
-assert(isfile(defaults.SiliconAnchorFile));
-defaultAnchors = ipceReadAnchors(defaults.SiliconAnchorFile);
+assert(all(isfile(defaultPaths)));
+defaultAnchors = ipceReadAnchors(defaultPaths(4));
 assert(size(defaultAnchors, 2) == 2);
 assert(all(diff(defaultAnchors(:, 1)) > 0));
 assert(all(isfinite(defaultAnchors), "all"));
@@ -258,46 +255,39 @@ assert(abs(integrationCurve.CumulativeCurrentDensity_mA_cm2(end) - ...
 assert(all(diff(integrationCurve.CumulativeCurrentDensity_mA_cm2) >= 0));
 fprintf("  Spectrum integration analytic check: passed\n");
 
-spectrumFiles = dir("*太阳能光谱*.xls");
-if ~isempty(spectrumFiles)
-    spectrumPath = fullfile(spectrumFiles(1).folder, spectrumFiles(1).name);
-    spectrumColumns = ipceReadSpectrumHeaders(string(spectrumPath), "Spectra");
-    assert(any(spectrumColumns.ColumnIndex == 1 & ...
-        contains(lower(spectrumColumns.Header), "wavelength")));
-    assert(any(spectrumColumns.ColumnIndex == 3 & ...
-        contains(lower(spectrumColumns.Header), "global tilt")));
-    importedSpectrum = ipceReadSpectrum(string(spectrumPath), ...
-        "Spectra", 1, 3);
-    assert(height(importedSpectrum) > 100);
-    assert(all(importedSpectrum.Irradiance_W_m2_nm >= 0));
-    fprintf("  Solar spectrum header selection/import: %d points, %.4g-%.4g nm\n", ...
-        height(importedSpectrum), min(importedSpectrum.Wavelength_nm), ...
-        max(importedSpectrum.Wavelength_nm));
-end
+spectrumPath = defaultPaths(2);
+spectrumColumns = ipceReadSpectrumHeaders(spectrumPath, "Spectra");
+assert(any(spectrumColumns.ColumnIndex == 1 & ...
+    contains(lower(spectrumColumns.Header), "wavelength")));
+assert(any(spectrumColumns.ColumnIndex == 3 & ...
+    contains(lower(spectrumColumns.Header), "global tilt")));
+importedSpectrum = ipceReadSpectrum(spectrumPath, "Spectra", 1, 3);
+assert(height(importedSpectrum) > 100);
+assert(all(importedSpectrum.Irradiance_W_m2_nm >= 0));
+fprintf("  Solar spectrum header selection/import: %d points, %.4g-%.4g nm\n", ...
+    height(importedSpectrum), min(importedSpectrum.Wavelength_nm), ...
+    max(importedSpectrum.Wavelength_nm));
 
 % 10) Verify the supplied trace can be segmented with the current GUI defaults.
-if ~isempty(calibrationFiles) && ~isempty(traceFiles)
-    wavelengths = (300:5:1100)';
-    siliconAnchors = [370, 127; 400, 168; 500, 333; 885, 965];
-    schedule = ipceBuildSchedule(wavelengths, "anchors", ...
-        siliconAnchors, 50, 8);
-    assert(abs(schedule.ReferenceTime_s(wavelengths == 370) - 127) < 1e-12);
-    assert(abs(schedule.ReferenceTime_s(wavelengths == 400) - 168) < 1e-12);
-    assert(abs(schedule.ReferenceTime_s(wavelengths == 500) - 333) < 1e-12);
-    assert(abs(schedule.ReferenceTime_s(wavelengths == 885) - 965) < 1e-12);
-    assert(all(diff(schedule.ReferenceTime_s) > 0));
-    extracted = ipceExtractSchedule(importedTrace, schedule, ...
-        4, false, 5);
-    [lightResult, ~] = ipceCalculate(importedCalibration, extracted, ...
-        table(), 0.36, 1);
-    assert(height(lightResult) == 161);
-    assert(all(isfinite(lightResult.IncidentPowerDensity_W_cm2)));
-    assert(all(lightResult.IncidentPowerDensity_W_cm2 > 0));
-    fprintf("  Supplied data/anchor alignment: passed, %.3f-%.3f s, power density %.4g-%.4g uW/cm^2\n", ...
-        schedule.WindowStart_s(1), schedule.WindowEnd_s(end), ...
-        min(lightResult.IncidentPowerDensity_W_cm2) * 1e6, ...
-        max(lightResult.IncidentPowerDensity_W_cm2) * 1e6);
-end
+wavelengths = (300:5:1100)';
+siliconAnchors = [370, 127; 400, 168; 500, 333; 885, 965];
+schedule = ipceBuildSchedule(wavelengths, "anchors", ...
+    siliconAnchors, 50, 8);
+assert(abs(schedule.ReferenceTime_s(wavelengths == 370) - 127) < 1e-12);
+assert(abs(schedule.ReferenceTime_s(wavelengths == 400) - 168) < 1e-12);
+assert(abs(schedule.ReferenceTime_s(wavelengths == 500) - 333) < 1e-12);
+assert(abs(schedule.ReferenceTime_s(wavelengths == 885) - 965) < 1e-12);
+assert(all(diff(schedule.ReferenceTime_s) > 0));
+extracted = ipceExtractSchedule(importedTrace, schedule, 4, false, 5);
+[lightResult, ~] = ipceCalculate(importedCalibration, extracted, ...
+    table(), 0.36, 1);
+assert(height(lightResult) == 161);
+assert(all(isfinite(lightResult.IncidentPowerDensity_W_cm2)));
+assert(all(lightResult.IncidentPowerDensity_W_cm2 > 0));
+fprintf("  Supplied data/anchor alignment: passed, %.3f-%.3f s, power density %.4g-%.4g uW/cm^2\n", ...
+    schedule.WindowStart_s(1), schedule.WindowEnd_s(end), ...
+    min(lightResult.IncidentPowerDensity_W_cm2) * 1e6, ...
+    max(lightResult.IncidentPowerDensity_W_cm2) * 1e6);
 
 % 11) Verify standalone external-IPCE post-processing export.
 standaloneExportPath = fullfile(pwd, ...

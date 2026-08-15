@@ -1,8 +1,9 @@
 # Project Guide
 
-This folder contains the original MATLAB programmatic-UI application and the
-current self-contained Windows C# WPF application for IPCE measurement and
-post-processing. Read this file first, then `PROJECT_MEMORY.md`; consult
+This repository contains the MATLAB programmatic-UI application under
+`matlab/`, the self-contained Windows C# WPF application under `csharp APP/`,
+and shared public inputs under `data/`. Read this file first, then
+`PROJECT_MEMORY.md`; consult
 `README_CN.md` for user workflows and formulas, and
 `docs/superpowers/progress/ipce-csharp-migration-progress.md` for the latest
 C# verification state. Do not scan every source file unless the task requires
@@ -25,15 +26,25 @@ work without calibration, silicon/sample i-t data, or anchors.
 
 ### MATLAB reference application
 
-- `IPCEApp.m`: UI, state, file dialogs, source selection, plotting, export UI.
-- `ipceDefaultConfig.m`: exact startup filenames and dark-current defaults.
-- `ipceReadIT.m`: i-t parsing, unit detection, conversion to canonical `s/A`.
-- `ipceReadExternalIPCE.m`: external wavelength/IPCE parsing.
-- `ipceResolveIPCESource.m`: selects calculated or external IPCE for integration.
-- `ipceIntegrateSpectrum.m`: numerical spectrum integration and cumulative curve.
-- `ipceBuildPostprocessExportItems.m`: standalone post-processing export bundle.
-- `ipceWriteExport.m`: XLSX/CSV/MAT writing and on-disk verification.
-- `run_ipce_selftest.m`: regression and numerical self-test.
+- `matlab/IPCEApp.m`: UI, state, file dialogs, source selection, plotting,
+  export UI.
+- `matlab/ipceDefaultConfig.m`: exact startup filenames and dark-current
+  defaults.
+- `matlab/ipceReadIT.m`: i-t parsing, unit detection, conversion to canonical
+  `s/A`.
+- `matlab/ipceReadExternalIPCE.m`: external wavelength/IPCE parsing.
+- `matlab/ipceResolveIPCESource.m`: selects calculated or external IPCE for
+  integration.
+- `matlab/ipceIntegrateSpectrum.m`: numerical spectrum integration and
+  cumulative curve.
+- `matlab/ipceBuildPostprocessExportItems.m`: standalone post-processing
+  export bundle.
+- `matlab/ipceWriteExport.m`: XLSX/CSV/MAT writing and on-disk verification.
+- `matlab/run_ipce_selftest.m`: regression and numerical self-test.
+- `matlab/ipceRepositoryPaths.m`: repository, MATLAB, default-data, and example
+  data roots.
+- `data/defaults/`: four exact startup files shared by MATLAB and C#.
+- `data/examples/`: MBVO example measurement and alignment files.
 - `README_CN.md`: complete Chinese user documentation and physical formulas.
 - `PROJECT_MEMORY.md`: recent decisions and implementation history.
 
@@ -45,11 +56,12 @@ extraction, and IPCE calculation. Open only the file relevant to the task.
 Treat MATLAB as the numerical oracle, original programmatic UI, and supported
 Runtime-based fallback deployment route.
 
-- Route UI/state/file-dialog work to `IPCEApp.m`.
+- Route UI/state/file-dialog work to `matlab/IPCEApp.m`.
 - Route import, scheduling, extraction, calculation, integration, and export
-  work to the narrowest matching `ipce*.m` function.
-- Put MATLAB numerical and regression coverage in `run_ipce_selftest.m`.
-- Use `runIPCEApp.m` only as the zero-output deployed launcher; its
+  work to the narrowest matching `matlab/ipce*.m` function.
+- Put MATLAB numerical and regression coverage in
+  `matlab/run_ipce_selftest.m`.
+- Use `matlab/runIPCEApp.m` only as the zero-output deployed launcher; its
   `--smoke-test` mode must construct, validate, and close the real UI.
 - New MATLAB behavior and bug fixes require a failing regression test before
   production changes. Run the focused reproduction first, then the complete
@@ -61,12 +73,13 @@ Runtime-based fallback deployment route.
 
 MATLAB packaging is controlled by:
 
-- `ipcePortablePackageConfig.m`: project root, release/archive names, executable,
-  portable readme, and the four embedded default files.
-- `build_ipce_portable.m`: runs the MATLAB self-test, compiles with `mcc -e`,
+- `matlab/ipcePortablePackageConfig.m`: project root, release/archive names,
+  executable, portable readme, and the four embedded default files.
+- `matlab/build_ipce_portable.m`: runs the MATLAB self-test, compiles with
+  `mcc -e`,
   copies the portable readme, rejects bundled Runtime installers, creates the
   ZIP, and verifies it by extraction.
-- Root `dist/`: authoritative MATLAB-compiled output location.
+- `matlab/dist/`: authoritative MATLAB-compiled output location.
 
 The MATLAB ZIP is not self-contained: it excludes MATLAB Runtime and requires
 64-bit MATLAB Runtime R2023b Update 6 or a later R2023b update on the target
@@ -119,6 +132,9 @@ release location.
 
 ## Startup defaults
 
+The four exact startup files live under `data/defaults/` and are shared by both
+implementations.
+
 - Silicon trace:
   `Si-i t [300 1100] nm-grating 2-filter.txt`
 - Silicon anchors:
@@ -146,7 +162,7 @@ silently change the user's selected alignment mode.
 All new behavior or bug fixes require a failing regression test before
 production code. Temporary self-test files must be removed by cleanup helpers.
 
-For MATLAB functional changes, run from this directory:
+For MATLAB functional changes, first change to `matlab/`:
 
 ```matlab
 run_ipce_selftest
@@ -164,16 +180,16 @@ close(app);
 The equivalent non-interactive validation command is:
 
 ```powershell
-matlab -batch "run_ipce_selftest; app = IPCEApp; drawnow; assert(isvalid(app)); close(app)"
+matlab -batch "cd('matlab'); run_ipce_selftest; app = IPCEApp; drawnow; assert(isvalid(app)); close(app)"
 ```
 
 For MATLAB packaging changes, run:
 
 ```powershell
-matlab -batch "build_ipce_portable"
+matlab -batch "cd('matlab'); build_ipce_portable"
 ```
 
-Then inspect the fresh root `dist/IPCEApp_R2023b_Windows_x64.zip`, confirm that
+Then inspect the fresh `matlab/dist/IPCEApp_R2023b_Windows_x64.zip`, confirm that
 the Runtime payload rejection and extraction verification completed, and keep
 the clean-machine acceptance gate pending until the exact ZIP is tested on a
 machine without MATLAB but with the matching R2023b Runtime installed.
@@ -185,13 +201,13 @@ dotnet build "csharp APP/IPCE.slnx" -c Release --no-restore
 dotnet test "csharp APP/IPCE.slnx" -c Release --no-build --no-restore
 ```
 
-The current expected test counts are Core `58`, IO `42`, Desktop `97`, total
-`197`, with zero failures and skips.
+The current expected test counts are Core `58`, IO `43`, Desktop `97`, total
+`198`, with zero failures and skips.
 
 For release work, run:
 
 ```powershell
-matlab -batch "run_ipce_selftest; app = IPCEApp; drawnow; assert(isvalid(app)); close(app)"
+matlab -batch "cd('matlab'); run_ipce_selftest; app = IPCEApp; drawnow; assert(isvalid(app)); close(app)"
 powershell -NoProfile -ExecutionPolicy Bypass -File "csharp APP/scripts/build-portable.ps1"
 ```
 
@@ -207,5 +223,7 @@ Two external release gates remain until explicitly performed and recorded:
 
 ## Repository status
 
-As of 2026-07-30 this directory is not a Git repository. Do not initialize Git,
-create commits, or claim a commit exists unless the user explicitly requests it.
+As of 2026-08-15 this directory is a Git repository on `main` with origin
+`https://github.com/ZiYingZhang/IPCE-measurement.git`. Local commits are
+authorized for the approved normalization plan. Remote pushes, tags, Releases,
+and visibility changes still require explicit owner approval.

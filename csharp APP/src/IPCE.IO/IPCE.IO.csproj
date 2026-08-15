@@ -17,16 +17,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\..\..\标准硅探测器校准结果_证书编号 GXgf2026-01645.xlsx">
+    <EmbeddedResource Include="..\..\..\data\defaults\标准硅探测器校准结果_证书编号 GXgf2026-01645.xlsx">
       <LogicalName>IPCE.IO.Defaults.标准硅探测器校准结果_证书编号 GXgf2026-01645.xlsx</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\..\标准太阳能光谱数据.xls">
+    <EmbeddedResource Include="..\..\..\data\defaults\标准太阳能光谱数据.xls">
       <LogicalName>IPCE.IO.Defaults.标准太阳能光谱数据.xls</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\..\Si-i t [300 1100] nm-grating 2-filter.txt">
+    <EmbeddedResource Include="..\..\..\data\defaults\Si-i t [300 1100] nm-grating 2-filter.txt">
       <LogicalName>IPCE.IO.Defaults.Si-i t [300 1100] nm-grating 2-filter.txt</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\..\Si-i t [300 1100] nm-grating 2-filter-time match.txt">
+    <EmbeddedResource Include="..\..\..\data\defaults\Si-i t [300 1100] nm-grating 2-filter-time match.txt">
       <LogicalName>IPCE.IO.Defaults.Si-i t [300 1100] nm-grating 2-filter-time match.txt</LogicalName>
     </EmbeddedResource>
   </ItemGroup>

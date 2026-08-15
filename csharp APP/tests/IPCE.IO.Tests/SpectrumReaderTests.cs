@@ -8,7 +8,7 @@ namespace IPCE.IO.Tests;
 public sealed class SpectrumReaderTests
 {
     private static string SpectrumPath => Path.Combine(
-        TestPaths.RepositoryRoot,
+        TestPaths.DefaultsRoot,
         "标准太阳能光谱数据.xls");
 
     [TestMethod]

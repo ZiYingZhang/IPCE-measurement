@@ -4,11 +4,14 @@ function export_csharp_baseline
 toolDirectory = string(fileparts(mfilename("fullpath")));
 csharpDirectory = string(fileparts(toolDirectory));
 repositoryRoot = string(fileparts(csharpDirectory));
+matlabRoot = fullfile(repositoryRoot, "matlab");
+addpath(matlabRoot);
+paths = ipceRepositoryPaths();
 outputDirectory = fullfile(csharpDirectory, "tests", "TestData", "Golden");
 
 originalDirectory = string(pwd);
 restoreDirectory = onCleanup(@()cd(originalDirectory));
-cd(repositoryRoot);
+cd(matlabRoot);
 
 run_ipce_selftest;
 
@@ -17,9 +20,12 @@ if ~isfolder(outputDirectory)
 end
 
 defaults = ipceDefaultConfig();
-calibration = ipceReadReference(defaults.CalibrationFile);
-siliconTrace = ipceReadIT(defaults.SiliconTraceFile);
-anchors = ipceReadAnchors(defaults.SiliconAnchorFile);
+calibration = ipceReadReference(fullfile( ...
+    paths.DefaultsRoot, defaults.CalibrationFile));
+siliconTrace = ipceReadIT(fullfile( ...
+    paths.DefaultsRoot, defaults.SiliconTraceFile));
+anchors = ipceReadAnchors(fullfile( ...
+    paths.DefaultsRoot, defaults.SiliconAnchorFile));
 wavelengths = (300:5:1100)';
 schedule = ipceBuildSchedule(wavelengths, "anchors", anchors, 50, 8);
 siliconExtracted = ipceExtractSchedule(siliconTrace, schedule, 4, ...
@@ -54,13 +60,14 @@ for tableIndex = 1:numel(baselineTables)
     baselineManifest(tableIndex).sha256 = sha256File(outputPath);
 end
 
+[~, csharpFolderName] = fileparts(csharpDirectory);
 sourcePaths = [
-    defaults.CalibrationFile
-    defaults.SpectrumFile
-    defaults.SiliconTraceFile
-    defaults.SiliconAnchorFile
-    fullfile("csharp", "tools", "export_csharp_baseline.m")
-    "run_ipce_selftest.m"
+    fullfile("data", "defaults", defaults.CalibrationFile)
+    fullfile("data", "defaults", defaults.SpectrumFile)
+    fullfile("data", "defaults", defaults.SiliconTraceFile)
+    fullfile("data", "defaults", defaults.SiliconAnchorFile)
+    fullfile(csharpFolderName, "tools", "export_csharp_baseline.m")
+    fullfile("matlab", "run_ipce_selftest.m")
 ];
 sourceManifest = repmat(struct( ...
     "name", "", "sha256", ""), numel(sourcePaths), 1);
@@ -75,7 +82,8 @@ manifest.schemaVersion = 1;
 manifest.generatedUtc = string(datetime("now", ...
     "TimeZone", "UTC", "Format", "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
 manifest.matlabRelease = string(version("-release"));
-manifest.generator = "csharp/tools/export_csharp_baseline.m";
+manifest.generator = fullfile( ...
+    csharpFolderName, "tools", "export_csharp_baseline.m");
 manifest.sources = sourceManifest;
 manifest.baselines = baselineManifest;
 manifest.parameters = struct( ...

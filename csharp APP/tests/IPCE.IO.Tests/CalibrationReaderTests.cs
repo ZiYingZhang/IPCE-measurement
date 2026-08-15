@@ -9,7 +9,7 @@ public sealed class CalibrationReaderTests
     public void DefaultCalibration_ImportsPositiveResponsivityData()
     {
         string path = Path.Combine(
-            TestPaths.RepositoryRoot,
+            TestPaths.DefaultsRoot,
             "标准硅探测器校准结果_证书编号 GXgf2026-01645.xlsx");
 
         var calibration = CalibrationReader.Read(path);

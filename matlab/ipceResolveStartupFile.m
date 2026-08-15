@@ -35,6 +35,7 @@ function root = defaultFallbackRoot()
 if isdeployed
     root = string(ctfroot);
 else
-    root = string(fileparts(mfilename("fullpath")));
+    paths = ipceRepositoryPaths();
+    root = paths.DefaultsRoot;
 end
 end

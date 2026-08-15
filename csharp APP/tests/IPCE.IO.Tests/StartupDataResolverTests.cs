@@ -7,6 +7,19 @@ namespace IPCE.IO.Tests;
 public sealed class StartupDataResolverTests
 {
     [TestMethod]
+    public void RepositoryLayout_SeparatesDefaultsAndExamples()
+    {
+        Assert.AreEqual(
+            Path.Combine(TestPaths.RepositoryRoot, "data", "defaults"),
+            TestPaths.DefaultsRoot);
+        Assert.AreEqual(
+            Path.Combine(TestPaths.RepositoryRoot, "data", "examples"),
+            TestPaths.ExamplesRoot);
+        Assert.IsTrue(Directory.Exists(TestPaths.DefaultsRoot));
+        Assert.IsTrue(Directory.Exists(TestPaths.ExamplesRoot));
+    }
+
+    [TestMethod]
     public void Defaults_MatchMeasurementAndIntegrationWorkflow()
     {
         DefaultConfiguration defaults = DefaultConfiguration.Current;
