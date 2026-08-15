@@ -6,7 +6,7 @@ function appFigure = IPCEApp
 defaults = ipceDefaultConfig();
 languagePreferencePath = ipceLanguagePreference("defaultpath");
 currentLanguage = ipceLanguagePreference( ...
-    "resolve", languagePreferencePath, localSystemLocale());
+    "resolve", languagePreferencePath, ipceSystemLocale());
 localizationRegistry = cell(0, 3);
 state = struct( ...
     "calibration", table(), ...
@@ -59,14 +59,14 @@ controlGrid.Padding = [8, 8, 8, 8];
 titleLabel = uilabel(controlGrid, ...
     "Text", "硅基标探 → 单色光功率密度 → 样品 IPCE", ...
     "FontSize", 16, "FontWeight", "bold");
-setLayout(titleLabel, 1, [1, 2]);
+setLayout(titleLabel, 1, [1, 3]);
 languageDropDown = uidropdown(controlGrid, ...
     "Items", ["English", "中文"], ...
     "ItemsData", ["en-US", "zh-CN"], ...
     "Value", currentLanguage, ...
     "ValueChangedFcn", @onLanguageChanged, ...
     "Tooltip", "语言 / Language");
-setLayout(languageDropDown, 1, [3, 4]);
+setLayout(languageDropDown, 1, 4);
 
 % 1. 在 IPCE 之前加入 <br> 强制换行
 % 2. 使用 style="white-space: nowrap" 确保 IPCE(%) 作为一个整体绝不中途断行
@@ -567,7 +567,11 @@ appFigure.UserData = struct( ...
     "VisibleTexts", @()visibleTextsForTest(), ...
     "SetStatusForTest", @setLocalizedStatus, ...
     "SetDynamicSurfaceForTest", @setDynamicSurfaceForTest, ...
-    "DynamicSurfaceSnapshot", @dynamicSurfaceSnapshot);
+    "DynamicSurfaceSnapshot", @dynamicSurfaceSnapshot, ...
+    "OpenAnchorDialogForTest", @openNewAnchorDialog, ...
+    "OpenExportDialogForTest", @openExportDialog, ...
+    "PopulateExternalWorkflowForTest", @populateExternalWorkflowForTest, ...
+    "PlotTexts", @plotTextsForTest);
 
 onAlignmentModeChanged();
 plotAlignmentPreview();
@@ -632,7 +636,24 @@ end
     end
 
     function renderLocalizedStatus()
-        statusLabel.Text = localized(statusSource, statusArguments{:});
+        if statusSource == "__IPCE_ERROR__"
+            errorText = ipceLocalizeException(currentLanguage, ...
+                statusArguments{1}, statusArguments{2});
+            statusLabel.Text = localized("错误：%s", errorText);
+        else
+            statusLabel.Text = localized(statusSource, statusArguments{:});
+        end
+    end
+
+    function setLocalizedErrorStatus(exception)
+        statusSource = "__IPCE_ERROR__";
+        statusArguments = {string(exception.identifier), string(exception.message)};
+        renderLocalizedStatus();
+    end
+
+    function output = localizedException(exception)
+        output = ipceLocalizeException(currentLanguage, ...
+            string(exception.identifier), string(exception.message));
     end
 
     function refreshDynamicControls()
@@ -686,8 +707,60 @@ end
             "IrradianceValue", spectrumIrradianceColumnDropDown.Value);
     end
 
+    function populateExternalWorkflowForTest()
+        state.externalIPCE = table( ...
+            [400; 500; 600], [40; 55; 65], ...
+            'VariableNames', {'Wavelength_nm', 'IPCE_percent'});
+        state.externalIPCEFile = "external_test.csv";
+        state.spectrum = table( ...
+            [400; 500; 600], [1.0; 1.1; 1.0], ...
+            'VariableNames', ...
+            {'Wavelength_nm', 'Irradiance_W_m2_nm'});
+        state.spectrumFile = "spectrum_test.csv";
+        state.spectrumIPCESource = "external";
+        ipceSourceDropDown.Value = "external";
+        [state.spectrumSummary, state.spectrumCurve] = ...
+            ipceIntegrateSpectrum(state.externalIPCE, state.spectrum, 400, 600);
+        spectrumResultTable.Data = state.spectrumSummary;
+        updateFileLabel(externalIPCEPathLabel, state.externalIPCEFile);
+        updateFileLabel(spectrumPathLabel, state.spectrumFile);
+        plotSpectrumPreview();
+    end
+
+    function texts = plotTextsForTest()
+        texts = strings(0, 1);
+        axesHandles = [siliconAxes, sampleAxes, alignmentAxes, ...
+            powerAxes, ipceAxes, spectrumAxes, cumulativeAxes];
+        for axesIndex = 1:numel(axesHandles)
+            axesHandle = axesHandles(axesIndex);
+            texts = [texts; string(axesHandle.Title.String); ...
+                string(axesHandle.XLabel.String); ...
+                string(axesHandle.YLabel.String)]; %#ok<AGROW>
+            children = findall(axesHandle);
+            for childIndex = 1:numel(children)
+                child = children(childIndex);
+                if isprop(child, "DisplayName")
+                    displayName = string(child.DisplayName);
+                    if isscalar(displayName) && strlength(displayName) > 0
+                        texts(end + 1, 1) = displayName; %#ok<AGROW>
+                    end
+                end
+            end
+        end
+    end
+
     function refreshLocalizedPlots()
         refreshTracePlots();
+        if isempty(state.siliconTrace)
+            xlabel(siliconAxes, localized("时间 (s)"));
+            ylabel(siliconAxes, localized("电流 (A)"));
+            title(siliconAxes, localized("硅标探 i-t"));
+        end
+        if isempty(state.sampleTrace)
+            xlabel(sampleAxes, localized("时间 (s)"));
+            ylabel(sampleAxes, localized("电流 (A)"));
+            title(sampleAxes, localized("样品 i-t"));
+        end
         plotAlignmentPreview();
         plotSpectrumPreview();
         if isempty(state.lightResult)
@@ -978,7 +1051,7 @@ end
 
         cancelText = localized("取消");
         timeUnit = string(uiconfirm(appFigure, ...
-            localized(exception.message) + newline + ...
+            localizedException(exception) + newline + ...
             localized("请选择原始时间列单位。"), ...
             localized("选择时间单位"), ...
             "Options", ["s", "ms", "min", "h", cancelText], ...
@@ -1262,6 +1335,10 @@ end
             return
         end
 
+        openExportDialog();
+    end
+
+    function dialog = openExportDialog()
         dialog = uifigure("Name", localized("选择导出内容"), ...
             "Position", [430, 160, 440, 480], ...
             "WindowStyle", "modal", "Resize", "off");
@@ -1892,9 +1969,9 @@ end
         end
     end
 
-    function openNewAnchorDialog(target, selectedTime, selectedCurrent)
+    function dialog = openNewAnchorDialog(target, selectedTime, selectedCurrent)
         dialog = uifigure( ...
-            "Name", "确认新锚点", ...
+            "Name", localized("确认新锚点"), ...
             "Position", [420, 300, 390, 230], ...
             "WindowStyle", "modal", ...
             "Resize", "off");
@@ -1902,28 +1979,29 @@ end
         gridLayout.RowHeight = {30, 34, 34, 34, 38};
         gridLayout.ColumnWidth = {135, "1x"};
         titleText = uilabel(gridLayout, ...
-            "Text", "已吸附到最近的原始采样点", ...
+            "Text", localized("已吸附到最近的原始采样点"), ...
             "FontWeight", "bold");
         setLayout(titleText, 1, [1, 2]);
-        currentLabel = uilabel(gridLayout, "Text", "该点电流");
+        currentLabel = uilabel(gridLayout, "Text", localized("该点电流"));
         setLayout(currentLabel, 2, 1);
         currentValue = uilabel(gridLayout, ...
             "Text", sprintf("%.8g A", selectedCurrent));
         setLayout(currentValue, 2, 2);
-        wavelengthLabel = uilabel(gridLayout, "Text", "确认波长 (nm)");
+        wavelengthLabel = uilabel(gridLayout, ...
+            "Text", localized("确认波长 (nm)"));
         setLayout(wavelengthLabel, 3, 1);
         wavelengthField = uieditfield(gridLayout, "numeric", ...
             "Value", 500, "Limits", [eps, Inf]);
         setLayout(wavelengthField, 3, 2);
-        timeLabel = uilabel(gridLayout, "Text", "确认时间 (s)");
+        timeLabel = uilabel(gridLayout, "Text", localized("确认时间 (s)"));
         setLayout(timeLabel, 4, 1);
         timeField = uieditfield(gridLayout, "numeric", ...
             "Value", selectedTime);
         setLayout(timeField, 4, 2);
-        cancelButton = uibutton(gridLayout, "Text", "取消", ...
+        cancelButton = uibutton(gridLayout, "Text", localized("取消"), ...
             "ButtonPushedFcn", @(~, ~)delete(dialog));
         setLayout(cancelButton, 5, 1);
-        confirmButton = uibutton(gridLayout, "Text", "确认并加入", ...
+        confirmButton = uibutton(gridLayout, "Text", localized("确认并加入"), ...
             "ButtonPushedFcn", @(~, ~)confirmNewAnchor( ...
             dialog, target, wavelengthField.Value, timeField.Value));
         setLayout(confirmButton, 5, 2);
@@ -2067,6 +2145,11 @@ end
         if isempty(state.spectrum)
             title(spectrumAxes, localized("请导入标准光谱"));
             title(cumulativeAxes, localized("计算积分后显示累计电流密度"));
+            xlabel(spectrumAxes, localized("波长 (nm)"));
+            ylabel(spectrumAxes, localized("辐照度 (W m^{-2} nm^{-1})"));
+            xlabel(cumulativeAxes, localized("波长 (nm)"));
+            ylabel(cumulativeAxes, ...
+                localized("累计积分电流密度 (mA cm^{-2})"));
             return
         end
         spectrumColor = [0.90, 0.45, 0.05];
@@ -2130,6 +2213,8 @@ end
             title(cumulativeAxes, localized("计算积分后显示累计电流密度"));
         end
         xlabel(cumulativeAxes, localized("波长 (nm)"));
+        ylabel(cumulativeAxes, ...
+            localized("累计积分电流密度 (mA cm^{-2})"));
         grid(cumulativeAxes, "on");
     end
 
@@ -2222,7 +2307,7 @@ end
             title(alignmentAxes, localized("由锚点生成的波长–时间调度"));
         catch exception
             title(alignmentAxes, localized("调度预览：请补全或检查锚点"));
-            text(alignmentAxes, 0.5, 0.5, localized(exception.message), ...
+            text(alignmentAxes, 0.5, 0.5, localizedException(exception), ...
                 "Units", "normalized", "HorizontalAlignment", "center", ...
                 "VerticalAlignment", "middle", "Color", [0.75, 0.15, 0.10]);
         end
@@ -2440,8 +2525,8 @@ end
     end
 
     function showError(exception)
-        setLocalizedStatus("错误：%s", exception.message);
-        uialert(appFigure, localized(exception.message), ...
+        setLocalizedErrorStatus(exception);
+        uialert(appFigure, localizedException(exception), ...
             localized("无法完成计算"));
     end
 end
@@ -2578,17 +2663,6 @@ end
 function setLayout(component, row, column)
 component.Layout.Row = row;
 component.Layout.Column = column;
-end
-
-function locale = localSystemLocale()
-locale = string(getenv("LANG"));
-try
-    locale = string(get(0, "Language"));
-catch
-end
-if strlength(locale) == 0
-    locale = "en-US";
-end
 end
 
 function registry = captureLocalizationRegistry(figureHandle, excludedComponents)

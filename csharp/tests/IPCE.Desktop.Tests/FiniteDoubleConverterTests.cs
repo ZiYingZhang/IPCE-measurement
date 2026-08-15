@@ -25,7 +25,8 @@ public sealed class FiniteDoubleConverterTests
         string cultureName,
         double expected)
     {
-        var converter = new FiniteDoubleConverter();
+        var converter = new FiniteDoubleConverter(
+            TestLocalization.Chinese());
 
         object result = converter.ConvertBack(
             text,
@@ -46,7 +47,8 @@ public sealed class FiniteDoubleConverterTests
         string text,
         string cultureName)
     {
-        var converter = new FiniteDoubleConverter();
+        var converter = new FiniteDoubleConverter(
+            TestLocalization.Chinese());
 
         ValidationException exception =
             Assert.Throws<ValidationException>(() =>

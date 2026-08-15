@@ -60,13 +60,17 @@ Last updated: 2026-08-15
 - [x] First launch follows `zh-*` versus other system locales; valid saved
   preference wins; corrupt/inaccessible settings recover safely; writes are
   atomic.
+- [x] MATLAB and C# share canonical JSON property `Language`, accept legacy
+  lowercase `language`, and reject non-scalar preference values.
+- [x] Recoverable MATLAB errors use stable identifiers; unknown literals and
+  error identifiers are visibly diagnostic rather than silently truncated.
 - [x] Complete MATLAB numerical self-test and real-UI smoke pass.
-- [x] C# Release build remains at 0 warnings/errors and all 230 tests pass
-  (Core 58, IO 44, Desktop 128).
+- [x] C# Release build remains at 0 warnings/errors and all 231 tests pass
+  (Core 58, IO 44, Desktop 129).
 - [x] MATLAB Compiler build, archive extraction verification, Runtime-payload
   rejection, and compiled `--smoke-test` pass.
-- [x] Fresh MATLAB ZIP: 784,491 bytes, 7 entries, Runtime markers 0,
-  SHA-256 `9197e6ed85ed2b32a0e910f9aaa32c16c89dc44df22fb9e9346ddf7475ff49e7`.
+- [x] Fresh MATLAB ZIP: 790,064 bytes, 7 entries, Runtime markers 0,
+  SHA-256 `482d600d93ee9c13f67059a4723d423fe7ddd80d04cd529bed608d585392097e`.
 
 ## External gates
 

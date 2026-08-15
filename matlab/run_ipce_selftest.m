@@ -355,14 +355,33 @@ mkdir(preferenceFolder);
 cleanupPreference = onCleanup( ...
     @()removeFolderIfPresent(preferenceFolder));
 preferencePath = fullfile(preferenceFolder, "settings.json");
+assert(isscalar(ipceSystemLocale(@()"zh-CN")));
+assert(ipceSystemLocale(@()"zh-CN") == "zh-CN");
+assert(ipceSystemLocale(@()"en-GB") == "en-GB");
+assert(isscalar(ipceSystemLocale()) && strlength(ipceSystemLocale()) > 0);
 assert(ipceLanguagePreference( ...
     "resolve", preferencePath, "zh-TW") == "zh-CN");
 assert(ipceLanguagePreference( ...
     "resolve", preferencePath, "de-DE") == "en-US");
 ipceLanguagePreference("save", preferencePath, "en-US");
 assert(ipceLanguagePreference("load", preferencePath) == "en-US");
+savedPreference = jsondecode(fileread(preferencePath));
+assert(isfield(savedPreference, "Language"));
+assert(~isfield(savedPreference, "language"));
 assert(ipceLanguagePreference( ...
     "resolve", preferencePath, "zh-CN") == "en-US");
+writelines('{"language":"zh-CN"}', preferencePath);
+assert(ipceLanguagePreference("load", preferencePath) == "zh-CN");
+invalidPreferences = [ ...
+    "{""Language"" : [""en-US"",""zh-CN""]}"; ...
+    "{""Language"" : null}"; ...
+    "{""Language"" : {""name"":""en-US""}}"; ...
+    "{""Language"" : [""en-US"",42]}" ...
+    ];
+for preferenceIndex = 1:numel(invalidPreferences)
+    writelines(invalidPreferences(preferenceIndex), preferencePath);
+    assert(ipceLanguagePreference("load", preferencePath) == "");
+end
 writelines("not json", preferencePath);
 assert(ipceLanguagePreference("load", preferencePath) == "");
 assert(ipceLanguagePreference( ...
@@ -384,6 +403,17 @@ assert(ipceLocalizeLiteral("en-US", "导出成功：%s") == ...
     "Export successful: %s");
 assert(ipceLocalizeLiteral("en-US", "无法完成计算") == ...
     "Unable to complete calculation");
+assert(ipceLocalizeLiteral("en-US", "这是未登记文案") == ...
+    "[Missing English localization]");
+localizedTraceError = ipceLocalizeException("en-US", ...
+    "IPCE:InvalidTrace", "i-t 文件中有效数据少于两个点。");
+assert(localizedTraceError == ...
+    "The i-t data are invalid or contain too few usable points.");
+unknownLocalizedError = ipceLocalizeException("en-US", ...
+    "IPCE:FutureError", "未来错误文案");
+assert(contains(unknownLocalizedError, "IPCE:FutureError"));
+assert(isempty(regexp(unknownLocalizedError, ...
+    '[\x{4e00}-\x{9fff}]', 'once')));
 fprintf("  Runtime message localization: passed\n");
 
 % 15) Verify the real UI switches language without recreating state.
@@ -397,6 +427,10 @@ assert(isfield(hooks, "VisibleTexts"));
 assert(isfield(hooks, "SetStatusForTest"));
 assert(isfield(hooks, "SetDynamicSurfaceForTest"));
 assert(isfield(hooks, "DynamicSurfaceSnapshot"));
+assert(isfield(hooks, "OpenAnchorDialogForTest"));
+assert(isfield(hooks, "OpenExportDialogForTest"));
+assert(isfield(hooks, "PopulateExternalWorkflowForTest"));
+assert(isfield(hooks, "PlotTexts"));
 beforeLanguageSwitch = hooks.StateSignature();
 hooks.SetLanguage("en-US");
 hooks.SetStatusForTest("导出成功：%s", "result.xlsx");
@@ -406,7 +440,20 @@ englishVisible = string(hooks.VisibleTexts());
 englishVisible(englishVisible == "中文") = [];
 assert(isempty(regexp(join(englishVisible, newline), ...
     '[\x{4e00}-\x{9fff}]', 'once')));
+assert(~contains(join(englishVisible, newline), ...
+    "[Missing English localization]"));
 assert(any(englishVisible == "Export successful: result.xlsx"));
+assertNoHanExceptChineseLabel(string(hooks.PlotTexts()));
+anchorDialog = hooks.OpenAnchorDialogForTest("silicon", 12.5, 1e-6);
+drawnow;
+assert(string(anchorDialog.Name) == "Confirm new anchor");
+assertNoHanExceptChineseLabel(collectFigureTexts(anchorDialog));
+close(anchorDialog);
+exportDialog = hooks.OpenExportDialogForTest();
+drawnow;
+assert(string(exportDialog.Name) == "Select export content");
+assertNoHanExceptChineseLabel(collectFigureTexts(exportDialog));
+close(exportDialog);
 assert(isequaln(beforeLanguageSwitch, hooks.StateSignature()));
 hooks.SetLanguage("zh-CN");
 drawnow;
@@ -416,11 +463,14 @@ assert(isequaln(beforeLanguageSwitch, hooks.StateSignature()));
 hooks.SetDynamicSurfaceForTest( ...
     "C:\data\calibration.xlsx", ["Lambda", "Irradiance"], [1, 3]);
 dynamicSurfaceBefore = hooks.DynamicSurfaceSnapshot();
+hooks.PopulateExternalWorkflowForTest();
+externalWorkflowBefore = hooks.StateSignature();
 hooks.SetLanguage("en-US");
 drawnow;
 assert(localizationApp.Name == "IPCE Measurement and Analysis");
 assert(isequaln(dynamicSurfaceBefore, hooks.DynamicSurfaceSnapshot()));
-assert(isequaln(beforeLanguageSwitch, hooks.StateSignature()));
+assert(isequaln(externalWorkflowBefore, hooks.StateSignature()));
+assertNoHanExceptChineseLabel(string(hooks.PlotTexts()));
 close(localizationApp);
 clear cleanupLocalizationApp
 fprintf("  Live bilingual UI state preservation: passed\n");
@@ -457,4 +507,31 @@ function closeIfValid(figureHandle)
 if isvalid(figureHandle)
     close(figureHandle);
 end
+end
+
+function texts = collectFigureTexts(figureHandle)
+texts = string(figureHandle.Name);
+handles = findall(figureHandle);
+for handleIndex = 1:numel(handles)
+    handle = handles(handleIndex);
+    if isprop(handle, "Text")
+        try
+            value = handle.Text;
+            if ischar(value)
+                texts(end + 1, 1) = string(value); %#ok<AGROW>
+            elseif isstring(value) || iscell(value)
+                texts = [texts; string(value(:))]; %#ok<AGROW>
+            end
+        catch
+        end
+    end
+end
+end
+
+function assertNoHanExceptChineseLabel(texts)
+texts = string(texts);
+texts(texts == "中文") = [];
+assert(isempty(regexp(join(texts, newline), ...
+    '[\x{4e00}-\x{9fff}]', 'once')));
+assert(~contains(join(texts, newline), "[Missing English localization]"));
 end

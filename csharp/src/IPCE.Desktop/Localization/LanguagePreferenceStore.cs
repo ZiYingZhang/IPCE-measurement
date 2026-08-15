@@ -5,6 +5,11 @@ namespace IPCE.Desktop.Localization;
 
 public sealed class LanguagePreferenceStore
 {
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
+
     private static readonly HashSet<string> SupportedCultures =
         new(StringComparer.OrdinalIgnoreCase)
         {
@@ -34,7 +39,7 @@ public sealed class LanguagePreferenceStore
 
             using FileStream stream = File.OpenRead(PreferencePath);
             Preference? preference =
-                JsonSerializer.Deserialize<Preference>(stream);
+                JsonSerializer.Deserialize<Preference>(stream, SerializerOptions);
             return preference?.Language is { } language &&
                 SupportedCultures.Contains(language)
                     ? Normalize(language)

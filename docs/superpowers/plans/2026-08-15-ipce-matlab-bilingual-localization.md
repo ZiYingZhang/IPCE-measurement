@@ -56,6 +56,6 @@
 - Modify: `AGENTS.md`
 
 1. Run MATLAB self-test plus real UI smoke.
-2. Run the full C# Release build and all 230 tests to prove no cross-implementation regression.
+2. Run the full C# Release build and all 231 tests to prove no cross-implementation regression.
 3. Run `matlab -batch "cd('matlab'); build_ipce_portable"`; inspect the new ZIP, verify localization sources are compiled/included, and record fresh bytes/hash/entry count.
 4. Mark MATLAB automated bilingual gates complete, retain clean-machine/scaling gates as pending, update local `PROJECT_MEMORY.md`, commit, and stop before any push/tag/Release/visibility change.

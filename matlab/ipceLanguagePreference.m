@@ -38,9 +38,16 @@ try
         return
     end
     decoded = jsondecode(fileread(path));
-    if isstruct(decoded) && isfield(decoded, "language")
-        candidate = string(decoded.language);
-        if any(candidate == ["en-US", "zh-CN"])
+    if isstruct(decoded) && isscalar(decoded) && isfield(decoded, "Language")
+        rawCandidate = decoded.Language;
+    elseif isstruct(decoded) && isscalar(decoded) && isfield(decoded, "language")
+        rawCandidate = decoded.language;
+    else
+        return
+    end
+    if ischar(rawCandidate) || (isstring(rawCandidate) && isscalar(rawCandidate))
+        candidate = string(rawCandidate);
+        if isscalar(candidate) && any(candidate == ["en-US", "zh-CN"])
             language = candidate;
         end
     end
@@ -65,7 +72,7 @@ try
         return
     end
     cleanupFile = onCleanup(@()fclose(fileIdentifier));
-    fwrite(fileIdentifier, jsonencode(struct("language", language)), ...
+    fwrite(fileIdentifier, jsonencode(struct("Language", char(language))), ...
         "char");
     clear cleanupFile
     movefile(temporaryPath, path, "f");

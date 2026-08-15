@@ -49,6 +49,10 @@ work without calibration, silicon/sample i-t data, or anchors.
   formatted messages, and English fallback guard.
 - `matlab/ipceLanguagePreference.m`: safe system-locale resolution and atomic
   `%LOCALAPPDATA%/IPCEApp/settings.json` persistence.
+- `matlab/ipceSystemLocale.m`: deployed-safe Windows UI-culture detection with
+  tested fallbacks.
+- `matlab/ipceLocalizeException.m`: stable error-identifier to localized
+  recoverable-message mapping.
 - `data/defaults/`: four exact startup files shared by MATLAB and C#.
 - `data/examples/`: MBVO example measurement and alignment files.
 - `README_CN.md`: complete Chinese user documentation and physical formulas.
@@ -207,8 +211,8 @@ dotnet build "csharp/IPCE.slnx" -c Release --no-restore
 dotnet test "csharp/IPCE.slnx" -c Release --no-build --no-restore
 ```
 
-The current expected test counts are Core `58`, IO `44`, Desktop `128`, total
-`230`, with zero failures and skips.
+The current expected test counts are Core `58`, IO `44`, Desktop `129`, total
+`231`, with zero failures and skips.
 
 For release work, run:
 

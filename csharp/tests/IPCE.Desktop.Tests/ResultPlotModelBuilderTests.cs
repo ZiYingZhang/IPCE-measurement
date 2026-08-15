@@ -87,7 +87,8 @@ public sealed class ResultPlotModelBuilderTests
             preview,
             averagingDurationSeconds: 4,
             [new TraceMeanResult(500, 1e-6, 4)],
-            new ResultStatus(ResultFreshness.Stale, "area changed"));
+            new ResultStatus(ResultFreshness.Stale, "area changed"),
+            TestLocalization.Chinese());
 
         StringAssert.Contains(model.Intervals[0].Label, "结果已过期");
         StringAssert.Contains(

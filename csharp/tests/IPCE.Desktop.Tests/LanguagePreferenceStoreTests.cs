@@ -28,6 +28,24 @@ public sealed class LanguagePreferenceStoreTests
     }
 
     [TestMethod]
+    public void Load_MatlabLowercaseSchema_MigratesSharedPreference()
+    {
+        string directory = CreateTemporaryDirectory();
+        try
+        {
+            string path = Path.Combine(directory, "settings.json");
+            File.WriteAllText(path, "{\"language\":\"zh-CN\"}");
+            var store = new LanguagePreferenceStore(path);
+
+            Assert.AreEqual("zh-CN", store.Load());
+        }
+        finally
+        {
+            Directory.Delete(directory, true);
+        }
+    }
+
+    [TestMethod]
     [DataRow("")]
     [DataRow("not json")]
     [DataRow("{\"language\":42}")]

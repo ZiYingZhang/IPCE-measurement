@@ -60,7 +60,7 @@ Test-first evidence:
   workflow localization, plot localization, stable layer IDs, completeness,
   and fresh release test-count collection before each implementation;
 - Release build: 0 warnings, 0 errors;
-- .NET tests: Core 58, IO 44, Desktop 128, total 230; 0 failed, 0 skipped;
+- .NET tests: Core 58, IO 44, Desktop 129, total 231; 0 failed, 0 skipped;
 - MATLAB numerical self-test: passed;
 - MATLAB real-UI construction, `isvalid`, and close smoke: passed;
 - resource parity and non-empty-value audit: passed;
@@ -71,15 +71,15 @@ Test-first evidence:
 Fresh self-contained C# archive:
 
 - path: `csharp/dist/IPCEApp_Windows_x64.zip`;
-- bytes: `85,510,789`;
+- bytes: `85,510,862`;
 - SHA-256:
-  `3da8f3232f8e4771fb46dab45d4d519beb4884e87e7846977182730e77c793b7`;
+  `c75120f5b2d29fd641ecd4805b561124283a7a893491f49fe19a7bfb5725f73f`;
 - entries: 441;
 - `zh-CN/IPCEApp.resources.dll`: present;
 - self-contained `win-x64`: true;
 - MATLAB Runtime included: false;
 - published and extracted smoke exit codes: `0` and `0`;
-- manifest generated UTC: `2026-08-15T08:16:28.5673743Z`;
+- manifest generated UTC: `2026-08-15T09:43:57.669742Z`;
 - the release script now derives all test counts from fresh per-project TRX
   files; a regression test prevents reuse of hard-coded historical counts.
 
@@ -98,12 +98,19 @@ Implemented behavior:
 - first launch follows the system locale, a valid saved preference wins, and
   corrupt/inaccessible preferences recover safely;
 - preference writes are atomic under `%LOCALAPPDATA%\IPCEApp\settings.json`;
+  MATLAB and C# both write canonical `Language` and read legacy lowercase
+  `language` for migration;
+- Windows first-launch detection uses `.NET CurrentUICulture`, with Java and
+  `LANG` as deployed fallbacks;
 - controls, tooltips, statuses, dialogs, filters, unit prompts, recoverable
   errors, anchor/dark-current/axis/export workflows, plot labels, legends, and
   result views use the current language;
 - imported filenames and worksheet/header labels remain unmodified source data;
 - dynamic file labels and spectrum-column items/data/values do not reset when
   switching language;
+- recoverable errors are localized by stable `IPCE:*` identifier, and missing
+  English literals remain visibly diagnostic instead of being silently
+  truncated;
 - switching reuses the same figure and preserves all state tables, profiles,
   inputs, calculated results, integration source, schemas, and numeric values.
 
@@ -111,18 +118,21 @@ Test-first evidence:
 
 - catalog/preference, live-window state, runtime-message, and dynamic-control
   tests failed before their respective implementations;
+- review follow-up added real anchor/export-dialog, plot-label, populated
+  standalone external-IPCE, shared JSON-schema, scalar-validation, stable-error,
+  and Windows UI-culture coverage;
 - complete MATLAB self-test passed, including numerical/oracle, import, export,
   standalone external-IPCE, localization, and real-window assertions;
 - separate real UI construction/`isvalid`/close smoke passed;
 - C# Release build remained at 0 warnings and 0 errors;
-- all 230 C# tests passed: Core 58, IO 44, Desktop 128; 0 failed/skipped.
+- all 231 C# tests passed: Core 58, IO 44, Desktop 129; 0 failed/skipped.
 
 Fresh MATLAB Compiler archive:
 
 - path: `matlab/dist/IPCEApp_R2023b_Windows_x64.zip`;
-- bytes: `784,491` (`0.748149 MiB`);
+- bytes: `790,064` (`0.753464 MiB`);
 - SHA-256:
-  `9197e6ed85ed2b32a0e910f9aaa32c16c89dc44df22fb9e9346ddf7475ff49e7`;
+  `482d600d93ee9c13f67059a4723d423fe7ddd80d04cd529bed608d585392097e`;
 - entries: 7;
 - Runtime installer markers: 0;
 - English-first bilingual `README_运行说明.txt`: present;
