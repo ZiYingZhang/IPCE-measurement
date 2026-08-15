@@ -5,6 +5,8 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="App.Title" xml:space="preserve"><value>IPCE 测量与光谱积分</value></data>
+  <data name="App.ErrorTitle" xml:space="preserve"><value>IPCEApp 错误</value></data>
+  <data name="App.UnhandledError" xml:space="preserve"><value>程序遇到未处理错误，诊断日志已保存到：&#xA;{0}</value></data>
   <data name="Common.Browse" xml:space="preserve"><value>浏览…</value></data>
   <data name="Common.Cancel" xml:space="preserve"><value>取消</value></data>
   <data name="Common.Confirm" xml:space="preserve"><value>确认</value></data>
@@ -14,6 +16,10 @@
   <data name="Error.Unexpected" xml:space="preserve"><value>发生未预料的错误。诊断日志：&#xA;{0}</value></data>
   <data name="Language.Chinese" xml:space="preserve"><value>中文</value></data>
   <data name="Language.English" xml:space="preserve"><value>English</value></data>
+  <data name="Language.Label" xml:space="preserve"><value>语言</value></data>
+  <data name="Startup.Failed" xml:space="preserve"><value>默认数据加载失败：{0}</value></data>
+  <data name="Startup.Loaded" xml:space="preserve"><value>默认校准、硅轨迹、锚点和太阳光谱已加载</value></data>
+  <data name="Startup.Loading" xml:space="preserve"><value>正在加载内置默认数据…</value></data>
   <data name="Status.IntegrationCompleted" xml:space="preserve"><value>积分完成：{0:G6} mA cm⁻²</value></data>
   <data name="Status.SpectrumImported" xml:space="preserve"><value>已导入 {0} 个光谱点</value></data>
 </root>

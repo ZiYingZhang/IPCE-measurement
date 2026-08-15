@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Threading;
 using IPCE.Core.Domain;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Services;
 using IPCE.Desktop.ViewModels;
 using IPCE.Desktop.Views;
@@ -11,6 +12,7 @@ public partial class App : Application
 {
     private readonly IUserNotificationService _notifications;
     private readonly LocalCrashLogger _crashLogger;
+    private readonly ILocalizationService _localization;
 
     public App()
         : this(
@@ -21,12 +23,14 @@ public partial class App : Application
 
     public App(
         IUserNotificationService notifications,
-        LocalCrashLogger crashLogger)
+        LocalCrashLogger crashLogger,
+        ILocalizationService? localization = null)
     {
         _notifications = notifications ??
             throw new ArgumentNullException(nameof(notifications));
         _crashLogger = crashLogger ??
             throw new ArgumentNullException(nameof(crashLogger));
+        _localization = localization ?? LocalizationService.Current;
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -199,8 +203,8 @@ public partial class App : Application
     {
         string path = TryLog(eventArgs.Exception);
         _notifications.ShowError(
-            "IPCEApp 错误",
-            $"程序遇到未处理错误，诊断日志已保存到：\n{path}");
+            _localization["App.ErrorTitle"],
+            _localization.Format("App.UnhandledError", path));
         eventArgs.Handled = true;
     }
 
@@ -230,7 +234,7 @@ public partial class App : Application
         }
         catch
         {
-            return "日志写入失败";
+            return _localization["Error.LogWriteFailed"];
         }
     }
 }
