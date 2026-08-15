@@ -49,38 +49,43 @@ C# 版保留 MATLAB 版的计算公式、单位和不外推原则，并提供以
 
 ## 文件
 
-- `IPCEApp.m`：交互界面入口。
-- `runIPCEApp.m`：编译部署使用的零输出启动入口。
-- `ipceResolveStartupFile.m`：在开发目录和部署归档之间解析启动默认文件。
-- `ipcePortablePackageConfig.m`：绿色包名称、默认数据和构建清单。
-- `build_ipce_portable.m`：生成不含 MATLAB Runtime 的 Windows 绿色 ZIP。
-- `ipceReadReference.m`：读取硅标探波长—响应度校准表。
-- `ipceReadIT.m`：读取 i-t 数据，识别表头单位并统一换算为 `s/A`。
-- `ipceDefaultConfig.m`：集中保存默认标探文件、锚点文件和暗区间。
-- `ipceBuildSchedule.m`：用波长—时间锚点生成可变时长的扫描调度。
-- `ipceReadAnchors.m`：读取两列“波长—确认时间”TXT/CSV/Excel 锚点文件。
-- `ipceExtractSchedule.m`：从不等时长窗口中提取每个波长的稳态电流。
-- `ipceExtractScan.m`：保留的固定 Delay 兼容入口。
-- `ipceCalculate.m`：反算功率密度并计算 IPCE。
-- `ipceReadExternalIPCE.m`：读取其他平台导出的两列波长—IPCE 数据。
-- `ipceResolveIPCESource.m`：在本软件计算结果与外部 IPCE 之间选择积分数据源。
-- `ipceReadSpectrum.m`：读取 Excel 光谱的指定表格与列。
-- `ipceReadSpectrumHeaders.m`：读取工作表中的实际列标题，供界面下拉选择。
-- `ipceIntegrateSpectrum.m`：插值 IPCE 并计算光谱积分电流密度。
-- `ipceWriteExport.m`：输出 XLSX、CSV 或 MAT 并验证文件确已落盘。
-- `ipceBuildPostprocessExportItems.m`：构造不依赖测量流程的后处理导出内容。
-- `run_ipce_selftest.m`：导入与数值计算自检。
+- `matlab/IPCEApp.m`：MATLAB 交互界面入口。
+- `matlab/runIPCEApp.m`：编译部署使用的零输出启动入口。
+- `matlab/ipceResolveStartupFile.m`：在工作目录、共享默认数据和部署归档之间解析启动文件。
+- `matlab/ipceRepositoryPaths.m`：统一解析仓库、MATLAB、默认数据和示例数据目录。
+- `matlab/ipcePortablePackageConfig.m`：绿色包名称、默认数据和构建清单。
+- `matlab/build_ipce_portable.m`：生成不含 MATLAB Runtime 的 Windows 绿色 ZIP。
+- `matlab/ipceReadReference.m`：读取硅标探波长—响应度校准表。
+- `matlab/ipceReadIT.m`：读取 i-t 数据，识别表头单位并统一换算为 `s/A`。
+- `matlab/ipceDefaultConfig.m`：集中保存默认标探文件名、锚点文件名和暗区间。
+- `matlab/ipceBuildSchedule.m`：用波长—时间锚点生成可变时长的扫描调度。
+- `matlab/ipceReadAnchors.m`：读取两列“波长—确认时间”TXT/CSV/Excel 锚点文件。
+- `matlab/ipceExtractSchedule.m`：从不等时长窗口中提取每个波长的稳态电流。
+- `matlab/ipceExtractScan.m`：保留的固定 Delay 兼容入口。
+- `matlab/ipceCalculate.m`：反算功率密度并计算 IPCE。
+- `matlab/ipceReadExternalIPCE.m`：读取其他平台导出的两列波长—IPCE 数据。
+- `matlab/ipceResolveIPCESource.m`：在本软件计算结果与外部 IPCE 之间选择积分数据源。
+- `matlab/ipceReadSpectrum.m`：读取 Excel 光谱的指定表格与列。
+- `matlab/ipceReadSpectrumHeaders.m`：读取工作表中的实际列标题，供界面下拉选择。
+- `matlab/ipceIntegrateSpectrum.m`：插值 IPCE 并计算光谱积分电流密度。
+- `matlab/ipceWriteExport.m`：输出 XLSX、CSV 或 MAT 并验证文件确已落盘。
+- `matlab/ipceBuildPostprocessExportItems.m`：构造不依赖测量流程的后处理导出内容。
+- `matlab/run_ipce_selftest.m`：导入与数值计算自检。
+- `csharp/`：C# WPF 源码、测试、工具和便携构建脚本。
+- `data/defaults/`：MATLAB 与 C# 共用的四个精确启动文件。
+- `data/examples/`：公开的 MBVO 实验与时间对齐示例数据。
 - `AGENTS.md` / `PROJECT_MEMORY.md`：供后续 Agent 快速理解项目的指南与变更记忆。
 
 ## 启动
 
-在 MATLAB 中把当前文件夹切换到本目录，然后运行：
+在 MATLAB 中把当前文件夹切换到仓库的 `matlab/` 目录，然后运行：
 
 ```matlab
 IPCEApp
 ```
 
-程序会自动载入当前目录中唯一的标探校准表和标准太阳能光谱，并按精确文件名载入：
+程序优先使用当前工作目录中的同名文件；找不到时从
+`data/defaults/` 载入共享默认校准表、太阳能光谱、硅标探 i-t 和锚点：
 
 - 标探 i-t：`Si-i t [300 1100] nm-grating 2-filter.txt`
 - 标探时间对齐：`Si-i t [300 1100] nm-grating 2-filter-time match.txt`
@@ -90,7 +95,7 @@ IPCEApp
 ## Windows 绿色包
 
 运行 `build_ipce_portable` 可生成
-`dist/IPCEApp_R2023b_Windows_x64.zip`。该 ZIP 不包含 MATLAB Runtime；
+`matlab/dist/IPCEApp_R2023b_Windows_x64.zip`。该 ZIP 不包含 MATLAB Runtime；
 目标电脑必须先从 MathWorks 官网安装 64 位 MATLAB Runtime R2023b，
 更新级别不得低于 Update 6。
 
@@ -218,9 +223,22 @@ E_\lambda(\lambda)\frac{\lambda}{hc}
 run_ipce_selftest
 ```
 
+也可从仓库根目录非交互运行完整验证：
+
+```powershell
+matlab -batch "cd('matlab'); run_ipce_selftest; app = IPCEApp; drawnow; assert(isvalid(app)); close(app)"
+dotnet build "csharp/IPCE.slnx" -c Release --no-restore
+dotnet test "csharp/IPCE.slnx" -c Release --no-build --no-restore
+powershell -NoProfile -ExecutionPolicy Bypass -File "csharp/scripts/build-portable.ps1"
+matlab -batch "cd('matlab'); build_ipce_portable"
+```
+
+C# 生成物位于 `csharp/dist/`，MATLAB 生成物位于 `matlab/dist/`；两者均被
+Git 忽略，正式版本通过 GitHub Releases 分发。
+
 自检会：
 
-1. 读取当前目录提供的标探表、指定 CHI i-t 和默认锚点；
+1. 读取 `data/defaults/` 提供的标探表、指定 CHI i-t 和默认锚点；
 2. 验证 `ms/mA`、`min/uA` 等单位换算、表头保留及缺失单位错误；
 3. 验证外部 IPCE 的排序、重复波长平均和超 `100%` 数据保留；
 4. 用已知 20%、50%、80% IPCE 的合成信号验证完整公式和面积归一化；

@@ -726,11 +726,15 @@ git commit -m "refactor: normalize C# project path"
 Run:
 
 ```powershell
-$currentDocs = @(
-    "README_CN.md",
+$progress = Get-Content -Raw -Encoding UTF8 `
     "docs/superpowers/progress/ipce-csharp-migration-progress.md"
+$progressActive = ($progress -split "## Checkpoint 2 verification", 2)[0]
+$stale = @(
+    Select-String -Path "README_CN.md" `
+        -Pattern 'csharp APP|dotnet .*csharp APP|matlab -batch "run_ipce_selftest'
+    $progressActive | Select-String `
+        -Pattern 'csharp APP|dotnet .*csharp APP|matlab -batch "run_ipce_selftest'
 )
-$stale = Select-String -Path $currentDocs -Pattern 'csharp APP|dotnet .*csharp APP|matlab -batch "run_ipce_selftest'
 if (-not $stale) {
     throw "Expected stale current-document paths before migration update."
 }
@@ -772,11 +776,15 @@ dated checkpoint narratives unchanged when they describe the former path.
 - [ ] **Step 4: Verify current docs contain no stale active commands**
 
 ```powershell
-$currentDocs = @(
-    "README_CN.md",
+$progress = Get-Content -Raw -Encoding UTF8 `
     "docs/superpowers/progress/ipce-csharp-migration-progress.md"
+$progressActive = ($progress -split "## Checkpoint 2 verification", 2)[0]
+$staleCommands = @(
+    Select-String -Path "README_CN.md" `
+        -Pattern 'dotnet (build|test) .*csharp APP|File "csharp APP/scripts|matlab -batch "run_ipce_selftest'
+    $progressActive | Select-String `
+        -Pattern 'dotnet (build|test) .*csharp APP|File "csharp APP/scripts|matlab -batch "run_ipce_selftest'
 )
-$staleCommands = Select-String -Path $currentDocs -Pattern 'dotnet (build|test) .*csharp APP|File "csharp APP/scripts|matlab -batch "run_ipce_selftest'
 if ($staleCommands) {
     $staleCommands
     throw "Current documentation still contains stale executable commands."

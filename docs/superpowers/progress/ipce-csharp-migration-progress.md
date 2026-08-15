@@ -1,27 +1,44 @@
 # IPCE C# Migration Progress
 
-Last updated: 2026-07-29
+Last updated: 2026-08-15
 
 ## Current checkpoint
 
-- Last completed task: Task 4 of the 2026-07-29 large-plot-text-and-bands SDD
-- Status: automated build, regression, smoke, and portable-package gates pass;
-  two external release-acceptance gates remain pending
+- Last completed task: Task 3 of the 2026-08-15 repository-normalization plan
+- Status: normalized source and shared-data paths pass MATLAB and .NET source
+  gates; portable packages will be rebuilt in Task 5
 - Next tasks:
-  1. run the exact final ZIP and hash through the complete workflow on a clean
-     Windows 10/11 x64 machine or VM with neither MATLAB nor .NET Runtime;
-  2. visually inspect representative plots at Windows 100%, 125%, and 150%
-     scaling
-- Existing MATLAB application modified by migration work: no
-- Git action taken: none
+  1. finish current documentation routing and portable-package verification;
+  2. implement C# bilingual localization;
+  3. implement MATLAB bilingual localization;
+  4. prepare the private GitHub repository and `v1.0.0` for public release
+- MATLAB numerical/UI behavior modified by normalization: no; files moved to
+  `matlab/` and shared startup files moved to `data/defaults/`
+- Git action taken: local commits on `main`; no remote push, tag, Release, or
+  visibility change
 
 ## Environment
 
 - .NET SDK: `10.0.302`
 - C# target: `net10.0`
 - WPF target: `net10.0-windows10.0.19041.0`
-- Workspace: non-Git project folder; C# project root is `csharp APP`
-- Commit policy: do not create commits
+- Workspace: Git repository on `main`; C# project root is `csharp`
+- Remote: `https://github.com/ZiYingZhang/IPCE-measurement.git`
+- Commit policy: local commits are authorized for the approved plan; remote
+  changes require explicit owner approval
+
+Current validation commands from the repository root:
+
+```powershell
+matlab -batch "cd('matlab'); run_ipce_selftest; app = IPCEApp; drawnow; assert(isvalid(app)); close(app)"
+dotnet build "csharp/IPCE.slnx" -c Release --no-restore
+dotnet test "csharp/IPCE.slnx" -c Release --no-build --no-restore
+powershell -NoProfile -ExecutionPolicy Bypass -File "csharp/scripts/build-portable.ps1"
+matlab -batch "cd('matlab'); build_ipce_portable"
+```
+
+Current expected .NET count after two repository-layout regressions: Core 58,
+IO 44, Desktop 97, total 199, with zero failures and skips.
 
 ## Checkpoint 2 verification
 
