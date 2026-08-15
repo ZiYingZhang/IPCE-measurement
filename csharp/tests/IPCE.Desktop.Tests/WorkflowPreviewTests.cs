@@ -19,14 +19,16 @@ public sealed class WorkflowPreviewTests
             AlignmentMode.FixedDelay,
             [],
             fixedStartTimeSeconds: 10,
-            nominalDelaySeconds: 40);
+            nominalDelaySeconds: 40,
+            TestLocalization.Chinese());
         SchedulePreview exceeded = WorkflowPreviewBuilder.BuildSchedule(
             trace,
             [400d, 500d],
             AlignmentMode.FixedDelay,
             [],
             fixedStartTimeSeconds: 10,
-            nominalDelaySeconds: 50);
+            nominalDelaySeconds: 50,
+            TestLocalization.Chinese());
 
         Assert.IsTrue(covered.Coverage.IsWithinCoverage);
         Assert.AreEqual(
@@ -80,7 +82,8 @@ public sealed class WorkflowPreviewTests
                 ipce,
                 spectrum,
                 requestedMinimumNm: 450,
-                requestedMaximumNm: 650);
+                requestedMaximumNm: 650,
+                TestLocalization.Chinese());
 
         Assert.AreEqual(400d, preview.DataMinimum);
         Assert.AreEqual(600d, preview.DataMaximum);
@@ -93,7 +96,9 @@ public sealed class WorkflowPreviewTests
     {
         var state = new SessionState();
         state.SetSiliconTrace(CreateTrace(0, 100));
-        var silicon = new SiliconWorkflowViewModel(state)
+        var silicon = new SiliconWorkflowViewModel(
+            state,
+            localization: TestLocalization.Chinese())
         {
             AlignmentMode = AlignmentMode.FixedDelay,
             WavelengthStartNanometres = 400,
@@ -132,7 +137,9 @@ public sealed class WorkflowPreviewTests
             new SpectrumPoint(600, 1),
         ]);
         state.SelectIpceSource(IpceSource.External);
-        var spectrum = new SpectrumWorkflowViewModel(state)
+        var spectrum = new SpectrumWorkflowViewModel(
+            state,
+            localization: TestLocalization.Chinese())
         {
             IntegrationMinimumNanometres = 450,
             IntegrationMaximumNanometres = 550,

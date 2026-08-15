@@ -130,13 +130,22 @@ public sealed class AsyncRelayCommand(
 public sealed class SafeRelayCommand : ICommand
 {
     private readonly IUserOperationRunner _operations;
-    private readonly string _title;
+    private readonly Func<string> _title;
     private readonly Action<object?> _execute;
     private readonly Predicate<object?>? _canExecute;
 
     public SafeRelayCommand(
         IUserOperationRunner operations,
         string title,
+        Action<object?> execute,
+        Predicate<object?>? canExecute = null)
+        : this(operations, () => title, execute, canExecute)
+    {
+    }
+
+    public SafeRelayCommand(
+        IUserOperationRunner operations,
+        Func<string> title,
         Action<object?> execute,
         Predicate<object?>? canExecute = null)
     {
@@ -156,7 +165,7 @@ public sealed class SafeRelayCommand : ICommand
 
     public void Execute(object? parameter) =>
         _operations.Run(
-            _title,
+            _title(),
             () => _execute(parameter));
 
     public void RaiseCanExecuteChanged() =>
@@ -166,7 +175,7 @@ public sealed class SafeRelayCommand : ICommand
 public sealed class SafeAsyncRelayCommand : IAsyncCommand
 {
     private readonly IUserOperationRunner _operations;
-    private readonly string _title;
+    private readonly Func<string> _title;
     private readonly Func<object?, Task> _execute;
     private readonly Predicate<object?>? _canExecute;
     private bool _isExecuting;
@@ -174,6 +183,15 @@ public sealed class SafeAsyncRelayCommand : IAsyncCommand
     public SafeAsyncRelayCommand(
         IUserOperationRunner operations,
         string title,
+        Func<object?, Task> execute,
+        Predicate<object?>? canExecute = null)
+        : this(operations, () => title, execute, canExecute)
+    {
+    }
+
+    public SafeAsyncRelayCommand(
+        IUserOperationRunner operations,
+        Func<string> title,
         Func<object?, Task> execute,
         Predicate<object?>? canExecute = null)
     {
@@ -207,7 +225,7 @@ public sealed class SafeAsyncRelayCommand : IAsyncCommand
         try
         {
             await _operations.RunAsync(
-                _title,
+                _title(),
                 () => _execute(parameter));
         }
         finally

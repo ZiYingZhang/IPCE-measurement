@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace IPCE.Desktop.Tests;
@@ -142,6 +143,58 @@ public sealed class PortablePackageTests
             "Archive contains MATLAB Runtime marker");
     }
 
+    [TestMethod]
+    public void TestResultReader_AggregatesFreshPerProjectCounts()
+    {
+        using var files = new TemporaryDirectory();
+        string core = files.CreateTrx("core.trx", 58, 58, 0, 0);
+        string io = files.CreateTrx("io.trx", 44, 44, 0, 0);
+        string desktop = files.CreateTrx(
+            "desktop.trx",
+            127,
+            127,
+            0,
+            0);
+        string script = Path.Combine(
+            FindCSharpProjectRoot(),
+            "scripts",
+            "read-test-counts.ps1");
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "powershell",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        foreach (string argument in new[]
+        {
+            "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", script,
+            "-CoreResult", core,
+            "-IoResult", io,
+            "-DesktopResult", desktop,
+        })
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        using Process process = Process.Start(startInfo)
+            ?? throw new InvalidOperationException(
+                "Could not start test-result reader.");
+        string output = process.StandardOutput.ReadToEnd();
+        string error = process.StandardError.ReadToEnd();
+        Assert.IsTrue(process.WaitForExit(30_000));
+        Assert.AreEqual(0, process.ExitCode, error);
+        using JsonDocument json = JsonDocument.Parse(output);
+        JsonElement root = json.RootElement;
+        Assert.AreEqual(229, root.GetProperty("total").GetInt32());
+        Assert.AreEqual(58, root.GetProperty("core").GetInt32());
+        Assert.AreEqual(44, root.GetProperty("io").GetInt32());
+        Assert.AreEqual(127, root.GetProperty("desktop").GetInt32());
+        Assert.AreEqual(0, root.GetProperty("failed").GetInt32());
+        Assert.AreEqual(0, root.GetProperty("skipped").GetInt32());
+    }
+
     private static ScriptResult Validate(string archivePath)
     {
         string script = Path.Combine(
@@ -261,6 +314,29 @@ public sealed class PortablePackageTests
             }
 
             return archivePath;
+        }
+
+        public string CreateTrx(
+            string fileName,
+            int total,
+            int passed,
+            int failed,
+            int skipped)
+        {
+            string path = System.IO.Path.Combine(Path, fileName);
+            File.WriteAllText(
+                path,
+                $"""
+                <?xml version="1.0" encoding="utf-8"?>
+                <TestRun>
+                  <ResultSummary outcome="Completed">
+                    <Counters total="{total}" executed="{passed + failed}"
+                              passed="{passed}" failed="{failed}"
+                              notExecuted="{skipped}" />
+                  </ResultSummary>
+                </TestRun>
+                """);
+            return path;
         }
 
         public void Dispose()

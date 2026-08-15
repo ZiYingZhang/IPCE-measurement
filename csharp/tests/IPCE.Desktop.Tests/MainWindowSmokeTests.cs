@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using IPCE.Core.Domain;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Services;
 using IPCE.Desktop.State;
 using IPCE.Desktop.ViewModels;
@@ -30,10 +31,16 @@ public sealed class MainWindowSmokeTests
                 var operations = new UserOperationRunner(
                     notifications,
                     new LocalCrashLogger(directory));
+                var localization = new LocalizationService(
+                    new LanguagePreferenceStore(
+                        Path.Combine(directory, "settings.json")),
+                    System.Globalization.CultureInfo.GetCultureInfo(
+                        "zh-CN"));
                 var viewModel = new MainViewModel(
                     CreateOutOfRangeSiliconSession(),
                     SynchronizationContext.Current,
-                    operations);
+                    operations,
+                    localization: localization);
                 application = new App(
                     notifications,
                     new LocalCrashLogger(directory))

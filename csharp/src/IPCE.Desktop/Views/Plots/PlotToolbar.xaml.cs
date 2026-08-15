@@ -2,7 +2,9 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using IPCE.Core.Errors;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Plotting;
+using IPCE.Desktop.ViewModels;
 
 namespace IPCE.Desktop.Views.Plots;
 
@@ -39,8 +41,9 @@ public partial class PlotToolbar : UserControl
         {
             MessageBox.Show(
                 Window.GetWindow(this),
-                exception.Message,
-                "坐标轴设置",
+                new UserMessageLocalizer(Localization)
+                    .Localize(exception),
+                Localization["Dialog.AxisSettings"],
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
@@ -97,4 +100,8 @@ public partial class PlotToolbar : UserControl
             "IPCE:InvalidAxisLimits",
             $"无法识别坐标轴数值：{text}");
     }
+
+    private ILocalizationService Localization =>
+        (DataContext as MainViewModel)?.Localization ??
+        LocalizationService.Current;
 }

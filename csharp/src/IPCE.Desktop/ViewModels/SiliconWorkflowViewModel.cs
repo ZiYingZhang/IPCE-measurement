@@ -2,12 +2,14 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using IPCE.Core.Calculation;
 using IPCE.Core.Domain;
 using IPCE.Core.Errors;
 using IPCE.Core.Extraction;
 using IPCE.Core.Scheduling;
 using IPCE.Desktop.Import;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Plotting;
 using IPCE.Desktop.Services;
 using IPCE.Desktop.State;
@@ -42,36 +44,44 @@ public sealed class SiliconWorkflowViewModel : ViewModelBase
     private bool _isTraceImporting;
     private string _traceImportSummary = "";
     private string _traceFileName = "";
+    private readonly LocalizedReasonFormatter _reasonFormatter;
 
     public SiliconWorkflowViewModel(
         SessionState session,
         SynchronizationContext? synchronizationContext = null,
         IUserOperationRunner? operations = null,
-        TraceImportCoordinator? traceImports = null)
+        TraceImportCoordinator? traceImports = null,
+        ILocalizationService? localization = null)
         : base(synchronizationContext)
     {
         Session = session ?? throw new ArgumentNullException(
             nameof(session));
+        Localization = localization ?? LocalizationService.Current;
+        _reasonFormatter = new LocalizedReasonFormatter(Localization);
         IUserOperationRunner operationRunner =
-            operations ?? UserOperationRunner.CreateDefault();
+            operations ?? UserOperationRunner.CreateDefault(Localization);
         _traceImports = traceImports ?? new TraceImportCoordinator(
-            new ImportSelectionService());
+            new ImportSelectionService(Localization));
         EditableAnchors = [];
         SyncEditableAnchors();
         Session.PropertyChanged += OnSessionPropertyChanged;
+        PropertyChangedEventManager.AddHandler(
+            Localization,
+            OnLocalizationPropertyChanged,
+            "Item[]");
         ImportTraceCommand = new SafeAsyncRelayCommand(
             operationRunner,
-            "导入硅探测器 i-t 数据",
+            () => Localization["Operation.ImportSiliconTrace"],
             parameter => ImportTraceAsync(RequirePath(parameter)),
             HasPath);
         ImportCalibrationCommand = new SafeAsyncRelayCommand(
             operationRunner,
-            "导入硅探测器校准数据",
+            () => Localization["Operation.ImportCalibration"],
             parameter => ImportCalibrationAsync(RequirePath(parameter)),
             HasPath);
         ImportAnchorsCommand = new SafeAsyncRelayCommand(
             operationRunner,
-            "导入硅探测器时间锚点",
+            () => Localization["Operation.ImportSiliconAnchors"],
             parameter => ImportAnchorsAsync(RequirePath(parameter)),
             HasPath);
         ApplyPowerDensityCommand = new RelayCommand(
@@ -82,12 +92,14 @@ public sealed class SiliconWorkflowViewModel : ViewModelBase
                 parameter is IReadOnlyList<PowerDensityPoint>);
         CalculatePowerDensityCommand = new SafeRelayCommand(
             operationRunner,
-            "计算入射光功率密度",
+            () => Localization["Operation.CalculatePowerDensity"],
             _ => CalculatePowerDensity(),
             _ => CanCalculatePowerDensity);
     }
 
     public SessionState Session { get; }
+
+    public ILocalizationService Localization { get; }
 
     public TraceData? Trace => Session.SiliconTrace;
 
@@ -104,8 +116,10 @@ public sealed class SiliconWorkflowViewModel : ViewModelBase
     }
 
     public string TraceImportSummary => IsTraceImporting
-        ? "正在导入…"
-        : _traceImportSummary;
+        ? Localization["Status.Importing"]
+        : _traceImportSummary.Length > 0 && Trace is not null
+            ? FormatTraceSummary(_traceImportSummary, Trace)
+            : "";
 
     public string TraceFileName => _traceFileName;
 
@@ -128,18 +142,18 @@ public sealed class SiliconWorkflowViewModel : ViewModelBase
 
     public string PrerequisiteMessage =>
         Trace is null
-            ? "缺少：硅 i-t"
+            ? Localization["Prerequisite.MissingSiliconTrace"]
             : Calibration is null
-                ? "缺少：硅探测器校准数据"
+                ? Localization["Prerequisite.MissingCalibration"]
                 : AlignmentMode == AlignmentMode.Anchors &&
                     Anchors is not { Count: > 0 }
-                    ? "缺少：硅时间锚点"
-                    : "可以计算：轨迹与调度覆盖将在执行前检查";
+                    ? Localization["Prerequisite.MissingSiliconAnchors"]
+                    : Localization["Prerequisite.SiliconReady"];
 
     public string ResultStatusMessage =>
         FormatResultStatus(
             Session.PowerDensityStatus,
-            "功率密度");
+            Localization["Result.PowerDensity"]);
 
     public SchedulePreview? Preview
     {
@@ -163,7 +177,8 @@ public sealed class SiliconWorkflowViewModel : ViewModelBase
                         AlignmentMode,
                         Anchors),
                     FixedStartTimeSeconds,
-                    NominalDelaySeconds);
+                    NominalDelaySeconds,
+                    Localization);
             }
             catch (IpceException)
             {
@@ -313,8 +328,7 @@ public sealed class SiliconWorkflowViewModel : ViewModelBase
                 {
                     Session.SetSiliconTrace(replacement);
                     _traceFileName = Path.GetFileName(path);
-                    _traceImportSummary =
-                        FormatTraceSummary(path, replacement);
+                    _traceImportSummary = path;
                     OnPropertyChanged(nameof(TraceFileName));
                     OnPropertyChanged(nameof(TraceImportSummary));
                 });
@@ -521,26 +535,44 @@ public sealed class SiliconWorkflowViewModel : ViewModelBase
         }
     }
 
-    private static string FormatResultStatus(
+    private string FormatResultStatus(
         ResultStatus status,
         string resultName) =>
         status.Freshness switch
         {
-            ResultFreshness.Current => $"当前{resultName}可用",
+            ResultFreshness.Current =>
+                Localization.Format("Freshness.Current", resultName),
             ResultFreshness.Stale =>
-                $"需要重新计算：{status.Reason}",
-            _ => $"尚未生成{resultName}",
+                Localization.Format(
+                    "Freshness.Stale",
+                    _reasonFormatter.Format(status.Reason)),
+            _ => Localization.Format("Freshness.Missing", resultName),
         };
 
-    private static string FormatTraceSummary(
+    private void OnLocalizationPropertyChanged(
+        object? sender,
+        PropertyChangedEventArgs eventArgs)
+    {
+        OnPropertyChanged(nameof(TraceImportSummary));
+        OnPropertyChanged(nameof(PrerequisiteMessage));
+        OnPropertyChanged(nameof(ResultStatusMessage));
+        NotifyPreviewChanged();
+    }
+
+    private string FormatTraceSummary(
         string path,
         TraceData trace)
     {
         string currentUnit = trace.Metadata.OriginalCurrentUnit
             .Replace("uA", "µA", StringComparison.Ordinal);
-        return $"{Path.GetFileName(path)} · {trace.TimeSeconds.Count} 点 · " +
-            $"{trace.TimeSeconds[0]:g6}–{trace.TimeSeconds[^1]:g6} s · " +
-            $"{trace.Metadata.OriginalTimeUnit}/{currentUnit} 已换算为 s/A";
+        return Localization.Format(
+            "Status.TraceSummary",
+            Path.GetFileName(path),
+            trace.TimeSeconds.Count,
+            trace.TimeSeconds[0],
+            trace.TimeSeconds[^1],
+            trace.Metadata.OriginalTimeUnit,
+            currentUnit);
     }
 
     private static bool HasPath(object? parameter) =>

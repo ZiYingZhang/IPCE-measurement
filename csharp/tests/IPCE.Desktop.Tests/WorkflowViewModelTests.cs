@@ -36,7 +36,8 @@ public sealed class WorkflowViewModelTests
         var context = new RecordingSynchronizationContext();
         var viewModel = new SiliconWorkflowViewModel(
             new SessionState(),
-            context);
+            context,
+            localization: TestLocalization.Chinese());
         var changedProperties = new List<string?>();
         viewModel.PropertyChanged += (_, eventArgs) =>
             changedProperties.Add(eventArgs.PropertyName);
@@ -244,7 +245,9 @@ public sealed class WorkflowViewModelTests
     public void WorkflowMessages_ExplainMissingCurrentAndStaleStates()
     {
         var session = new SessionState();
-        var main = new MainViewModel(session);
+        var main = new MainViewModel(
+            session,
+            localization: TestLocalization.Chinese());
 
         StringAssert.Contains(main.Silicon.PrerequisiteMessage, "硅 i-t");
         StringAssert.Contains(main.Sample.PrerequisiteMessage, "样品 i-t");

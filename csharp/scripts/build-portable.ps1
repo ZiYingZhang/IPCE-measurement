@@ -17,12 +17,23 @@ $buildInfoPath = Join-Path `
 $desktopProject = Join-Path `
     $csharpDirectory `
     "src\IPCE.Desktop\IPCE.Desktop.csproj"
+$coreTestProject = Join-Path `
+    $csharpDirectory `
+    "tests\IPCE.Core.Tests\IPCE.Core.Tests.csproj"
+$ioTestProject = Join-Path `
+    $csharpDirectory `
+    "tests\IPCE.IO.Tests\IPCE.IO.Tests.csproj"
+$desktopTestProject = Join-Path `
+    $csharpDirectory `
+    "tests\IPCE.Desktop.Tests\IPCE.Desktop.Tests.csproj"
 $solution = Join-Path $csharpDirectory "IPCE.slnx"
 $readmePath = Join-Path $csharpDirectory "PORTABLE_README_CN.txt"
 $noticesPath = Join-Path `
     $csharpDirectory `
     "src\IPCE.Desktop\Assets\THIRD_PARTY_NOTICES.txt"
 $smokeScript = Join-Path $scriptDirectory "smoke-test.ps1"
+$testCountScript = Join-Path $scriptDirectory "read-test-counts.ps1"
+$testResultsDirectory = Join-Path $distDirectory "test-results"
 
 function Assert-LastExitCode {
     param(
@@ -65,11 +76,38 @@ try {
     & matlab -batch $matlabCommand
     Assert-LastExitCode -Operation "MATLAB regression"
 
-    Write-Output "Running .NET regression..."
-    & dotnet test $solution -c Release --no-restore
-    Assert-LastExitCode -Operation ".NET regression"
-
     [System.IO.Directory]::CreateDirectory($distDirectory) | Out-Null
+    Remove-SafeDirectory `
+        -Path $testResultsDirectory `
+        -AllowedRoot $distDirectory
+    [System.IO.Directory]::CreateDirectory(
+        $testResultsDirectory) | Out-Null
+
+    Write-Output "Running .NET regression..."
+    $testProjects = @(
+        @{ Project = $coreTestProject; Result = "core.trx" },
+        @{ Project = $ioTestProject; Result = "io.trx" },
+        @{ Project = $desktopTestProject; Result = "desktop.trx" }
+    )
+    foreach ($testProject in $testProjects) {
+        & dotnet test `
+            $testProject.Project `
+            -c Release `
+            --no-restore `
+            --logger "trx;LogFileName=$($testProject.Result)" `
+            --results-directory $testResultsDirectory
+        Assert-LastExitCode -Operation ".NET regression"
+    }
+    $testCountsJson = & powershell `
+        -NoProfile `
+        -ExecutionPolicy Bypass `
+        -File $testCountScript `
+        -CoreResult (Join-Path $testResultsDirectory "core.trx") `
+        -IoResult (Join-Path $testResultsDirectory "io.trx") `
+        -DesktopResult (Join-Path $testResultsDirectory "desktop.trx")
+    Assert-LastExitCode -Operation ".NET test-count collection"
+    $dotnetTests = $testCountsJson | ConvertFrom-Json
+
     Remove-SafeDirectory `
         -Path $publishDirectory `
         -AllowedRoot $distDirectory
@@ -153,12 +191,12 @@ try {
         publishedSmokeExitCode = $publishedSmokeExitCode
         archiveSmokeExitCode = $archiveSmokeExitCode
         dotnetTests = [ordered]@{
-            total = 199
-            core = 58
-            io = 44
-            desktop = 97
-            failed = 0
-            skipped = 0
+            total = [int]$dotnetTests.total
+            core = [int]$dotnetTests.core
+            io = [int]$dotnetTests.io
+            desktop = [int]$dotnetTests.desktop
+            failed = [int]$dotnetTests.failed
+            skipped = [int]$dotnetTests.skipped
         }
         matlabSelfTestPassed = $true
         matlabUiSmokePassed = $true
@@ -167,6 +205,9 @@ try {
     $buildInfo | ConvertTo-Json | Set-Content `
         -LiteralPath $buildInfoPath `
         -Encoding UTF8
+    Remove-SafeDirectory `
+        -Path $testResultsDirectory `
+        -AllowedRoot $distDirectory
 
     Write-Output "Portable build passed."
     Write-Output "Archive: $archivePath"

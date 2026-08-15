@@ -1,3 +1,27 @@
+IPCE Measurement and Analysis (Windows Portable Package)
+=========================================================
+
+English quick start
+-------------------
+
+1. Install the 64-bit MATLAB Runtime R2023b for Windows. Use Update 6 or a
+   later R2023b update:
+   https://www.mathworks.com/products/compiler/matlab-runtime.html
+2. Extract every file from this ZIP into one ordinary folder.
+3. Run IPCEApp.exe. The first launch can take about as long as starting
+   MATLAB while the Runtime initializes.
+4. Use the language selector at the top of the left workflow panel to switch
+   between English and 中文. The choice is remembered. Switching language
+   never clears imported data, parameters, calculation results, or exports.
+5. Verify the automatically loaded detector calibration, solar spectrum,
+   silicon-detector i-t trace, time-alignment anchors, and all parameters
+   before measurement or post-processing.
+
+This ZIP does not include MATLAB Runtime. MATLAB itself and a MATLAB license
+are not required. Do not move IPCEApp.exe out of the extracted package; keep
+all packaged files together. External-IPCE post-processing works without
+detector calibration or detector/sample i-t data.
+
 IPCE 测量与分析软件（Windows 绿色版）
 ========================================
 
@@ -20,6 +44,8 @@ MATLAB Runtime 免费，运行本软件不需要安装 MATLAB，也不需要 MAT
 4. 首次启动需要初始化 Runtime，耗时可能接近启动一次 MATLAB，请耐心等待。
 5. 软件打开后，务必核对自动载入的标探校准、太阳光谱、硅标探 i-t、时间匹配文件及计算参数。
 6. 其他批次的数据仍通过软件界面的“导入”按钮选择。
+7. 左侧流程面板顶部可在 `English` 与 `中文` 之间随时切换；选择会被记住。
+   切换语言不会清除导入数据、参数、计算结果、积分结果或改变导出数值。
 
 请勿只把 IPCEApp.exe 单独拖出压缩包运行；必须保留压缩包内的全部文件。
 

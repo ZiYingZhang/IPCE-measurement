@@ -2,7 +2,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using IPCE.Core.Errors;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Plotting;
+using IPCE.Desktop.ViewModels;
 
 namespace IPCE.Desktop.Views.Plots;
 
@@ -16,7 +18,8 @@ public partial class IpcePlotView : UserControl
         _controller = new PlotInteractionController(
             PlotSurface,
             HoverText,
-            ClippedText);
+            ClippedText,
+            () => Localization);
         Toolbar.ApplyRequested += (_, settings) => Apply(settings);
         Toolbar.ResetRequested += (_, _) => _controller.Reset();
         Toolbar.ShowAllRequested += (_, _) => _controller.ShowAll();
@@ -34,8 +37,12 @@ public partial class IpcePlotView : UserControl
         _controller.Render(model);
     }
 
-    public void SetSelectedSource(string source) =>
-        SourceBadge.Text = $"积分来源：{source}";
+    public void SetSelectedSource(
+        string source,
+        ILocalizationService? localization = null) =>
+        SourceBadge.Text = (localization ?? Localization).Format(
+            "Plot.IntegrationSource",
+            source);
 
     private void Apply(PlotViewSettings settings)
     {
@@ -45,8 +52,12 @@ public partial class IpcePlotView : UserControl
         }
         catch (IpceException exception)
         {
-            MessageBox.Show(Window.GetWindow(this), exception.Message,
-                "坐标轴设置", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(
+                Window.GetWindow(this),
+                new UserMessageLocalizer(Localization).Localize(exception),
+                Localization["Dialog.AxisSettings"],
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
     }
 
@@ -59,4 +70,8 @@ public partial class IpcePlotView : UserControl
         object sender,
         MouseEventArgs eventArgs) =>
         _controller.ClearHover();
+
+    private ILocalizationService Localization =>
+        (DataContext as MainViewModel)?.Localization ??
+        LocalizationService.Current;
 }

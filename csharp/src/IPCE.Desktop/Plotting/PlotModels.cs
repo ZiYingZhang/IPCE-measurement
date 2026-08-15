@@ -17,7 +17,8 @@ public sealed record PlotSeries
         PlotSeriesKind kind,
         string colorHex,
         IReadOnlyList<double>? yErrors = null,
-        bool contributesToAutoRange = true)
+        bool contributesToAutoRange = true,
+        string id = "")
     {
         ArgumentNullException.ThrowIfNull(x);
         ArgumentNullException.ThrowIfNull(y);
@@ -45,6 +46,7 @@ public sealed record PlotSeries
             ? null
             : Array.AsReadOnly(copiedErrors);
         ContributesToAutoRange = contributesToAutoRange;
+        Id = id ?? "";
     }
 
     public string Label { get; }
@@ -60,6 +62,8 @@ public sealed record PlotSeries
     public IReadOnlyList<double>? YErrors { get; }
 
     public bool ContributesToAutoRange { get; }
+
+    public string Id { get; }
 
     private static IpceException InvalidPlotSeries()
     {

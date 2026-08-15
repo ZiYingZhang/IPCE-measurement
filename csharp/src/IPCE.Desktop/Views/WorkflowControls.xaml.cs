@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Services;
 using IPCE.Desktop.ViewModels;
 using IPCE.IO.Export;
@@ -26,56 +27,56 @@ public partial class WorkflowControls : UserControl
         RoutedEventArgs eventArgs) =>
         Browse(
             CalibrationPathBox,
-            "选择标准硅校准文件",
-            "Excel 工作簿|*.xlsx;*.xls|所有文件|*.*");
+            Localization["Dialog.SelectCalibration"],
+            Localization["FileFilter.ExcelAll"]);
 
     private void BrowseSiliconTrace_Click(
         object sender,
         RoutedEventArgs eventArgs) =>
         Browse(
             SiliconTracePathBox,
-            "选择硅 i-t 文件",
-            "文本数据|*.txt;*.csv|所有文件|*.*");
+            Localization["Dialog.SelectSiliconTrace"],
+            Localization["FileFilter.TextAll"]);
 
     private void BrowseSiliconAnchors_Click(
         object sender,
         RoutedEventArgs eventArgs) =>
         Browse(
             SiliconAnchorPathBox,
-            "选择硅时间锚点文件",
-            "文本数据|*.txt;*.csv|所有文件|*.*");
+            Localization["Dialog.SelectSiliconAnchors"],
+            Localization["FileFilter.TextAll"]);
 
     private void BrowseSampleTrace_Click(
         object sender,
         RoutedEventArgs eventArgs) =>
         Browse(
             SampleTracePathBox,
-            "选择样品 i-t 文件",
-            "文本数据|*.txt;*.csv|所有文件|*.*");
+            Localization["Dialog.SelectSampleTrace"],
+            Localization["FileFilter.TextAll"]);
 
     private void BrowseSampleAnchors_Click(
         object sender,
         RoutedEventArgs eventArgs) =>
         Browse(
             SampleAnchorPathBox,
-            "选择样品时间锚点文件",
-            "文本数据|*.txt;*.csv|所有文件|*.*");
+            Localization["Dialog.SelectSampleAnchors"],
+            Localization["FileFilter.TextAll"]);
 
     private void BrowseExternalIpce_Click(
         object sender,
         RoutedEventArgs eventArgs) =>
         Browse(
             ExternalIpcePathBox,
-            "选择外部 IPCE 文件",
-            "IPCE 数据|*.txt;*.csv;*.xls;*.xlsx|所有文件|*.*");
+            Localization["Dialog.SelectExternalIpce"],
+            Localization["FileFilter.IpceAll"]);
 
     private void BrowseSpectrum_Click(
         object sender,
         RoutedEventArgs eventArgs) =>
         Browse(
             SpectrumPathBox,
-            "选择太阳光谱文件",
-            "Excel 工作簿|*.xls;*.xlsx|所有文件|*.*");
+            Localization["Dialog.SelectSpectrum"],
+            Localization["FileFilter.SpectrumAll"]);
 
     private void Export_Click(
         object sender,
@@ -90,16 +91,16 @@ public partial class WorkflowControls : UserControl
         (string filter, string extension) = format switch
         {
             ExportFormat.Xlsx =>
-                ("Excel 工作簿|*.xlsx", ".xlsx"),
+                (Localization["FileFilter.ExportXlsx"], ".xlsx"),
             ExportFormat.Csv =>
-                ("CSV 文本|*.csv", ".csv"),
+                (Localization["FileFilter.ExportCsv"], ".csv"),
             ExportFormat.Mat =>
-                ("MATLAB 数据|*.mat", ".mat"),
+                (Localization["FileFilter.ExportMat"], ".mat"),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(format)),
         };
         string? path = _dialogs.SaveFile(
-            "导出 IPCE 结果",
+            Localization["Dialog.ExportResults"],
             filter,
             extension);
         if (path is null)
@@ -115,15 +116,16 @@ public partial class WorkflowControls : UserControl
                 string.Join(
                     Environment.NewLine,
                     written.Select(System.IO.Path.GetFullPath)),
-                "导出完成",
+                Localization["Dialog.ExportCompleted"],
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
         }
         catch (Exception exception)
         {
             MessageBox.Show(
-                exception.Message,
-                "导出失败",
+                new UserMessageLocalizer(Localization)
+                    .Localize(exception),
+                Localization["Dialog.ExportFailed"],
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
@@ -140,4 +142,8 @@ public partial class WorkflowControls : UserControl
             target.Text = path;
         }
     }
+
+    private ILocalizationService Localization =>
+        (DataContext as MainViewModel)?.Localization ??
+        LocalizationService.Current;
 }

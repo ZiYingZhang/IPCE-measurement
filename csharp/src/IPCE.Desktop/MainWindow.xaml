@@ -1,15 +1,49 @@
 <Window x:Class="IPCE.Desktop.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:localization="clr-namespace:IPCE.Desktop.Localization"
         xmlns:views="clr-namespace:IPCE.Desktop.Views"
-        Title="IPCE 测量与光谱积分"
+        Title="{Binding Localization[App.Title]}"
         Width="1500"
         Height="900"
         MinWidth="1100"
         MinHeight="680"
         WindowStartupLocation="CenterScreen"
         Background="#E8EDF1">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/ApplicationResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <DockPanel>
+        <Border DockPanel.Dock="Top"
+                Background="#FFFFFF"
+                BorderBrush="#CFD8DC"
+                BorderThickness="0,0,0,1"
+                Padding="10,6">
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <TextBlock Margin="4"
+                           VerticalAlignment="Center"
+                           Text="{Binding Localization[Language.Label]}" />
+                <ComboBox x:Name="LanguageSelector"
+                          Width="120"
+                          MinHeight="30"
+                          SelectedValue="{Binding Localization.CurrentLanguage,
+                              Mode=TwoWay,
+                              UpdateSourceTrigger=PropertyChanged}"
+                          SelectedValuePath="Tag">
+                    <ComboBoxItem Content="{Binding DataContext.Localization[Language.English],
+                                      RelativeSource={RelativeSource AncestorType=Window}}"
+                                  Tag="{x:Static localization:AppLanguage.English}" />
+                    <ComboBoxItem Content="{Binding DataContext.Localization[Language.Chinese],
+                                      RelativeSource={RelativeSource AncestorType=Window}}"
+                                  Tag="{x:Static localization:AppLanguage.SimplifiedChinese}" />
+                </ComboBox>
+            </StackPanel>
+        </Border>
         <Border DockPanel.Dock="Bottom"
                 Background="#263238"
                 Padding="10,6">

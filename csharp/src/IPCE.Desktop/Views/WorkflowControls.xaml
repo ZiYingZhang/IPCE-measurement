@@ -3,6 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:domain="clr-namespace:IPCE.Core.Domain;assembly=IPCE.Core"
              xmlns:export="clr-namespace:IPCE.IO.Export;assembly=IPCE.IO">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/IPCEApp;component/Resources/ApplicationResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <ScrollViewer x:Name="WorkflowScrollViewer"
                   VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
@@ -11,7 +18,7 @@
                        FontSize="20"
                        FontWeight="Bold"
                        Foreground="{StaticResource AccentBrush}"
-                       Text="测量与后处理流程" />
+                       Text="{Binding Localization[Workflow.Title]}" />
             <ProgressBar Height="3"
                          Margin="12,0"
                          IsIndeterminate="True"
@@ -21,28 +28,28 @@
                        Foreground="{StaticResource MutedTextBrush}"
                        Text="{Binding StartupStatusMessage}" />
 
-            <GroupBox Header="1. 硅标定与单色光功率密度"
+            <GroupBox Header="{Binding Localization[Workflow.SiliconSection]}"
                       DataContext="{Binding Silicon}">
                 <StackPanel>
-                    <TextBlock Text="标准硅校准文件" />
+                    <TextBlock Text="{Binding Localization[Workflow.CalibrationFile]}" />
                     <DockPanel>
                         <Button DockPanel.Dock="Right"
-                                Content="浏览…"
+                                Content="{Binding Localization[Common.Browse]}"
                                 Click="BrowseCalibration_Click" />
                         <TextBox x:Name="CalibrationPathBox" />
                     </DockPanel>
-                    <Button Content="导入校准"
+                    <Button Content="{Binding Localization[Workflow.ImportCalibration]}"
                             Command="{Binding ImportCalibrationCommand}"
                             CommandParameter="{Binding Text, ElementName=CalibrationPathBox}" />
 
-                    <TextBlock Margin="0,6,0,0" Text="硅 i-t 文件" />
+                    <TextBlock Margin="0,6,0,0" Text="{Binding Localization[Workflow.SiliconTraceFile]}" />
                     <DockPanel>
                         <Button DockPanel.Dock="Right"
-                                Content="浏览…"
+                                Content="{Binding Localization[Common.Browse]}"
                                 Click="BrowseSiliconTrace_Click" />
                         <TextBox x:Name="SiliconTracePathBox" />
                     </DockPanel>
-                    <Button Content="导入硅 i-t"
+                    <Button Content="{Binding Localization[Workflow.ImportSiliconTrace]}"
                             Command="{Binding ImportTraceCommand}"
                             CommandParameter="{Binding Text, ElementName=SiliconTracePathBox}" />
                     <TextBlock Margin="3,0,3,4"
@@ -50,29 +57,29 @@
                                Foreground="{StaticResource MutedTextBrush}"
                                Text="{Binding TraceImportSummary}" />
 
-                    <TextBlock Margin="0,6,0,0" Text="硅时间锚点文件" />
+                    <TextBlock Margin="0,6,0,0" Text="{Binding Localization[Workflow.SiliconAnchorFile]}" />
                     <DockPanel>
                         <Button DockPanel.Dock="Right"
-                                Content="浏览…"
+                                Content="{Binding Localization[Common.Browse]}"
                                 Click="BrowseSiliconAnchors_Click" />
                         <TextBox x:Name="SiliconAnchorPathBox" />
                     </DockPanel>
-                    <Button Content="导入硅锚点"
+                    <Button Content="{Binding Localization[Workflow.ImportSiliconAnchors]}"
                             Command="{Binding ImportAnchorsCommand}"
                             CommandParameter="{Binding Text, ElementName=SiliconAnchorPathBox}" />
                     <UniformGrid Columns="2" Margin="0,6,0,0">
                         <StackPanel>
-                            <TextBlock Text="时间对齐" />
+                            <TextBlock Text="{Binding Localization[Workflow.TimeAlignment]}" />
                             <ComboBox SelectedValue="{Binding AlignmentMode}"
                                       SelectedValuePath="Tag">
-                                <ComboBoxItem Content="锚点"
+                                <ComboBoxItem Content="{Binding Localization[Workflow.AlignmentAnchors]}"
                                               Tag="{x:Static domain:AlignmentMode.Anchors}" />
-                                <ComboBoxItem Content="固定延时"
+                                <ComboBoxItem Content="{Binding Localization[Workflow.AlignmentFixedDelay]}"
                                               Tag="{x:Static domain:AlignmentMode.FixedDelay}" />
                             </ComboBox>
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="固定起点 s" />
+                            <TextBlock Text="{Binding Localization[Workflow.FixedStartSeconds]}" />
                             <TextBox Text="{Binding FixedStartTimeSeconds,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -83,7 +90,7 @@
 
                     <UniformGrid Columns="3" Margin="0,6,0,0">
                         <StackPanel>
-                            <TextBlock Text="起始 nm" />
+                            <TextBlock Text="{Binding Localization[Workflow.StartNm]}" />
                             <TextBox Text="{Binding WavelengthStartNanometres,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -91,7 +98,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="终止 nm" />
+                            <TextBlock Text="{Binding Localization[Workflow.EndNm]}" />
                             <TextBox Text="{Binding WavelengthEndNanometres,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -99,7 +106,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="步长 nm" />
+                            <TextBlock Text="{Binding Localization[Workflow.StepNm]}" />
                             <TextBox Text="{Binding WavelengthStepNanometres,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -107,7 +114,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="标称延时 s" />
+                            <TextBlock Text="{Binding Localization[Workflow.NominalDelaySeconds]}" />
                             <TextBox Text="{Binding NominalDelaySeconds,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -115,7 +122,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="平均时长 s" />
+                            <TextBlock Text="{Binding Localization[Workflow.AverageSeconds]}" />
                             <TextBox Text="{Binding AveragingDurationSeconds,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -123,7 +130,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="面积 cm²" />
+                            <TextBlock Text="{Binding Localization[Workflow.AreaCm2]}" />
                             <TextBox Text="{Binding AreaSquareCentimetres,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -132,11 +139,11 @@
                         </StackPanel>
                     </UniformGrid>
                     <CheckBox Margin="3"
-                              Content="扣除暗电流"
+                              Content="{Binding Localization[Workflow.SubtractDark]}"
                               IsChecked="{Binding SubtractDark}" />
                     <UniformGrid Columns="2">
                         <StackPanel>
-                            <TextBlock Text="暗区起点 s" />
+                            <TextBlock Text="{Binding Localization[Workflow.DarkStartSeconds]}" />
                             <TextBox Text="{Binding DarkStartSeconds,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -144,7 +151,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="暗区终点 s" />
+                            <TextBlock Text="{Binding Localization[Workflow.DarkEndSeconds]}" />
                             <TextBox Text="{Binding DarkEndSeconds,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -155,7 +162,7 @@
                     <TextBlock Style="{StaticResource CoverageMessageStyle}"
                                Text="{Binding CoverageMessage}" />
                     <Button x:Name="CalculatePowerButton"
-                            Content="计算功率密度"
+                            Content="{Binding Localization[Workflow.CalculatePowerDensity]}"
                             Command="{Binding CalculatePowerDensityCommand}" />
                     <TextBlock Margin="3,0,3,2"
                                TextWrapping="Wrap"
@@ -163,46 +170,46 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="2. 样品 IPCE"
+            <GroupBox Header="{Binding Localization[Workflow.SampleSection]}"
                       DataContext="{Binding Sample}">
                 <StackPanel>
-                    <TextBlock Text="样品 i-t 文件" />
+                    <TextBlock Text="{Binding Localization[Workflow.SampleTraceFile]}" />
                     <DockPanel>
                         <Button DockPanel.Dock="Right"
-                                Content="浏览…"
+                                Content="{Binding Localization[Common.Browse]}"
                                 Click="BrowseSampleTrace_Click" />
                         <TextBox x:Name="SampleTracePathBox" />
                     </DockPanel>
-                    <Button Content="导入样品 i-t"
+                    <Button Content="{Binding Localization[Workflow.ImportSampleTrace]}"
                             Command="{Binding ImportTraceCommand}"
                             CommandParameter="{Binding Text, ElementName=SampleTracePathBox}" />
                     <TextBlock Margin="3,0,3,4"
                                TextWrapping="Wrap"
                                Foreground="{StaticResource MutedTextBrush}"
                                Text="{Binding TraceImportSummary}" />
-                    <TextBlock Margin="0,6,0,0" Text="样品时间锚点文件" />
+                    <TextBlock Margin="0,6,0,0" Text="{Binding Localization[Workflow.SampleAnchorFile]}" />
                     <DockPanel>
                         <Button DockPanel.Dock="Right"
-                                Content="浏览…"
+                                Content="{Binding Localization[Common.Browse]}"
                                 Click="BrowseSampleAnchors_Click" />
                         <TextBox x:Name="SampleAnchorPathBox" />
                     </DockPanel>
-                    <Button Content="导入样品锚点"
+                    <Button Content="{Binding Localization[Workflow.ImportSampleAnchors]}"
                             Command="{Binding ImportAnchorsCommand}"
                             CommandParameter="{Binding Text, ElementName=SampleAnchorPathBox}" />
                     <UniformGrid Columns="2" Margin="0,6,0,0">
                         <StackPanel>
-                            <TextBlock Text="时间对齐" />
+                            <TextBlock Text="{Binding Localization[Workflow.TimeAlignment]}" />
                             <ComboBox SelectedValue="{Binding AlignmentMode}"
                                       SelectedValuePath="Tag">
-                                <ComboBoxItem Content="固定延时"
+                                <ComboBoxItem Content="{Binding Localization[Workflow.AlignmentFixedDelay]}"
                                               Tag="{x:Static domain:AlignmentMode.FixedDelay}" />
-                                <ComboBoxItem Content="锚点"
+                                <ComboBoxItem Content="{Binding Localization[Workflow.AlignmentAnchors]}"
                                               Tag="{x:Static domain:AlignmentMode.Anchors}" />
                             </ComboBox>
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="固定起点 s" />
+                            <TextBlock Text="{Binding Localization[Workflow.FixedStartSeconds]}" />
                             <TextBox Text="{Binding FixedStartTimeSeconds,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -212,7 +219,7 @@
                     </UniformGrid>
                     <UniformGrid Columns="3" Margin="0,6,0,0">
                         <StackPanel>
-                            <TextBlock Text="起始 nm" />
+                            <TextBlock Text="{Binding Localization[Workflow.StartNm]}" />
                             <TextBox Text="{Binding WavelengthStartNanometres,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -220,7 +227,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="终止 nm" />
+                            <TextBlock Text="{Binding Localization[Workflow.EndNm]}" />
                             <TextBox Text="{Binding WavelengthEndNanometres,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -228,7 +235,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="步长 nm" />
+                            <TextBlock Text="{Binding Localization[Workflow.StepNm]}" />
                             <TextBox Text="{Binding WavelengthStepNanometres,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -236,7 +243,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="标称延时 s" />
+                            <TextBlock Text="{Binding Localization[Workflow.NominalDelaySeconds]}" />
                             <TextBox Text="{Binding NominalDelaySeconds,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -244,7 +251,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="平均时长 s" />
+                            <TextBlock Text="{Binding Localization[Workflow.AverageSeconds]}" />
                             <TextBox Text="{Binding AveragingDurationSeconds,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -252,7 +259,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="面积 cm²" />
+                            <TextBlock Text="{Binding Localization[Workflow.AreaCm2]}" />
                             <TextBox Text="{Binding AreaSquareCentimetres,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -261,11 +268,11 @@
                         </StackPanel>
                     </UniformGrid>
                     <CheckBox Margin="3"
-                              Content="扣除暗电流"
+                              Content="{Binding Localization[Workflow.SubtractDark]}"
                               IsChecked="{Binding SubtractDark}" />
                     <UniformGrid Columns="2">
                         <StackPanel>
-                            <TextBlock Text="暗区起点 s" />
+                            <TextBlock Text="{Binding Localization[Workflow.DarkStartSeconds]}" />
                             <TextBox Text="{Binding DarkStartSeconds,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -273,7 +280,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="暗区终点 s" />
+                            <TextBlock Text="{Binding Localization[Workflow.DarkEndSeconds]}" />
                             <TextBox Text="{Binding DarkEndSeconds,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -284,7 +291,7 @@
                     <TextBlock Style="{StaticResource CoverageMessageStyle}"
                                Text="{Binding CoverageMessage}" />
                     <Button x:Name="CalculateIpceButton"
-                            Content="计算样品 IPCE"
+                            Content="{Binding Localization[Workflow.CalculateSampleIpce]}"
                             Command="{Binding CalculateIpceCommand}" />
                     <TextBlock Margin="3,0,3,2"
                                TextWrapping="Wrap"
@@ -292,27 +299,27 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="3. 光谱积分与导出"
+            <GroupBox Header="{Binding Localization[Workflow.SpectrumSection]}"
                       DataContext="{Binding Spectrum}">
                 <StackPanel>
-                    <TextBlock Text="外部 IPCE（TXT/CSV）" />
+                    <TextBlock Text="{Binding Localization[Workflow.ExternalIpceFile]}" />
                     <DockPanel>
                         <Button DockPanel.Dock="Right"
-                                Content="浏览…"
+                                Content="{Binding Localization[Common.Browse]}"
                                 Click="BrowseExternalIpce_Click" />
                         <TextBox x:Name="ExternalIpcePathBox" />
                     </DockPanel>
-                    <Button Content="导入外部 IPCE"
+                    <Button Content="{Binding Localization[Workflow.ImportExternalIpce]}"
                             Command="{Binding ImportExternalIpceCommand}"
                             CommandParameter="{Binding Text, ElementName=ExternalIpcePathBox}" />
-                    <TextBlock Margin="0,6,0,0" Text="太阳光谱（XLS/XLSX）" />
+                    <TextBlock Margin="0,6,0,0" Text="{Binding Localization[Workflow.SpectrumFile]}" />
                     <DockPanel>
                         <Button DockPanel.Dock="Right"
-                                Content="浏览…"
+                                Content="{Binding Localization[Common.Browse]}"
                                 Click="BrowseSpectrum_Click" />
                         <TextBox x:Name="SpectrumPathBox" />
                     </DockPanel>
-                    <Button Content="导入太阳光谱"
+                    <Button Content="{Binding Localization[Workflow.ImportSpectrum]}"
                             Command="{Binding ImportSpectrumCommand}"
                             CommandParameter="{Binding Text, ElementName=SpectrumPathBox}" />
                     <TextBlock Margin="3,0,3,4"
@@ -320,18 +327,18 @@
                                Foreground="{StaticResource MutedTextBrush}"
                                Text="{Binding SpectrumImportSummary}" />
                     <StackPanel Margin="0,6,0,0">
-                        <TextBlock Text="积分使用的 IPCE 来源" />
+                        <TextBlock Text="{Binding Localization[Workflow.IpceSource]}" />
                         <ComboBox SelectedValue="{Binding SelectedIpceSource}"
                                   SelectedValuePath="Tag">
-                            <ComboBoxItem Content="计算得到的 IPCE"
+                            <ComboBoxItem Content="{Binding Localization[Workflow.CalculatedIpce]}"
                                           Tag="{x:Static domain:IpceSource.Calculated}" />
-                            <ComboBoxItem Content="外部 IPCE"
+                            <ComboBoxItem Content="{Binding Localization[Workflow.ExternalIpce]}"
                                           Tag="{x:Static domain:IpceSource.External}" />
                         </ComboBox>
                     </StackPanel>
                     <UniformGrid Columns="2" Margin="0,6,0,0">
                         <StackPanel>
-                            <TextBlock Text="积分起点 nm" />
+                            <TextBlock Text="{Binding Localization[Workflow.IntegrationStartNm]}" />
                             <TextBox Text="{Binding IntegrationMinimumNanometres,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -339,7 +346,7 @@
                                 NotifyOnValidationError=True}" />
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="积分终点 nm" />
+                            <TextBlock Text="{Binding Localization[Workflow.IntegrationEndNm]}" />
                             <TextBox Text="{Binding IntegrationMaximumNanometres,
                                 Converter={StaticResource FiniteDoubleConverter},
                                 UpdateSourceTrigger=LostFocus,
@@ -350,36 +357,36 @@
                     <TextBlock Style="{StaticResource CoverageMessageStyle}"
                                Text="{Binding CoverageMessage}" />
                     <Button x:Name="IntegrateButton"
-                            Content="执行光谱积分"
+                            Content="{Binding Localization[Workflow.RunIntegration]}"
                             Command="{Binding IntegrateCommand}" />
                     <TextBlock Margin="3,0,3,2"
                                TextWrapping="Wrap"
                                Text="{Binding ResultStatusMessage}" />
                     <Separator Margin="0,8" />
-                    <TextBlock Text="导出项目" />
+                    <TextBlock Text="{Binding Localization[Workflow.ExportItems]}" />
                     <WrapPanel>
-                        <CheckBox Content="硅功率密度"
+                        <CheckBox Content="{Binding Localization[Workflow.ExportPowerDensity]}"
                                   IsChecked="{Binding IncludePowerDensityExport}" />
-                        <CheckBox Content="样品 IPCE"
+                        <CheckBox Content="{Binding Localization[Workflow.ExportSampleIpce]}"
                                   IsChecked="{Binding IncludeCalculatedIpceExport}" />
-                        <CheckBox Content="外部 IPCE"
+                        <CheckBox Content="{Binding Localization[Workflow.ExportExternalIpce]}"
                                   IsChecked="{Binding IncludeExternalIpceExport}" />
-                        <CheckBox Content="积分汇总和曲线"
+                        <CheckBox Content="{Binding Localization[Workflow.ExportIntegration]}"
                                   IsChecked="{Binding IncludeIntegrationExport}" />
                     </WrapPanel>
                     <ComboBox x:Name="ExportFormatComboBox"
                               Margin="3"
                               SelectedIndex="0"
                               SelectedValuePath="Tag">
-                        <ComboBoxItem Content="Excel 工作簿 (.xlsx)"
+                        <ComboBoxItem Content="{Binding Localization[Workflow.FormatXlsx]}"
                                       Tag="{x:Static export:ExportFormat.Xlsx}" />
-                        <ComboBoxItem Content="CSV 文本 (.csv)"
+                        <ComboBoxItem Content="{Binding Localization[Workflow.FormatCsv]}"
                                       Tag="{x:Static export:ExportFormat.Csv}" />
-                        <ComboBoxItem Content="MATLAB 数据 (.mat)"
+                        <ComboBoxItem Content="{Binding Localization[Workflow.FormatMat]}"
                                       Tag="{x:Static export:ExportFormat.Mat}" />
                     </ComboBox>
                     <Button x:Name="ExportButton"
-                            Content="导出所选结果…"
+                            Content="{Binding Localization[Workflow.ExportSelected]}"
                             IsEnabled="{Binding CanExport}"
                             Click="Export_Click" />
                     <TextBlock Margin="3"

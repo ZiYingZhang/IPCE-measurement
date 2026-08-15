@@ -4,17 +4,148 @@ Last updated: 2026-08-15
 
 ## Current checkpoint
 
-- Last completed task: Task 5 of the 2026-08-15 repository-normalization plan
-- Status: normalized source, shared-data paths, both portable builds, and Git
-  publication-safety audits pass; external release gates remain pending
+- Last completed task: MATLAB and C# bilingual localization and portable
+  verification
+- Status: normalized repository and both bilingual applications pass all
+  automated gates; external clean-machine and physical-display gates remain
+  pending
 - Next tasks:
-  1. implement C# bilingual localization;
-  2. implement MATLAB bilingual localization;
-  3. prepare the private GitHub repository and `v1.0.0` for public release
+  1. prepare English-first public documentation;
+  2. prepare the private GitHub repository and `v1.0.0` for public release
 - MATLAB numerical/UI behavior modified by normalization: no; files moved to
   `matlab/` and shared startup files moved to `data/defaults/`
 - Git action taken: local commits on `main`; no remote push, tag, Release, or
   visibility change
+
+## 2026-08-15 C# bilingualization start
+
+- Approved behavior: one WPF build with live `English` / `中文` switching,
+  remembered preference, first-launch system-language selection, and neutral
+  English fallback.
+- Scientific scope: presentation only; calculations, canonical units, error
+  codes, workflow state, export schemas, and invariant numeric values must not
+  change.
+- Implementation plan:
+  `docs/superpowers/plans/2026-08-15-ipce-csharp-bilingual-localization.md`.
+- Research application contract: `docs/scientific/research-app-spec.md`.
+- Numerical contract: `docs/scientific/numerical-contract.md`.
+- Acceptance checklist:
+  `docs/scientific/bilingual-acceptance-checklist.md`.
+- Isolated implementation branch: `codex/csharp-bilingual`.
+- Baseline verification before implementation: Release build passed with zero
+  warnings/errors; Core 58, IO 44, Desktop 97, total 199 tests passed with
+  zero failures/skips.
+- Implementation and automated portable-release verification: complete;
+  external clean-machine and scaling gates remain pending.
+
+## 2026-08-15 C# bilingualization verification
+
+Implemented behavior:
+
+- one WPF build supports live `English` / `中文` switching;
+- first launch follows `zh-*` versus non-Chinese system culture, a valid saved
+  preference wins, and corrupt/inaccessible settings recover safely;
+- preference writes are atomic under `%LOCALAPPDATA%\IPCEApp\settings.json`;
+- main window, workflows, statuses, prerequisites, dialogs, file filters,
+  validation, stable error-code messages, result tabs, summaries, scientific
+  plots, hover text, toolbars, and PNG save UI are localized;
+- a switch preserves `MainViewModel`, `SessionState`, imported/calculated data,
+  selected sources, numeric values, export schemas, and plot layer identity;
+- English is the neutral resource and visible missing-key fallback;
+- plot layers use stable IDs rather than translated labels.
+
+Test-first evidence:
+
+- focused RED runs failed for missing localization types, live switching,
+  workflow localization, plot localization, stable layer IDs, completeness,
+  and fresh release test-count collection before each implementation;
+- Release build: 0 warnings, 0 errors;
+- .NET tests: Core 58, IO 44, Desktop 129, total 231; 0 failed, 0 skipped;
+- MATLAB numerical self-test: passed;
+- MATLAB real-UI construction, `isvalid`, and close smoke: passed;
+- resource parity and non-empty-value audit: passed;
+- English real-window visible-text audit: passed (only self-labelled `中文` is
+  intentionally present);
+- language-invariant plot-value and export-table parity: passed.
+
+Fresh self-contained C# archive:
+
+- path: `csharp/dist/IPCEApp_Windows_x64.zip`;
+- bytes: `85,510,823`;
+- SHA-256:
+  `6c2fb6c32c3637bb80c1c9f4ab305afa5ee6d1a82bb309db37a35b3ed116a004`;
+- entries: 441;
+- `zh-CN/IPCEApp.resources.dll`: present;
+- self-contained `win-x64`: true;
+- MATLAB Runtime included: false;
+- published and extracted smoke exit codes: `0` and `0`;
+- manifest generated UTC: `2026-08-15T10:08:18.6435330Z`;
+- the release script now derives all test counts from fresh per-project TRX
+  files; a regression test prevents reuse of hard-coded historical counts.
+
+External C# gates still pending:
+
+1. Run this exact ZIP/hash through the complete workflow on clean Windows
+   10/11 x64 with neither MATLAB nor .NET Runtime.
+2. Inspect both languages and representative plots at Windows scaling 100%,
+   125%, and 150% on representative 16–24 inch displays.
+
+## 2026-08-15 MATLAB bilingualization verification
+
+Implemented behavior:
+
+- one MATLAB programmatic UI supports live `English` / `中文` switching;
+- first launch follows the system locale, a valid saved preference wins, and
+  corrupt/inaccessible preferences recover safely;
+- preference writes are atomic under `%LOCALAPPDATA%\IPCEApp\settings.json`;
+  MATLAB and C# both write canonical `Language` and read legacy lowercase
+  `language` for migration;
+- Windows first-launch detection uses `.NET CurrentUICulture`, with Java and
+  `LANG` as deployed fallbacks;
+- controls, tooltips, statuses, dialogs, filters, unit prompts, recoverable
+  errors, anchor/dark-current/axis/export workflows, plot labels, legends, and
+  result views use the current language;
+- imported filenames and worksheet/header labels remain unmodified source data;
+- dynamic file labels and spectrum-column items/data/values do not reset when
+  switching language;
+- recoverable errors are localized by stable `IPCE:*` identifier, and missing
+  English literals remain visibly diagnostic instead of being silently
+  truncated;
+- switching reuses the same figure and preserves all state tables, profiles,
+  inputs, calculated results, integration source, schemas, and numeric values.
+
+Test-first evidence:
+
+- catalog/preference, live-window state, runtime-message, and dynamic-control
+  tests failed before their respective implementations;
+- review follow-up added real anchor/export-dialog, plot-label, populated
+  standalone external-IPCE, shared JSON-schema, scalar-validation, stable-error,
+  and Windows UI-culture coverage;
+- UI tests use an injected temporary preference file rather than reading the
+  real user setting; populated external-IPCE verification imports real
+  temporary CSV files and runs the production spectrum integrator, with no
+  direct synthetic-result state hook;
+- complete MATLAB self-test passed, including numerical/oracle, import, export,
+  standalone external-IPCE, localization, and real-window assertions;
+- separate real UI construction/`isvalid`/close smoke passed;
+- C# Release build remained at 0 warnings and 0 errors;
+- all 231 C# tests passed: Core 58, IO 44, Desktop 129; 0 failed/skipped.
+
+Fresh MATLAB Compiler archive:
+
+- path: `matlab/dist/IPCEApp_R2023b_Windows_x64.zip`;
+- bytes: `790,342` (`0.753729 MiB`);
+- SHA-256:
+  `a0ec3317f41a01b258f1af4a380d452b569655668744b875f74db8c866c461e5`;
+- entries: 7;
+- Runtime installer markers: 0;
+- English-first bilingual `README_运行说明.txt`: present;
+- extracted archive verification: passed;
+- compiled `IPCEApp.exe --smoke-test` exit code: `0`.
+
+External MATLAB gate still pending: run this exact ZIP/hash through the full
+workflow on clean Windows 10/11 x64 with no MATLAB installation and matching
+64-bit MATLAB Runtime R2023b Update 6 or a later R2023b update.
 
 ## Environment
 

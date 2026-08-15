@@ -20,7 +20,11 @@ public sealed class TraceOverlayTests
         ];
 
         IReadOnlyList<PlotIntervalMarker> markers =
-            TraceOverlayBuilder.BuildMeans(preview, 4, means);
+            TraceOverlayBuilder.BuildMeans(
+                preview,
+                4,
+                means,
+                TestLocalization.Chinese());
 
         Assert.AreEqual(2, markers.Count);
         Assert.AreEqual(6d, markers[0].MinimumX);

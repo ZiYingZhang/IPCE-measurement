@@ -149,7 +149,8 @@ public sealed class ImportCoordinatorTests
             .SpectrumWorkflowViewModel(
                 session,
                 spectrumImports:
-                    new SpectrumImportCoordinator(selections));
+                    new SpectrumImportCoordinator(selections),
+                localization: TestLocalization.Chinese());
 
         bool imported =
             await viewModel.ImportSpectrumAsync(workbook.Path);

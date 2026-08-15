@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using System.IO;
+using System.Windows;
 using IPCE.Core.Domain;
 using IPCE.Desktop.Import;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Services;
 using IPCE.Desktop.State;
 using IPCE.IO.Import;
@@ -25,40 +27,51 @@ public sealed class MainViewModel : ViewModelBase
         SynchronizationContext? synchronizationContext = null,
         IUserOperationRunner? operations = null,
         TraceImportCoordinator? traceImports = null,
-        SpectrumImportCoordinator? spectrumImports = null)
+        SpectrumImportCoordinator? spectrumImports = null,
+        ILocalizationService? localization = null)
         : base(synchronizationContext)
     {
         Session = session ?? throw new ArgumentNullException(
             nameof(session));
+        Localization = localization ?? LocalizationService.Current;
         IUserOperationRunner operationRunner =
-            operations ?? UserOperationRunner.CreateDefault();
+            operations ?? UserOperationRunner.CreateDefault(Localization);
         TraceImportCoordinator traceImportCoordinator =
             traceImports ?? new TraceImportCoordinator(
-                new ImportSelectionService());
+                new ImportSelectionService(Localization));
         SpectrumImportCoordinator spectrumImportCoordinator =
             spectrumImports ?? new SpectrumImportCoordinator(
-                new ImportSelectionService());
+                new ImportSelectionService(Localization));
         Silicon = new SiliconWorkflowViewModel(
             session,
             synchronizationContext,
             operationRunner,
-            traceImportCoordinator);
+            traceImportCoordinator,
+            Localization);
         Sample = new SampleWorkflowViewModel(
             session,
             synchronizationContext,
             operationRunner,
-            traceImportCoordinator);
+            traceImportCoordinator,
+            Localization);
         Spectrum = new SpectrumWorkflowViewModel(
             session,
             synchronizationContext,
             operationRunner,
             spectrumImportCoordinator,
             Silicon,
-            Sample);
+            Sample,
+            Localization);
         Session.PropertyChanged += OnSessionPropertyChanged;
+        PropertyChangedEventManager.AddHandler(
+            Localization,
+            OnLocalizationPropertyChanged,
+            "Item[]");
     }
 
     public SessionState Session { get; }
+
+    public ILocalizationService Localization { get; }
 
     public SiliconWorkflowViewModel Silicon { get; }
 
@@ -103,12 +116,12 @@ public sealed class MainViewModel : ViewModelBase
     }
 
     public string StartupStatusMessage => IsStartupLoading
-        ? "正在加载内置默认数据…"
+        ? Localization["Startup.Loading"]
         : StartupError.Length > 0
-            ? $"默认数据加载失败：{StartupError}"
+            ? Localization.Format("Startup.Failed", StartupError)
             : IsStartupLoaded
-                ? "默认校准、硅轨迹、锚点和太阳光谱已加载"
-                : "就绪";
+                ? Localization["Startup.Loaded"]
+                : Localization["Common.Ready"];
 
     public IpceSource SelectedIpceSource
     {
@@ -165,6 +178,11 @@ public sealed class MainViewModel : ViewModelBase
             OnPropertyChanged(nameof(SelectedIpceSource));
         }
     }
+
+    private void OnLocalizationPropertyChanged(
+        object? sender,
+        PropertyChangedEventArgs eventArgs) =>
+        OnPropertyChanged(nameof(StartupStatusMessage));
 
     private static StartupBundle ReadStartupBundle(
         string? applicationDirectory)

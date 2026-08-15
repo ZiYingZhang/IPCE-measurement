@@ -1,5 +1,7 @@
 using System.IO;
+using System.Globalization;
 using IPCE.Core.Errors;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Services;
 using IPCE.Desktop.ViewModels;
 
@@ -13,9 +15,11 @@ public sealed class UserOperationRunnerTests
     {
         using var directory = new TemporaryDirectory();
         var notifications = new RecordingNotifications();
+        var localization = ChineseLocalization(directory.Path);
         var runner = new UserOperationRunner(
             notifications,
-            new LocalCrashLogger(directory.Path));
+            new LocalCrashLogger(directory.Path),
+            localization);
 
         bool synchronousResult = runner.Run(
             "计算功率密度",
@@ -34,8 +38,8 @@ public sealed class UserOperationRunnerTests
         CollectionAssert.AreEqual(
             new[]
             {
-                ("计算功率密度", "范围越界"),
-                ("导入样品 i-t", "数据不足"),
+                ("计算功率密度", "测量调度无效。"),
+                ("导入样品 i-t", "i-t 轨迹无效。"),
             },
             notifications.Warnings);
         Assert.AreEqual(0, Directory.GetFiles(directory.Path).Length);
@@ -46,9 +50,11 @@ public sealed class UserOperationRunnerTests
     {
         using var directory = new TemporaryDirectory();
         var notifications = new RecordingNotifications();
+        var localization = ChineseLocalization(directory.Path);
         var runner = new UserOperationRunner(
             notifications,
-            new LocalCrashLogger(directory.Path));
+            new LocalCrashLogger(directory.Path),
+            localization);
 
         bool result = runner.Run(
             "计算样品 IPCE",
@@ -75,9 +81,11 @@ public sealed class UserOperationRunnerTests
     {
         using var directory = new TemporaryDirectory();
         var notifications = new RecordingNotifications();
+        var localization = ChineseLocalization(directory.Path);
         var runner = new UserOperationRunner(
             notifications,
-            new LocalCrashLogger(directory.Path));
+            new LocalCrashLogger(directory.Path),
+            localization);
         var synchronous = new SafeRelayCommand(
             runner,
             "计算功率密度",
@@ -116,6 +124,12 @@ public sealed class UserOperationRunnerTests
         public void ShowError(string title, string message) =>
             Errors.Add((title, message));
     }
+
+    private static LocalizationService ChineseLocalization(
+        string directory) => new(
+            new LanguagePreferenceStore(
+                System.IO.Path.Combine(directory, "settings.json")),
+            CultureInfo.GetCultureInfo("zh-CN"));
 
     private sealed class TemporaryDirectory : IDisposable
     {

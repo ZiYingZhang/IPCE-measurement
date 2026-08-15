@@ -1,6 +1,7 @@
 using IPCE.Core.Domain;
 using IPCE.Core.Errors;
 using IPCE.Core.Scheduling;
+using IPCE.Desktop.Localization;
 
 namespace IPCE.Desktop.Plotting;
 
@@ -25,7 +26,8 @@ public static class WorkflowPreviewBuilder
         AlignmentMode mode,
         IReadOnlyList<AnchorPoint> anchors,
         double fixedStartTimeSeconds,
-        double nominalDelaySeconds)
+        double nominalDelaySeconds,
+        ILocalizationService? localization = null)
     {
         ArgumentNullException.ThrowIfNull(trace);
         ArgumentNullException.ThrowIfNull(wavelengths);
@@ -49,14 +51,16 @@ public static class WorkflowPreviewBuilder
                 dataMaximum,
                 requestedMinimum,
                 requestedMaximum,
-                "s"));
+                "s",
+                localization ?? LocalizationService.Current));
     }
 
     public static CoveragePreview BuildIntegrationCoverage(
         IReadOnlyList<IpceValue> ipce,
         IReadOnlyList<SpectrumPoint> spectrum,
         double requestedMinimumNm,
-        double requestedMaximumNm)
+        double requestedMaximumNm,
+        ILocalizationService? localization = null)
     {
         ArgumentNullException.ThrowIfNull(ipce);
         ArgumentNullException.ThrowIfNull(spectrum);
@@ -85,7 +89,8 @@ public static class WorkflowPreviewBuilder
             dataMaximum,
             requestedMinimumNm,
             requestedMaximumNm,
-            "nm");
+            "nm",
+            localization ?? LocalizationService.Current);
     }
 
     private static CoveragePreview BuildCoverage(
@@ -93,7 +98,8 @@ public static class WorkflowPreviewBuilder
         double dataMaximum,
         double requestedMinimum,
         double requestedMaximum,
-        string unit)
+        string unit,
+        ILocalizationService localization)
     {
         bool finite = double.IsFinite(dataMinimum) &&
             double.IsFinite(dataMaximum) &&
@@ -109,24 +115,41 @@ public static class WorkflowPreviewBuilder
 
         bool covered = requestedMinimum >= dataMinimum &&
             requestedMaximum <= dataMaximum;
-        string prefix =
-            $"数据范围 {dataMinimum:g6}–{dataMaximum:g6} {unit}；" +
-            $"请求范围 {requestedMinimum:g6}–{requestedMaximum:g6} {unit}";
+        string prefix = localization.Format(
+            "Coverage.Range",
+            dataMinimum,
+            dataMaximum,
+            unit,
+            requestedMinimum,
+            requestedMaximum);
         string message;
         if (covered)
         {
-            message = $"{prefix}，完整覆盖。";
+            message = localization.Format("Coverage.Complete", prefix);
         }
         else
         {
             double left = Math.Max(0, dataMinimum - requestedMinimum);
             double right = Math.Max(0, requestedMaximum - dataMaximum);
             string exceeded = left > 0 && right > 0
-                ? $"左侧超出 {left:g6} {unit}、右侧超出 {right:g6} {unit}"
+                ? localization.Format(
+                    "Coverage.ExceededBoth",
+                    left,
+                    unit,
+                    right)
                 : left > 0
-                    ? $"超出 {left:g6} {unit}"
-                    : $"超出 {right:g6} {unit}";
-            message = $"{prefix}，{exceeded}。";
+                    ? localization.Format(
+                        "Coverage.Exceeded",
+                        left,
+                        unit)
+                    : localization.Format(
+                        "Coverage.Exceeded",
+                        right,
+                        unit);
+            message = localization.Format(
+                "Coverage.Incomplete",
+                prefix,
+                exceeded);
         }
 
         return new CoveragePreview(

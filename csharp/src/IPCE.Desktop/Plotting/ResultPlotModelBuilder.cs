@@ -1,5 +1,6 @@
 using IPCE.Core.Domain;
 using IPCE.Core.Errors;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.State;
 
 namespace IPCE.Desktop.Plotting;
@@ -21,32 +22,37 @@ public static class ResultPlotModelBuilder
         SchedulePreview? preview,
         double averagingDurationSeconds,
         IReadOnlyList<TraceMeanResult> means,
-        ResultStatus status)
+        ResultStatus status,
+        ILocalizationService? localization = null)
     {
+        ILocalizationService text =
+            localization ?? LocalizationService.Current;
         ArgumentNullException.ThrowIfNull(means);
         ArgumentNullException.ThrowIfNull(status);
         List<PlotSeries> series = [];
         if (trace is not null)
         {
             series.Add(new PlotSeries(
-                "原始轨迹",
+                text["Plot.RawTrace"],
                 trace.TimeSeconds,
                 trace.CurrentAmperes,
                 PlotSeriesKind.Line,
-                "#1976D2"));
+                "#1976D2",
+                id: "raw-trace"));
             if (anchors is { Count: > 0 })
             {
                 double[] times = anchors
                     .Select(anchor => anchor.ConfirmedTimeSeconds)
                     .ToArray();
                 series.Add(new PlotSeries(
-                    "确认锚点",
+                    text["Plot.ConfirmedAnchors"],
                     times,
                     times.Select(time =>
                         NearestCurrent(trace, time)).ToArray(),
                     PlotSeriesKind.Scatter,
                     "#EF6C00",
-                    contributesToAutoRange: false));
+                    contributesToAutoRange: false,
+                    id: "confirmed-anchors"));
             }
         }
 
@@ -59,7 +65,7 @@ public static class ResultPlotModelBuilder
                     new PlotBand(
                         darkStartSeconds,
                         darkEndSeconds,
-                        "暗电流区间",
+                        text["Plot.DarkCurrentRange"],
                         "#607D8B",
                         0.28),
                 ]
@@ -69,14 +75,15 @@ public static class ResultPlotModelBuilder
                 preview,
                 averagingDurationSeconds,
                 means,
-                status);
+                status,
+                text);
         return new PlotModel(
             title,
-            "时间 (s)",
-            "电流 (A)",
+            text["Plot.TimeAxis"],
+            text["Plot.CurrentAxis"],
             series,
             bands,
-            "导入 i-t 数据后显示轨迹。",
+            text["Plot.EmptyTrace"],
             intervals);
     }
 
@@ -85,8 +92,11 @@ public static class ResultPlotModelBuilder
         IReadOnlyList<IpceValue> selectedIpce,
         IntegrationResult? integration,
         double requestedMinimumNm,
-        double requestedMaximumNm)
+        double requestedMaximumNm,
+        ILocalizationService? localization = null)
     {
+        ILocalizationService text =
+            localization ?? LocalizationService.Current;
         ArgumentNullException.ThrowIfNull(selectedIpce);
         PlotBand[] bands = double.IsFinite(requestedMinimumNm) &&
             double.IsFinite(requestedMaximumNm) &&
@@ -96,7 +106,7 @@ public static class ResultPlotModelBuilder
                     new PlotBand(
                         requestedMinimumNm,
                         requestedMaximumNm,
-                        "积分范围",
+                        text["Plot.IntegrationRange"],
                         "#90CAF9",
                         0.24),
                 ]
@@ -107,14 +117,14 @@ public static class ResultPlotModelBuilder
             requestedMinimumNm,
             requestedMaximumNm);
         PlotModel irradiance = new(
-            "太阳光谱",
-            "波长 (nm)",
-            "辐照度 (W m⁻² nm⁻¹)",
+            text["Plot.SolarSpectrum"],
+            text["Plot.WavelengthAxis"],
+            text["Plot.IrradianceAxis"],
             spectrum is { Count: > 0 }
                 ?
                 [
                     new PlotSeries(
-                        "辐照度",
+                        text["Plot.IrradianceSeries"],
                         spectrum.Select(point =>
                             point.WavelengthNm).ToArray(),
                         spectrum.Select(point =>
@@ -125,17 +135,17 @@ public static class ResultPlotModelBuilder
                 ]
                 : [],
             bands,
-            "导入太阳光谱后显示。",
+            text["Plot.EmptySpectrum"],
             viewportPolicy: focusPolicy);
         PlotModel ipce = new(
-            "积分所用 IPCE",
-            "波长 (nm)",
+            text["Plot.SelectedIpceTitle"],
+            text["Plot.WavelengthAxis"],
             "IPCE (%)",
             selectedIpce.Count > 0
                 ?
                 [
                     new PlotSeries(
-                        "选定 IPCE",
+                        text["Plot.SelectedIpceSeries"],
                         selectedIpce.Select(point =>
                             point.WavelengthNm).ToArray(),
                         selectedIpce.Select(point =>
@@ -145,7 +155,7 @@ public static class ResultPlotModelBuilder
                 ]
                 : [],
             bands,
-            "选择可用 IPCE 后显示。",
+            text["Plot.EmptySelectedIpce"],
             viewportPolicy: focusPolicy);
         IReadOnlyList<IntegrationCurvePoint>? curve =
             integration?.Curve;
@@ -158,14 +168,14 @@ public static class ResultPlotModelBuilder
                         curve.Max(point => point.WavelengthNm))
                 : new PlotViewportPolicy();
         PlotModel cumulative = new(
-            "累计电流密度",
-            "波长 (nm)",
-            "累计 Jsc (mA cm⁻²)",
+            text["Plot.CumulativeTitle"],
+            text["Plot.WavelengthAxis"],
+            text["Plot.CumulativeAxis"],
             curve is { Count: > 0 }
                 ?
                 [
                     new PlotSeries(
-                        "累计 Jsc",
+                        text["Plot.CumulativeSeries"],
                         curve.Select(point =>
                             point.WavelengthNm).ToArray(),
                         curve.Select(point =>
@@ -176,7 +186,7 @@ public static class ResultPlotModelBuilder
                 ]
                 : [],
             [],
-            "运行光谱积分后显示累计曲线。",
+            text["Plot.EmptyCumulative"],
             viewportPolicy: cumulativePolicy);
         return new SpectrumPlotModels(
             irradiance,
@@ -188,7 +198,8 @@ public static class ResultPlotModelBuilder
         SchedulePreview? preview,
         double averagingDurationSeconds,
         IReadOnlyList<TraceMeanResult> means,
-        ResultStatus status)
+        ResultStatus status,
+        ILocalizationService localization)
     {
         if (preview is null || means.Count == 0)
         {
@@ -201,7 +212,8 @@ public static class ResultPlotModelBuilder
             intervals = TraceOverlayBuilder.BuildMeans(
                 preview,
                 averagingDurationSeconds,
-                means);
+                means,
+                localization);
         }
         catch (IpceException exception)
             when (exception.Code == "IPCE:InvalidTraceOverlay")
@@ -219,9 +231,11 @@ public static class ResultPlotModelBuilder
                 interval.MinimumX,
                 interval.MaximumX,
                 interval.Y,
-                "平均电流（结果已过期）",
+                localization["TraceOverlay.StaleMeanCurrent"],
                 interval.ColorHex,
-                $"{interval.HoverDetails}\n状态：结果已过期"))
+                localization.Format(
+                    "TraceOverlay.StaleHover",
+                    interval.HoverDetails)))
             .ToArray();
     }
 
