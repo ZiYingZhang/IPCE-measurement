@@ -153,9 +153,9 @@ try {
         publishedSmokeExitCode = $publishedSmokeExitCode
         archiveSmokeExitCode = $archiveSmokeExitCode
         dotnetTests = [ordered]@{
-            total = 198
+            total = 199
             core = 58
-            io = 43
+            io = 44
             desktop = 97
             failed = 0
             skipped = 0

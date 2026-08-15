@@ -1,7 +1,7 @@
 # Project Guide
 
 This repository contains the MATLAB programmatic-UI application under
-`matlab/`, the self-contained Windows C# WPF application under `csharp APP/`,
+`matlab/`, the self-contained Windows C# WPF application under `csharp/`,
 and shared public inputs under `data/`. Read this file first, then
 `PROJECT_MEMORY.md`; consult
 `README_CN.md` for user workflows and formulas, and
@@ -84,35 +84,35 @@ MATLAB packaging is controlled by:
 The MATLAB ZIP is not self-contained: it excludes MATLAB Runtime and requires
 64-bit MATLAB Runtime R2023b Update 6 or a later R2023b update on the target
 computer. This is distinct from the self-contained C# package under
-`csharp APP/dist`.
+`csharp/dist`.
 
 ### Current C# Windows application
 
-The C# project root is exactly `csharp APP`; do not assume the old folder name
-`csharp`.
+The C# project root is exactly `csharp`; the former folder name `csharp APP`
+must not be reintroduced.
 
-- `csharp APP/IPCE.slnx`: solution entry point.
-- `csharp APP/src/IPCE.Core`: calculations, scheduling, extraction, numerical
+- `csharp/IPCE.slnx`: solution entry point.
+- `csharp/src/IPCE.Core`: calculations, scheduling, extraction, numerical
   methods, and domain models.
-- `csharp APP/src/IPCE.IO`: calibration/i-t/IPCE/spectrum import and export.
-- `csharp APP/src/IPCE.Desktop`: WPF UI, state, view models, plotting, and
+- `csharp/src/IPCE.IO`: calibration/i-t/IPCE/spectrum import and export.
+- `csharp/src/IPCE.Desktop`: WPF UI, state, view models, plotting, and
   application services.
-- `csharp APP/src/IPCE.Desktop/Plotting/PlotTheme.cs`: shared plot typography.
-- `csharp APP/src/IPCE.Desktop/Plotting/ResultPlotModelBuilder.cs`: scientific
+- `csharp/src/IPCE.Desktop/Plotting/PlotTheme.cs`: shared plot typography.
+- `csharp/src/IPCE.Desktop/Plotting/ResultPlotModelBuilder.cs`: scientific
   plot series, dark-current bands, and integration bands.
-- `csharp APP/src/IPCE.Desktop/ViewModels/SampleWorkflowViewModel.cs`: sample
+- `csharp/src/IPCE.Desktop/ViewModels/SampleWorkflowViewModel.cs`: sample
   workflow defaults and invalidation behavior.
-- `csharp APP/tests/IPCE.Core.Tests`: numerical and MATLAB-golden parity tests.
-- `csharp APP/tests/IPCE.IO.Tests`: import/export and unit-conversion tests.
-- `csharp APP/tests/IPCE.Desktop.Tests`: UI view-model, plotting, smoke, and
+- `csharp/tests/IPCE.Core.Tests`: numerical and MATLAB-golden parity tests.
+- `csharp/tests/IPCE.IO.Tests`: import/export and unit-conversion tests.
+- `csharp/tests/IPCE.Desktop.Tests`: UI view-model, plotting, smoke, and
   portable-package tests.
-- `csharp APP/scripts/build-portable.ps1`: complete release verification,
+- `csharp/scripts/build-portable.ps1`: complete release verification,
   self-contained publish, smoke validation, ZIP creation, and build manifest.
-- `csharp APP/dist/IPCEApp_Windows_x64.build.json`: latest machine-readable
+- `csharp/dist/IPCEApp_Windows_x64.build.json`: latest machine-readable
   release evidence.
 
 `dist APP` contains extracted/manual distribution copies. Treat
-`csharp APP/dist` and its fresh build manifest as the authoritative generated
+`csharp/dist` and its fresh build manifest as the authoritative generated
 release location.
 
 ## Canonical units and non-negotiable behavior
@@ -197,18 +197,18 @@ machine without MATLAB but with the matching R2023b Runtime installed.
 For C# changes, run:
 
 ```powershell
-dotnet build "csharp APP/IPCE.slnx" -c Release --no-restore
-dotnet test "csharp APP/IPCE.slnx" -c Release --no-build --no-restore
+dotnet build "csharp/IPCE.slnx" -c Release --no-restore
+dotnet test "csharp/IPCE.slnx" -c Release --no-build --no-restore
 ```
 
-The current expected test counts are Core `58`, IO `43`, Desktop `97`, total
-`198`, with zero failures and skips.
+The current expected test counts are Core `58`, IO `44`, Desktop `97`, total
+`199`, with zero failures and skips.
 
 For release work, run:
 
 ```powershell
 matlab -batch "cd('matlab'); run_ipce_selftest; app = IPCEApp; drawnow; assert(isvalid(app)); close(app)"
-powershell -NoProfile -ExecutionPolicy Bypass -File "csharp APP/scripts/build-portable.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -File "csharp/scripts/build-portable.ps1"
 ```
 
 Read and report the newly generated build manifest; never reuse an older

@@ -20,6 +20,17 @@ public sealed class StartupDataResolverTests
     }
 
     [TestMethod]
+    public void RepositoryLayout_UsesNormalizedCSharpDirectory()
+    {
+        string normalizedRoot = Path.Combine(TestPaths.RepositoryRoot, "csharp");
+
+        Assert.IsTrue(File.Exists(Path.Combine(normalizedRoot, "IPCE.slnx")));
+        Assert.IsFalse(Directory.Exists(Path.Combine(
+            TestPaths.RepositoryRoot,
+            "csharp APP")));
+    }
+
+    [TestMethod]
     public void Defaults_MatchMeasurementAndIntegrationWorkflow()
     {
         DefaultConfiguration defaults = DefaultConfiguration.Current;

@@ -16,7 +16,8 @@
 - Do not clip external IPCE or extrapolate beyond common wavelength coverage.
 - Preserve the pre-migration C# baseline of Core 58, IO 42, Desktop 97, total
   197; the new repository-layout regression in Task 2 raises IO to 43 and the
-  total to 198, with zero failures and skips.
+  total to 198; the normalized-C#-root regression in Task 3 raises IO to 44
+  and the total to 199, with zero failures and skips.
 - Keep MATLAB as the numerical oracle and run `run_ipce_selftest` plus a real UI smoke test.
 - Keep C# build outputs under `csharp/dist` and MATLAB build outputs under `matlab/dist`; neither is tracked by Git.
 - Never commit `bin`, `obj`, `TestResults`, `dist`, `publish`, extracted applications, generated exports, ZIP files, `.superpowers`, `.agents`, or `PROJECT_MEMORY.md`.
@@ -697,7 +698,7 @@ dotnet test "csharp/IPCE.slnx" -c Release --no-build --no-restore
 matlab -batch "cd('matlab'); run_ipce_selftest"
 ```
 
-Expected: both layout tests pass; .NET remains 198/198; MATLAB passes.
+Expected: both layout tests pass; .NET reports 199/199; MATLAB passes.
 
 - [ ] **Step 8: Commit the C# root rename**
 
@@ -795,7 +796,7 @@ git diff --cached --check
 git commit -m "docs: route development through normalized layout"
 ```
 
-Expected: MATLAB passes; .NET reports 198 passed; ignored
+Expected: MATLAB passes; .NET reports 199 passed; ignored
 `PROJECT_MEMORY.md` is not in the commit.
 
 ---
@@ -821,7 +822,7 @@ dotnet test "csharp/IPCE.slnx" -c Release --no-build --no-restore
 matlab -batch "cd('matlab'); run_ipce_selftest; app = IPCEApp; drawnow; assert(isvalid(app)); close(app)"
 ```
 
-Expected: .NET build has zero warnings/errors; Core 58, IO 43, Desktop 97 pass;
+Expected: .NET build has zero warnings/errors; Core 58, IO 44, Desktop 97 pass;
 MATLAB self-test and UI smoke pass.
 
 - [ ] **Step 2: Rebuild and inspect the C# portable package**
@@ -833,7 +834,7 @@ Get-Content -Raw -Encoding UTF8 "csharp/dist/IPCEApp_Windows_x64.build.json"
 
 Expected: published and extracted smoke exit codes are `0`, `selfContained` is
 `true`, `matlabRuntimeIncluded` is `false`, and the recorded test totals are
-Core 58, IO 43, Desktop 97, total 198.
+Core 58, IO 44, Desktop 97, total 199.
 
 - [ ] **Step 3: Rebuild and inspect the MATLAB portable package**
 
@@ -883,7 +884,7 @@ packages do not appear in status; `origin` is the approved private repository.
 Report:
 
 - exact final commit ID;
-- .NET build and 198-test result;
+- .NET build and 199-test result;
 - MATLAB self-test/UI-smoke result;
 - fresh C# archive path, size, SHA-256, entry count, and both smoke codes;
 - fresh MATLAB archive path, size, and SHA-256;
@@ -902,7 +903,7 @@ This plan is complete only when:
 - MATLAB development startup and compiled fallback still resolve all four exact
   defaults;
 - C# embeds those same four shared files with unchanged logical resource names;
-- MATLAB and all 198 .NET tests pass;
+- MATLAB and all 199 .NET tests pass;
 - both portable-build workflows pass from the normalized paths;
 - generated outputs remain ignored and absent from Git history; and
 - all changes are committed locally on `main` without a remote push.

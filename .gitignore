@@ -29,9 +29,7 @@ PackagingLog.html
 **/TestResults/
 **/.vs/
 **/*_wpftmp.csproj
-/csharp APP/dist/
 /csharp/dist/
-/csharp APP/tests/TestData/Golden/parity-report.json
 /csharp/tests/TestData/Golden/parity-report.json
 
 # Legacy extracted/manual distributions
