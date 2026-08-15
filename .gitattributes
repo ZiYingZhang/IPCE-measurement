@@ -1,0 +1,21 @@
+* text=auto
+.gitattributes text eol=lf
+.gitignore text eol=lf
+*.m text eol=crlf
+*.cs text eol=crlf
+*.xaml text eol=crlf
+*.ps1 text eol=crlf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.txt text eol=auto
+*.csv text eol=lf
+"/Si-i t*.txt" binary
+/MBVO*.txt binary
+data/**/*.txt binary
+*.xls binary
+*.xlsx binary
+*.png binary
+*.ico binary
+*.zip binary

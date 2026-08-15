@@ -1,0 +1,392 @@
+<UserControl x:Class="IPCE.Desktop.Views.WorkflowControls"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:domain="clr-namespace:IPCE.Core.Domain;assembly=IPCE.Core"
+             xmlns:export="clr-namespace:IPCE.IO.Export;assembly=IPCE.IO">
+    <ScrollViewer x:Name="WorkflowScrollViewer"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Background="{StaticResource PanelBrush}">
+            <TextBlock Margin="12,10,12,4"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource AccentBrush}"
+                       Text="测量与后处理流程" />
+            <ProgressBar Height="3"
+                         Margin="12,0"
+                         IsIndeterminate="True"
+                         Visibility="{Binding IsStartupLoading,
+                             Converter={StaticResource BooleanToVisibilityConverter}}" />
+            <TextBlock Margin="12,4"
+                       Foreground="{StaticResource MutedTextBrush}"
+                       Text="{Binding StartupStatusMessage}" />
+
+            <GroupBox Header="1. 硅标定与单色光功率密度"
+                      DataContext="{Binding Silicon}">
+                <StackPanel>
+                    <TextBlock Text="标准硅校准文件" />
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right"
+                                Content="浏览…"
+                                Click="BrowseCalibration_Click" />
+                        <TextBox x:Name="CalibrationPathBox" />
+                    </DockPanel>
+                    <Button Content="导入校准"
+                            Command="{Binding ImportCalibrationCommand}"
+                            CommandParameter="{Binding Text, ElementName=CalibrationPathBox}" />
+
+                    <TextBlock Margin="0,6,0,0" Text="硅 i-t 文件" />
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right"
+                                Content="浏览…"
+                                Click="BrowseSiliconTrace_Click" />
+                        <TextBox x:Name="SiliconTracePathBox" />
+                    </DockPanel>
+                    <Button Content="导入硅 i-t"
+                            Command="{Binding ImportTraceCommand}"
+                            CommandParameter="{Binding Text, ElementName=SiliconTracePathBox}" />
+                    <TextBlock Margin="3,0,3,4"
+                               TextWrapping="Wrap"
+                               Foreground="{StaticResource MutedTextBrush}"
+                               Text="{Binding TraceImportSummary}" />
+
+                    <TextBlock Margin="0,6,0,0" Text="硅时间锚点文件" />
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right"
+                                Content="浏览…"
+                                Click="BrowseSiliconAnchors_Click" />
+                        <TextBox x:Name="SiliconAnchorPathBox" />
+                    </DockPanel>
+                    <Button Content="导入硅锚点"
+                            Command="{Binding ImportAnchorsCommand}"
+                            CommandParameter="{Binding Text, ElementName=SiliconAnchorPathBox}" />
+                    <UniformGrid Columns="2" Margin="0,6,0,0">
+                        <StackPanel>
+                            <TextBlock Text="时间对齐" />
+                            <ComboBox SelectedValue="{Binding AlignmentMode}"
+                                      SelectedValuePath="Tag">
+                                <ComboBoxItem Content="锚点"
+                                              Tag="{x:Static domain:AlignmentMode.Anchors}" />
+                                <ComboBoxItem Content="固定延时"
+                                              Tag="{x:Static domain:AlignmentMode.FixedDelay}" />
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="固定起点 s" />
+                            <TextBox Text="{Binding FixedStartTimeSeconds,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                    </UniformGrid>
+
+                    <UniformGrid Columns="3" Margin="0,6,0,0">
+                        <StackPanel>
+                            <TextBlock Text="起始 nm" />
+                            <TextBox Text="{Binding WavelengthStartNanometres,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="终止 nm" />
+                            <TextBox Text="{Binding WavelengthEndNanometres,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="步长 nm" />
+                            <TextBox Text="{Binding WavelengthStepNanometres,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="标称延时 s" />
+                            <TextBox Text="{Binding NominalDelaySeconds,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="平均时长 s" />
+                            <TextBox Text="{Binding AveragingDurationSeconds,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="面积 cm²" />
+                            <TextBox Text="{Binding AreaSquareCentimetres,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                    </UniformGrid>
+                    <CheckBox Margin="3"
+                              Content="扣除暗电流"
+                              IsChecked="{Binding SubtractDark}" />
+                    <UniformGrid Columns="2">
+                        <StackPanel>
+                            <TextBlock Text="暗区起点 s" />
+                            <TextBox Text="{Binding DarkStartSeconds,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="暗区终点 s" />
+                            <TextBox Text="{Binding DarkEndSeconds,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                    </UniformGrid>
+                    <TextBlock Style="{StaticResource CoverageMessageStyle}"
+                               Text="{Binding CoverageMessage}" />
+                    <Button x:Name="CalculatePowerButton"
+                            Content="计算功率密度"
+                            Command="{Binding CalculatePowerDensityCommand}" />
+                    <TextBlock Margin="3,0,3,2"
+                               TextWrapping="Wrap"
+                               Text="{Binding ResultStatusMessage}" />
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="2. 样品 IPCE"
+                      DataContext="{Binding Sample}">
+                <StackPanel>
+                    <TextBlock Text="样品 i-t 文件" />
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right"
+                                Content="浏览…"
+                                Click="BrowseSampleTrace_Click" />
+                        <TextBox x:Name="SampleTracePathBox" />
+                    </DockPanel>
+                    <Button Content="导入样品 i-t"
+                            Command="{Binding ImportTraceCommand}"
+                            CommandParameter="{Binding Text, ElementName=SampleTracePathBox}" />
+                    <TextBlock Margin="3,0,3,4"
+                               TextWrapping="Wrap"
+                               Foreground="{StaticResource MutedTextBrush}"
+                               Text="{Binding TraceImportSummary}" />
+                    <TextBlock Margin="0,6,0,0" Text="样品时间锚点文件" />
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right"
+                                Content="浏览…"
+                                Click="BrowseSampleAnchors_Click" />
+                        <TextBox x:Name="SampleAnchorPathBox" />
+                    </DockPanel>
+                    <Button Content="导入样品锚点"
+                            Command="{Binding ImportAnchorsCommand}"
+                            CommandParameter="{Binding Text, ElementName=SampleAnchorPathBox}" />
+                    <UniformGrid Columns="2" Margin="0,6,0,0">
+                        <StackPanel>
+                            <TextBlock Text="时间对齐" />
+                            <ComboBox SelectedValue="{Binding AlignmentMode}"
+                                      SelectedValuePath="Tag">
+                                <ComboBoxItem Content="固定延时"
+                                              Tag="{x:Static domain:AlignmentMode.FixedDelay}" />
+                                <ComboBoxItem Content="锚点"
+                                              Tag="{x:Static domain:AlignmentMode.Anchors}" />
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="固定起点 s" />
+                            <TextBox Text="{Binding FixedStartTimeSeconds,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                    </UniformGrid>
+                    <UniformGrid Columns="3" Margin="0,6,0,0">
+                        <StackPanel>
+                            <TextBlock Text="起始 nm" />
+                            <TextBox Text="{Binding WavelengthStartNanometres,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="终止 nm" />
+                            <TextBox Text="{Binding WavelengthEndNanometres,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="步长 nm" />
+                            <TextBox Text="{Binding WavelengthStepNanometres,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="标称延时 s" />
+                            <TextBox Text="{Binding NominalDelaySeconds,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="平均时长 s" />
+                            <TextBox Text="{Binding AveragingDurationSeconds,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="面积 cm²" />
+                            <TextBox Text="{Binding AreaSquareCentimetres,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                    </UniformGrid>
+                    <CheckBox Margin="3"
+                              Content="扣除暗电流"
+                              IsChecked="{Binding SubtractDark}" />
+                    <UniformGrid Columns="2">
+                        <StackPanel>
+                            <TextBlock Text="暗区起点 s" />
+                            <TextBox Text="{Binding DarkStartSeconds,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="暗区终点 s" />
+                            <TextBox Text="{Binding DarkEndSeconds,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                    </UniformGrid>
+                    <TextBlock Style="{StaticResource CoverageMessageStyle}"
+                               Text="{Binding CoverageMessage}" />
+                    <Button x:Name="CalculateIpceButton"
+                            Content="计算样品 IPCE"
+                            Command="{Binding CalculateIpceCommand}" />
+                    <TextBlock Margin="3,0,3,2"
+                               TextWrapping="Wrap"
+                               Text="{Binding ResultStatusMessage}" />
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="3. 光谱积分与导出"
+                      DataContext="{Binding Spectrum}">
+                <StackPanel>
+                    <TextBlock Text="外部 IPCE（TXT/CSV）" />
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right"
+                                Content="浏览…"
+                                Click="BrowseExternalIpce_Click" />
+                        <TextBox x:Name="ExternalIpcePathBox" />
+                    </DockPanel>
+                    <Button Content="导入外部 IPCE"
+                            Command="{Binding ImportExternalIpceCommand}"
+                            CommandParameter="{Binding Text, ElementName=ExternalIpcePathBox}" />
+                    <TextBlock Margin="0,6,0,0" Text="太阳光谱（XLS/XLSX）" />
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right"
+                                Content="浏览…"
+                                Click="BrowseSpectrum_Click" />
+                        <TextBox x:Name="SpectrumPathBox" />
+                    </DockPanel>
+                    <Button Content="导入太阳光谱"
+                            Command="{Binding ImportSpectrumCommand}"
+                            CommandParameter="{Binding Text, ElementName=SpectrumPathBox}" />
+                    <TextBlock Margin="3,0,3,4"
+                               TextWrapping="Wrap"
+                               Foreground="{StaticResource MutedTextBrush}"
+                               Text="{Binding SpectrumImportSummary}" />
+                    <StackPanel Margin="0,6,0,0">
+                        <TextBlock Text="积分使用的 IPCE 来源" />
+                        <ComboBox SelectedValue="{Binding SelectedIpceSource}"
+                                  SelectedValuePath="Tag">
+                            <ComboBoxItem Content="计算得到的 IPCE"
+                                          Tag="{x:Static domain:IpceSource.Calculated}" />
+                            <ComboBoxItem Content="外部 IPCE"
+                                          Tag="{x:Static domain:IpceSource.External}" />
+                        </ComboBox>
+                    </StackPanel>
+                    <UniformGrid Columns="2" Margin="0,6,0,0">
+                        <StackPanel>
+                            <TextBlock Text="积分起点 nm" />
+                            <TextBox Text="{Binding IntegrationMinimumNanometres,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="积分终点 nm" />
+                            <TextBox Text="{Binding IntegrationMaximumNanometres,
+                                Converter={StaticResource FiniteDoubleConverter},
+                                UpdateSourceTrigger=LostFocus,
+                                ValidatesOnExceptions=True,
+                                NotifyOnValidationError=True}" />
+                        </StackPanel>
+                    </UniformGrid>
+                    <TextBlock Style="{StaticResource CoverageMessageStyle}"
+                               Text="{Binding CoverageMessage}" />
+                    <Button x:Name="IntegrateButton"
+                            Content="执行光谱积分"
+                            Command="{Binding IntegrateCommand}" />
+                    <TextBlock Margin="3,0,3,2"
+                               TextWrapping="Wrap"
+                               Text="{Binding ResultStatusMessage}" />
+                    <Separator Margin="0,8" />
+                    <TextBlock Text="导出项目" />
+                    <WrapPanel>
+                        <CheckBox Content="硅功率密度"
+                                  IsChecked="{Binding IncludePowerDensityExport}" />
+                        <CheckBox Content="样品 IPCE"
+                                  IsChecked="{Binding IncludeCalculatedIpceExport}" />
+                        <CheckBox Content="外部 IPCE"
+                                  IsChecked="{Binding IncludeExternalIpceExport}" />
+                        <CheckBox Content="积分汇总和曲线"
+                                  IsChecked="{Binding IncludeIntegrationExport}" />
+                    </WrapPanel>
+                    <ComboBox x:Name="ExportFormatComboBox"
+                              Margin="3"
+                              SelectedIndex="0"
+                              SelectedValuePath="Tag">
+                        <ComboBoxItem Content="Excel 工作簿 (.xlsx)"
+                                      Tag="{x:Static export:ExportFormat.Xlsx}" />
+                        <ComboBoxItem Content="CSV 文本 (.csv)"
+                                      Tag="{x:Static export:ExportFormat.Csv}" />
+                        <ComboBoxItem Content="MATLAB 数据 (.mat)"
+                                      Tag="{x:Static export:ExportFormat.Mat}" />
+                    </ComboBox>
+                    <Button x:Name="ExportButton"
+                            Content="导出所选结果…"
+                            IsEnabled="{Binding CanExport}"
+                            Click="Export_Click" />
+                    <TextBlock Margin="3"
+                               TextWrapping="Wrap"
+                               Text="{Binding LastOperationMessage}" />
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

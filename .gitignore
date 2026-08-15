@@ -1,0 +1,52 @@
+# Agent/local working state
+/.agents/
+/.superpowers/
+/PROJECT_MEMORY.md
+/docs/superpowers/plans/2026-07-31-building-scientific-desktop-apps-skill.md
+/docs/superpowers/progress/building-scientific-desktop-apps-skill-validation.md
+/docs/superpowers/specs/2026-07-31-building-scientific-desktop-apps-skill-design.md
+
+# MATLAB editor, cache, compiler, and generated output
+*.asv
+*.m~
+*.tmp
+*.bak
+slprj/
+codegen/
+*.mex*
+for_redistribution/
+for_redistribution_files_only/
+for_testing/
+PackagingLog.html
+*.ctf
+*.exe
+/dist/
+/matlab/dist/
+
+# .NET/Visual Studio build output
+**/bin/
+**/obj/
+**/TestResults/
+**/.vs/
+**/*_wpftmp.csproj
+/csharp APP/dist/
+/csharp/dist/
+/csharp APP/tests/TestData/Golden/parity-report.json
+/csharp/tests/TestData/Golden/parity-report.json
+
+# Legacy extracted/manual distributions
+/dist APP/
+
+# Generated measurement exports and temporary output
+/IPCE_export*.xlsx
+/outputs/
+/temp/
+
+# Local IDE, operating-system, and secrets
+/.vscode/
+/.idea/
+.env
+.env.*
+*.key
+Thumbs.db
+.DS_Store

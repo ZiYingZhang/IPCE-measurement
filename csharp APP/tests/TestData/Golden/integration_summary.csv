@@ -1,0 +1,2 @@
+"MinimumWavelength_nm","MaximumWavelength_nm","IntegratedCurrentDensity_mA_cm2","IntegratedPower_W_m2","IntegrationGridPoints","Interpolation"
+400,600,8.0655439373492115,200,9,"pchip(IPCE) + linear(spectrum)"

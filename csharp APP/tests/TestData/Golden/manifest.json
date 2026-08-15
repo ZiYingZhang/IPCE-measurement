@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "generatedUtc": "2026-07-27T03:33:40.772Z",
+  "matlabRelease": "2023b",
+  "generator": "csharp/tools/export_csharp_baseline.m",
+  "sources": [
+    {
+      "name": "标准硅探测器校准结果_证书编号 GXgf2026-01645.xlsx",
+      "sha256": "c56f9e13ed5d1104f349a5c471d0fdf2c1dd0d3e2e48526978aee1f4293b243e"
+    },
+    {
+      "name": "标准太阳能光谱数据.xls",
+      "sha256": "e6eefda78db23431d99b7079ee60956ab4389a40c3fcd6e5c58d2f6bbd531d2e"
+    },
+    {
+      "name": "Si-i t [300 1100] nm-grating 2-filter.txt",
+      "sha256": "69e157166b83edc7547d22de5ba5dd7cdff157de29c4e0bb84b948bda4d3e490"
+    },
+    {
+      "name": "Si-i t [300 1100] nm-grating 2-filter-time match.txt",
+      "sha256": "59d5ef1ab6b29829712371d83ffda09b281b00d74a644af842016e5035956122"
+    },
+    {
+      "name": "csharp\\tools\\export_csharp_baseline.m",
+      "sha256": "015590ff6ab6366a6d008f83b1b96cd106980a35432328d3223a2a44cacb56fb"
+    },
+    {
+      "name": "run_ipce_selftest.m",
+      "sha256": "5b1b47ec8ec74350ae66bd2679bc9ac6bbca453c25afe7c921917fc3ad102968"
+    }
+  ],
+  "baselines": [
+    {
+      "name": "default_silicon_extracted.csv",
+      "rows": 161,
+      "sha256": "1848e24c08ba38a27b310bf0aa2172a6801eece6168bbff680fbd37fe746abdf"
+    },
+    {
+      "name": "default_power_density.csv",
+      "rows": 161,
+      "sha256": "b6f719dcce2df92392e48541a4154620b2e270ee7eb1fd1b63ee733c6ce0ba6c"
+    },
+    {
+      "name": "synthetic_sample_ipce.csv",
+      "rows": 3,
+      "sha256": "4eec34363e1e4510b2980ad01ca67c7163ec5216a61186238413103e922e8843"
+    },
+    {
+      "name": "integration_summary.csv",
+      "rows": 1,
+      "sha256": "e1b54b415d06342b0324af6afab2c4ce853a0996a5e8cb8ed439d5353ccf5454"
+    },
+    {
+      "name": "integration_curve.csv",
+      "rows": 9,
+      "sha256": "97140124f577c76e7706ce07a8d06bb60c0856da87b469aa4cb20626b05cacbe"
+    }
+  ],
+  "parameters": {
+    "defaultWavelengthStartNm": 300,
+    "defaultWavelengthStepNm": 5,
+    "defaultWavelengthEndNm": 1100,
+    "siliconTailAverageSeconds": 4,
+    "siliconAreaSquareCentimetres": 0.36,
+    "syntheticExpectedIpcePercent": [
+      20,
+      50,
+      80
+    ],
+    "integrationMinimumWavelengthNm": 400,
+    "integrationMaximumWavelengthNm": 600
+  }
+}

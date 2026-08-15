@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/IPCE.Core/IPCE.Core.csproj" />
+    <Project Path="src/IPCE.Desktop/IPCE.Desktop.csproj" />
+    <Project Path="src/IPCE.IO/IPCE.IO.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/IPCE.Core.Tests/IPCE.Core.Tests.csproj" />
+    <Project Path="tests/IPCE.Desktop.Tests/IPCE.Desktop.Tests.csproj" />
+    <Project Path="tests/IPCE.IO.Tests/IPCE.IO.Tests.csproj" />
+  </Folder>
+</Solution>

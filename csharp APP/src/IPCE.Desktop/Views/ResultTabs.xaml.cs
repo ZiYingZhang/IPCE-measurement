@@ -1,0 +1,455 @@
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
+using IPCE.Core.Domain;
+using IPCE.Core.Errors;
+using IPCE.Desktop.Plotting;
+using IPCE.Desktop.State;
+using IPCE.Desktop.ViewModels;
+
+namespace IPCE.Desktop.Views;
+
+public partial class ResultTabs : UserControl
+{
+    private MainViewModel? _subscribedViewModel;
+
+    public ResultTabs()
+    {
+        InitializeComponent();
+        Loaded += (_, _) => Connect();
+        Unloaded += (_, _) => Disconnect();
+        DataContextChanged += (_, _) => Connect();
+    }
+
+    private void Connect()
+    {
+        Disconnect();
+        _subscribedViewModel = DataContext as MainViewModel;
+        if (_subscribedViewModel is null)
+        {
+            RenderAll();
+            return;
+        }
+
+        _subscribedViewModel.Session.PropertyChanged += SessionChanged;
+        _subscribedViewModel.Silicon.PropertyChanged += SiliconChanged;
+        _subscribedViewModel.Sample.PropertyChanged += SampleChanged;
+        _subscribedViewModel.Spectrum.PropertyChanged += SpectrumChanged;
+        RenderAll();
+    }
+
+    private void Disconnect()
+    {
+        if (_subscribedViewModel is null)
+        {
+            return;
+        }
+
+        _subscribedViewModel.Session.PropertyChanged -= SessionChanged;
+        _subscribedViewModel.Silicon.PropertyChanged -= SiliconChanged;
+        _subscribedViewModel.Sample.PropertyChanged -= SampleChanged;
+        _subscribedViewModel.Spectrum.PropertyChanged -= SpectrumChanged;
+        _subscribedViewModel = null;
+    }
+
+    private void SessionChanged(
+        object? sender,
+        PropertyChangedEventArgs eventArgs)
+    {
+        switch (eventArgs.PropertyName)
+        {
+            case nameof(SessionState.SiliconTrace):
+            case nameof(SessionState.SiliconAnchors):
+            case nameof(SessionState.SampleTrace):
+            case nameof(SessionState.SampleAnchors):
+                RenderTraces();
+                RenderSchedule();
+                break;
+            case nameof(SessionState.PowerDensity):
+            case nameof(SessionState.PowerDensityStatus):
+                RenderTraces();
+                RenderPowerDensity();
+                break;
+            case nameof(SessionState.CalculatedIpce):
+            case nameof(SessionState.CalculatedIpceStatus):
+            case nameof(SessionState.ExternalIpce):
+            case nameof(SessionState.SelectedIpceSource):
+                RenderTraces();
+                RenderIpce();
+                RenderSpectrumIntegration();
+                break;
+            case nameof(SessionState.Spectrum):
+            case nameof(SessionState.IntegrationResult):
+            case nameof(SessionState.IntegrationStatus):
+                RenderSpectrumIntegration();
+                break;
+        }
+    }
+
+    private void SiliconChanged(
+        object? sender,
+        PropertyChangedEventArgs eventArgs)
+    {
+        if (eventArgs.PropertyName is
+            nameof(SiliconWorkflowViewModel.Preview) or
+            nameof(SiliconWorkflowViewModel.AveragingDurationSeconds) or
+            nameof(SiliconWorkflowViewModel.SubtractDark) or
+            nameof(SiliconWorkflowViewModel.DarkStartSeconds) or
+            nameof(SiliconWorkflowViewModel.DarkEndSeconds))
+        {
+            RenderTraces();
+            RenderSchedule();
+        }
+    }
+
+    private void SampleChanged(
+        object? sender,
+        PropertyChangedEventArgs eventArgs)
+    {
+        if (eventArgs.PropertyName is
+            nameof(SampleWorkflowViewModel.Preview) or
+            nameof(SampleWorkflowViewModel.AveragingDurationSeconds) or
+            nameof(SampleWorkflowViewModel.SubtractDark) or
+            nameof(SampleWorkflowViewModel.DarkStartSeconds) or
+            nameof(SampleWorkflowViewModel.DarkEndSeconds))
+        {
+            RenderTraces();
+            RenderSchedule();
+        }
+    }
+
+    private void SpectrumChanged(
+        object? sender,
+        PropertyChangedEventArgs eventArgs)
+    {
+        if (eventArgs.PropertyName is
+            nameof(SpectrumWorkflowViewModel.IntegrationMinimumNanometres) or
+            nameof(SpectrumWorkflowViewModel.IntegrationMaximumNanometres) or
+            nameof(SpectrumWorkflowViewModel.Coverage))
+        {
+            RenderSpectrumIntegration();
+        }
+    }
+
+    private void RenderAll()
+    {
+        RenderTraces();
+        RenderSchedule();
+        RenderPowerDensity();
+        RenderIpce();
+        RenderSpectrumIntegration();
+    }
+
+    private void RenderTraces()
+    {
+        MainViewModel? viewModel = _subscribedViewModel;
+        IReadOnlyList<TraceMeanResult> siliconMeans =
+            viewModel?.Silicon.PowerDensity?
+                .Select(point => new TraceMeanResult(
+                    point.WavelengthNm,
+                    point.SiliconMeanCurrentAmperes,
+                    point.SampleCount))
+                .ToArray() ?? [];
+        IReadOnlyList<TraceMeanResult> sampleMeans =
+            viewModel?.Sample.CalculatedIpce?
+                .Select(point => new TraceMeanResult(
+                    point.WavelengthNm,
+                    point.SampleMeanCurrentAmperes,
+                    point.SampleCount))
+                .ToArray() ?? [];
+        SiliconTraceView.Render(ResultPlotModelBuilder.BuildTrace(
+            "硅 i-t",
+            viewModel?.Silicon.Trace,
+            viewModel?.Silicon.Anchors,
+            viewModel?.Silicon.SubtractDark ?? false,
+            viewModel?.Silicon.DarkStartSeconds ?? 0,
+            viewModel?.Silicon.DarkEndSeconds ?? 0,
+            viewModel?.Silicon.Preview,
+            viewModel?.Silicon.AveragingDurationSeconds ?? 0,
+            siliconMeans,
+            viewModel?.Session.PowerDensityStatus ??
+                new ResultStatus(ResultFreshness.Missing, "")));
+        SampleTraceView.Render(ResultPlotModelBuilder.BuildTrace(
+            "样品 i-t",
+            viewModel?.Sample.Trace,
+            viewModel?.Sample.Anchors,
+            viewModel?.Sample.SubtractDark ?? false,
+            viewModel?.Sample.DarkStartSeconds ?? 0,
+            viewModel?.Sample.DarkEndSeconds ?? 0,
+            viewModel?.Sample.Preview,
+            viewModel?.Sample.AveragingDurationSeconds ?? 0,
+            sampleMeans,
+            viewModel?.Session.CalculatedIpceStatus ??
+                new ResultStatus(ResultFreshness.Missing, "")));
+    }
+
+    private void RenderSchedule()
+    {
+        List<PlotSeries> series = [];
+        AddScheduleSeries(
+            series,
+            "硅",
+            _subscribedViewModel?.Silicon.Preview);
+        AddScheduleSeries(
+            series,
+            "样品",
+            _subscribedViewModel?.Sample.Preview);
+        SchedulePlotView.Render(new PlotModel(
+            "波长—时间调度预览",
+            "波长 (nm)",
+            "确认时间 (s)",
+            series,
+            [],
+            "导入 i-t 数据并设置调度参数后显示预览。"));
+    }
+
+    private void RenderPowerDensity()
+    {
+        IReadOnlyList<PowerDensityPoint>? points =
+            _subscribedViewModel?.Silicon.PowerDensity;
+        PlotSeries[] series = points is { Count: > 0 }
+            ?
+            [
+                new PlotSeries(
+                    "入射功率密度",
+                    points.Select(point => point.WavelengthNm).ToArray(),
+                    points.Select(point =>
+                        point.IncidentPowerDensityWattsPerSquareCentimetre *
+                        1e6).ToArray(),
+                    PlotSeriesKind.Line,
+                    "#00897B",
+                    points.Select(point =>
+                        point.IncidentPowerDensityStandardError * 1e6)
+                        .ToArray()),
+            ]
+            : [];
+        PowerDensityPlotView.Render(new PlotModel(
+            "单色入射功率密度",
+            "波长 (nm)",
+            "功率密度 (µW cm⁻²)",
+            series,
+            [],
+            "计算硅探测器功率密度后显示结果。"));
+    }
+
+    private void RenderIpce()
+    {
+        List<PlotSeries> series = [];
+        IReadOnlyList<IpcePoint>? calculated =
+            _subscribedViewModel?.Sample.CalculatedIpce;
+        if (calculated is { Count: > 0 })
+        {
+            series.Add(new PlotSeries(
+                "计算 IPCE",
+                calculated.Select(point => point.WavelengthNm).ToArray(),
+                calculated.Select(point => point.IpcePercent).ToArray(),
+                PlotSeriesKind.Line,
+                "#1976D2",
+                calculated.Select(point =>
+                    point.IpceEstimatedStandardErrorPercent).ToArray()));
+        }
+
+        ExternalIpceData? external =
+            _subscribedViewModel?.Spectrum.ExternalIpce;
+        if (external?.Points is { Count: > 0 } externalPoints)
+        {
+            series.Add(new PlotSeries(
+                "外部 IPCE",
+                externalPoints.Select(point => point.WavelengthNm).ToArray(),
+                externalPoints.Select(point => point.IpcePercent).ToArray(),
+                PlotSeriesKind.Line,
+                "#EF6C00"));
+        }
+
+        IpcePlotView.Render(new PlotModel(
+            "IPCE 对比",
+            "波长 (nm)",
+            "IPCE (%)",
+            series,
+            [],
+            "计算或导入 IPCE 后显示结果。"));
+        IpcePlotView.SetSelectedSource(
+            _subscribedViewModel?.Session.SelectedIpceSource ==
+                IpceSource.External
+                ? "外部 IPCE"
+                : "计算 IPCE");
+    }
+
+    private void RenderSpectrumIntegration()
+    {
+        MainViewModel? viewModel = _subscribedViewModel;
+        double minimum =
+            viewModel?.Spectrum.IntegrationMinimumNanometres ?? 300;
+        double maximum =
+            viewModel?.Spectrum.IntegrationMaximumNanometres ?? 1100;
+        IReadOnlyList<SpectrumPoint>? spectrum =
+            viewModel?.Session.Spectrum;
+        IReadOnlyList<IpceValue> selected = SelectedIpce(viewModel);
+        IntegrationResult? integration =
+            viewModel?.Spectrum.IntegrationResult;
+        SpectrumPlotModels models =
+            ResultPlotModelBuilder.BuildSpectrumIntegration(
+                spectrum,
+                selected,
+                integration,
+                minimum,
+                maximum);
+        SpectrumIntegrationPlotView.Render(
+            models.Irradiance,
+            models.SelectedIpce,
+            models.Cumulative,
+            integration?.Summary);
+    }
+
+    private static void AddScheduleSeries(
+        List<PlotSeries> target,
+        string owner,
+        SchedulePreview? preview)
+    {
+        if (preview is null)
+        {
+            return;
+        }
+
+        SchedulePoint[] valid = preview.Points
+            .Where(point =>
+                point.ReferenceTimeSeconds >= preview.Coverage.DataMinimum &&
+                point.ReferenceTimeSeconds <= preview.Coverage.DataMaximum)
+            .ToArray();
+        SchedulePoint[] invalid = preview.Points.Except(valid).ToArray();
+        if (valid.Length > 0)
+        {
+            target.Add(new PlotSeries(
+                $"{owner}调度",
+                valid.Select(point => point.WavelengthNm).ToArray(),
+                valid.Select(point => point.ReferenceTimeSeconds).ToArray(),
+                PlotSeriesKind.Line,
+                owner == "硅" ? "#1976D2" : "#00897B"));
+        }
+        if (invalid.Length > 0)
+        {
+            target.Add(new PlotSeries(
+                $"{owner}超出数据范围",
+                invalid.Select(point => point.WavelengthNm).ToArray(),
+                invalid.Select(point => point.ReferenceTimeSeconds).ToArray(),
+                PlotSeriesKind.Scatter,
+                "#C62828"));
+        }
+        if (preview.Anchors.Count > 0)
+        {
+            target.Add(new PlotSeries(
+                $"{owner}锚点",
+                preview.Anchors.Select(point => point.WavelengthNm).ToArray(),
+                preview.Anchors.Select(point =>
+                    point.ConfirmedTimeSeconds).ToArray(),
+                PlotSeriesKind.Scatter,
+                "#EF6C00",
+                contributesToAutoRange: false));
+        }
+    }
+
+    private static IReadOnlyList<IpceValue> SelectedIpce(
+        MainViewModel? viewModel)
+    {
+        if (viewModel is null)
+        {
+            return [];
+        }
+
+        if (viewModel.Session.SelectedIpceSource == IpceSource.External)
+        {
+            return viewModel.Session.ExternalIpce?.Points ?? [];
+        }
+
+        return viewModel.Session.CalculatedIpce?
+            .Select(point => new IpceValue(
+                point.WavelengthNm,
+                point.IpcePercent))
+            .ToArray() ?? [];
+    }
+
+    private void AddSiliconAnchor_Click(
+        object sender,
+        RoutedEventArgs eventArgs)
+    {
+        _subscribedViewModel?.Silicon.EditableAnchors.Add(
+            new AnchorRowViewModel());
+    }
+
+    private void ApplySiliconAnchors_Click(
+        object sender,
+        RoutedEventArgs eventArgs)
+    {
+        if (_subscribedViewModel is null) return;
+        CommitAnchorGrid(SiliconAnchorGrid);
+        TryApplyAnchors(() =>
+            _subscribedViewModel.Silicon.ReplaceAnchors(
+                _subscribedViewModel.Silicon.EditableAnchors));
+    }
+
+    private void DeleteSiliconAnchor_Click(
+        object sender,
+        RoutedEventArgs eventArgs)
+    {
+        if (_subscribedViewModel is not null &&
+            SiliconAnchorGrid.SelectedItem is AnchorRowViewModel row)
+        {
+            TryApplyAnchors(() =>
+                _subscribedViewModel.Silicon.DeleteAnchor(row));
+        }
+    }
+
+    private void AddSampleAnchor_Click(
+        object sender,
+        RoutedEventArgs eventArgs)
+    {
+        _subscribedViewModel?.Sample.EditableAnchors.Add(
+            new AnchorRowViewModel());
+    }
+
+    private void ApplySampleAnchors_Click(
+        object sender,
+        RoutedEventArgs eventArgs)
+    {
+        if (_subscribedViewModel is null) return;
+        CommitAnchorGrid(SampleAnchorGrid);
+        TryApplyAnchors(() =>
+            _subscribedViewModel.Sample.ReplaceAnchors(
+                _subscribedViewModel.Sample.EditableAnchors));
+    }
+
+    private void DeleteSampleAnchor_Click(
+        object sender,
+        RoutedEventArgs eventArgs)
+    {
+        if (_subscribedViewModel is not null &&
+            SampleAnchorGrid.SelectedItem is AnchorRowViewModel row)
+        {
+            TryApplyAnchors(() =>
+                _subscribedViewModel.Sample.DeleteAnchor(row));
+        }
+    }
+
+    private static void CommitAnchorGrid(DataGrid grid)
+    {
+        grid.CommitEdit(DataGridEditingUnit.Cell, true);
+        grid.CommitEdit(DataGridEditingUnit.Row, true);
+    }
+
+    private void TryApplyAnchors(Action operation)
+    {
+        try
+        {
+            operation();
+        }
+        catch (IpceException exception)
+        {
+            MessageBox.Show(
+                Window.GetWindow(this),
+                exception.Message,
+                "锚点编辑无效",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+    }
+}

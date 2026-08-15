@@ -1,0 +1,93 @@
+<UserControl x:Class="IPCE.Desktop.Views.Plots.SpectrumIntegrationPlotView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:plots="clr-namespace:IPCE.Desktop.Views.Plots"
+             xmlns:scottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border Margin="4" Padding="10,5" Background="#E8F5E9" CornerRadius="8">
+            <TextBlock x:Name="SummaryText" FontWeight="SemiBold"
+                       Foreground="#2E7D32" />
+        </Border>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <scottPlot:WpfPlot x:Name="IrradiancePlot" MinHeight="220"
+                                  MouseMove="Plot_MouseMove"
+                                  MouseLeave="Plot_MouseLeave" />
+                <Border Margin="12" Padding="9,6" HorizontalAlignment="Left"
+                        VerticalAlignment="Top" Background="#F2FFFFFF"
+                        BorderBrush="#455A64" BorderThickness="1"
+                        CornerRadius="4" IsHitTestVisible="False">
+                    <TextBlock x:Name="IrradianceHoverText"
+                               FontFamily="Microsoft YaHei UI" FontSize="14"
+                               Foreground="#263238" Visibility="Collapsed" />
+                </Border>
+                <TextBlock x:Name="IrradianceClippedText" Grid.Row="1"
+                           Margin="5" FontFamily="Microsoft YaHei UI"
+                           FontSize="14" Foreground="#C62828"
+                           Visibility="Collapsed" />
+                <plots:PlotToolbar x:Name="IrradianceToolbar" Grid.Row="2" />
+            </Grid>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <scottPlot:WpfPlot x:Name="SelectedIpcePlot" MinHeight="220"
+                                  MouseMove="Plot_MouseMove"
+                                  MouseLeave="Plot_MouseLeave" />
+                <Border Margin="12" Padding="9,6" HorizontalAlignment="Left"
+                        VerticalAlignment="Top" Background="#F2FFFFFF"
+                        BorderBrush="#455A64" BorderThickness="1"
+                        CornerRadius="4" IsHitTestVisible="False">
+                    <TextBlock x:Name="SelectedIpceHoverText"
+                               FontFamily="Microsoft YaHei UI" FontSize="14"
+                               Foreground="#263238" Visibility="Collapsed" />
+                </Border>
+                <TextBlock x:Name="SelectedIpceClippedText" Grid.Row="1"
+                           Margin="5" FontFamily="Microsoft YaHei UI"
+                           FontSize="14" Foreground="#C62828"
+                           Visibility="Collapsed" />
+                <plots:PlotToolbar x:Name="SelectedIpceToolbar"
+                                   Grid.Row="2" />
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <scottPlot:WpfPlot x:Name="CumulativePlot" MinHeight="180"
+                              MouseMove="Plot_MouseMove"
+                              MouseLeave="Plot_MouseLeave" />
+            <Border Margin="12" Padding="9,6" HorizontalAlignment="Left"
+                    VerticalAlignment="Top" Background="#F2FFFFFF"
+                    BorderBrush="#455A64" BorderThickness="1"
+                    CornerRadius="4" IsHitTestVisible="False">
+                <TextBlock x:Name="CumulativeHoverText"
+                           FontFamily="Microsoft YaHei UI" FontSize="14"
+                           Foreground="#263238" Visibility="Collapsed" />
+            </Border>
+            <TextBlock x:Name="CumulativeClippedText" Grid.Row="1"
+                       Margin="5" FontFamily="Microsoft YaHei UI"
+                       FontSize="14" Foreground="#C62828"
+                       Visibility="Collapsed" />
+            <plots:PlotToolbar x:Name="CumulativeToolbar" Grid.Row="2" />
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,46 @@
+<UserControl x:Class="IPCE.Desktop.Views.Plots.TracePlotView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:plots="clr-namespace:IPCE.Desktop.Views.Plots"
+             xmlns:scottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <scottPlot:WpfPlot x:Name="PlotSurface"
+                          MinHeight="260"
+                          MouseDoubleClick="PlotSurface_MouseDoubleClick"
+                          MouseMove="PlotSurface_MouseMove"
+                          MouseLeave="PlotSurface_MouseLeave" />
+        <TextBlock x:Name="EmptyMessage"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="#607D8B"
+                   FontSize="15" />
+        <Border Margin="12" Padding="9,6" HorizontalAlignment="Left"
+                VerticalAlignment="Top" Background="#F2FFFFFF"
+                BorderBrush="#455A64" BorderThickness="1" CornerRadius="4"
+                IsHitTestVisible="False">
+            <TextBlock x:Name="HoverText" FontFamily="Microsoft YaHei UI"
+                       FontSize="14" Foreground="#263238"
+                       Visibility="Collapsed" />
+        </Border>
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <CheckBox x:Name="RawTraceLayerBox" Margin="5" IsChecked="True"
+                      Content="原始轨迹" Checked="LayerBox_Changed"
+                      Unchecked="LayerBox_Changed" />
+            <CheckBox x:Name="DarkLayerBox" Margin="5" IsChecked="True"
+                      Content="暗电流区间" Checked="LayerBox_Changed"
+                      Unchecked="LayerBox_Changed" />
+            <CheckBox x:Name="DiagnosticLayerBox" Margin="5" IsChecked="True"
+                      Content="锚点与窗口" Checked="LayerBox_Changed"
+                      Unchecked="LayerBox_Changed" />
+            <TextBlock x:Name="ClippedText" Margin="16,5"
+                       FontFamily="Microsoft YaHei UI" FontSize="14"
+                       Foreground="#C62828" Visibility="Collapsed" />
+        </StackPanel>
+        <plots:PlotToolbar x:Name="Toolbar" Grid.Row="2" />
+    </Grid>
+</UserControl>
