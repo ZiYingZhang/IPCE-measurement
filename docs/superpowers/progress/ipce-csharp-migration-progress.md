@@ -4,14 +4,13 @@ Last updated: 2026-08-15
 
 ## Current checkpoint
 
-- Last completed task: Task 3 of the 2026-08-15 repository-normalization plan
-- Status: normalized source and shared-data paths pass MATLAB and .NET source
-  gates; portable packages will be rebuilt in Task 5
+- Last completed task: Task 5 of the 2026-08-15 repository-normalization plan
+- Status: normalized source, shared-data paths, both portable builds, and Git
+  publication-safety audits pass; external release gates remain pending
 - Next tasks:
-  1. finish current documentation routing and portable-package verification;
-  2. implement C# bilingual localization;
-  3. implement MATLAB bilingual localization;
-  4. prepare the private GitHub repository and `v1.0.0` for public release
+  1. implement C# bilingual localization;
+  2. implement MATLAB bilingual localization;
+  3. prepare the private GitHub repository and `v1.0.0` for public release
 - MATLAB numerical/UI behavior modified by normalization: no; files moved to
   `matlab/` and shared startup files moved to `data/defaults/`
 - Git action taken: local commits on `main`; no remote push, tag, Release, or
@@ -39,6 +38,59 @@ matlab -batch "cd('matlab'); build_ipce_portable"
 
 Current expected .NET count after two repository-layout regressions: Core 58,
 IO 44, Desktop 97, total 199, with zero failures and skips.
+
+## 2026-08-15 repository-normalization verification
+
+Verified normalized source state: `d48479b` plus this evidence-only progress
+update.
+
+Source gates:
+
+- Release build: exit `0`, 0 warnings, 0 errors;
+- tests: Core 58, IO 44, Desktop 97, total 199, failed/skipped 0;
+- MATLAB numerical self-test: passed;
+- MATLAB real-UI construction, `isvalid`, and close smoke: passed.
+
+Fresh C# self-contained archive:
+
+- path: `csharp/dist/IPCEApp_Windows_x64.zip`;
+- bytes: `85,487,368`;
+- SHA-256:
+  `312fbd5995489a6d4f088c6611722add8ffab3df07ae8236e1f2c4359df635c1`;
+- entries: 440;
+- self-contained `win-x64`: true;
+- MATLAB Runtime included: false;
+- published and extracted smoke exit codes: `0` and `0`;
+- manifest generated UTC: `2026-08-15T04:19:32.5080379Z`;
+- manifest archive bytes/hash match the final archive.
+
+Fresh MATLAB Compiler archive:
+
+- path: `matlab/dist/IPCEApp_R2023b_Windows_x64.zip`;
+- bytes: `770,752`;
+- SHA-256:
+  `7c4242de843c963e1f1da99889483703f7c41cf5d9799266aaeadbb95d811b22`;
+- entries: 7;
+- root `IPCEApp.exe`: present;
+- MATLAB Runtime/installer markers: 0;
+- build-script extraction verification: passed.
+
+Git audit:
+
+- target directories exist and the two former root paths are absent;
+- no `bin`, `obj`, `TestResults`, `dist`, `publish`, ZIP, generated export,
+  parity report, `.superpowers`, `.agents`, or `PROJECT_MEMORY.md` is tracked;
+- no tracked file is 10 MiB or larger;
+- `git diff --check` passes and the worktree was clean after artifact builds;
+- no remote push, tag, Release, or visibility change was performed.
+
+External gates remain pending:
+
+1. Run the exact C# ZIP/hash through the complete workflow on a clean Windows
+   10/11 x64 machine or VM with neither MATLAB nor .NET Runtime.
+2. Run the exact MATLAB ZIP/hash on a clean Windows machine with no MATLAB and
+   only matching 64-bit MATLAB Runtime R2023b Update 6 or later R2023b update.
+3. Inspect representative plots at Windows scaling 100%, 125%, and 150%.
 
 ## Checkpoint 2 verification
 
