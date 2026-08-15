@@ -57,14 +57,16 @@ public partial class SpectrumIntegrationPlotView : UserControl
         PlotModel irradiance,
         PlotModel selectedIpce,
         PlotModel cumulative,
-        IntegrationSummary? summary)
+        IntegrationSummary? summary,
+        ILocalizationService? localization = null)
     {
+        ILocalizationService text = localization ?? Localization;
         _irradianceController.Render(irradiance);
         _ipceController.Render(selectedIpce);
         _cumulativeController.Render(cumulative);
         SummaryText.Text = summary is null
-            ? Localization["Summary.NotCalculated"]
-            : Localization.Format(
+            ? text["Summary.NotCalculated"]
+            : text.Format(
                 "Summary.CurrentDensityValue",
                 summary.IntegratedCurrentDensityMilliamperePerSquareCentimetre);
     }

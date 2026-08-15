@@ -35,8 +35,26 @@
   <data name="Error.GenericDomain" xml:space="preserve"><value>无法完成操作（{0}）。</value></data>
   <data name="Error.GenericUnexpected" xml:space="preserve"><value>发生未预料的错误。</value></data>
   <data name="Error.AccessDenied" xml:space="preserve"><value>访问被拒绝，请检查所选路径和文件权限。</value></data>
+  <data name="Error.Calculation" xml:space="preserve"><value>计算未能生成有效结果，请检查输入和范围。</value></data>
+  <data name="Error.Coverage" xml:space="preserve"><value>请求范围超出可用数据覆盖范围。</value></data>
+  <data name="Error.DuplicateData" xml:space="preserve"><value>此处不允许重复的数值或名称。</value></data>
+  <data name="Error.ExportOperation" xml:space="preserve"><value>结果导出失败或无法验证。</value></data>
   <data name="Error.FileOperation" xml:space="preserve"><value>文件操作失败，请检查所选路径后重试。</value></data>
+  <data name="Error.FileNotFound" xml:space="preserve"><value>找不到所需文件。</value></data>
   <data name="Error.IPCE.InvalidTrace" xml:space="preserve"><value>i-t 轨迹无效。</value></data>
+  <data name="Error.ImportOperation" xml:space="preserve"><value>数据导入失败，请检查文件格式和所选列。</value></data>
+  <data name="Error.InvalidAxis" xml:space="preserve"><value>坐标轴设置不适用于当前数据。</value></data>
+  <data name="Error.InvalidData" xml:space="preserve"><value>所选数据无效或不足。</value></data>
+  <data name="Error.InvalidPlot" xml:space="preserve"><value>绘图数据或显示设置无效。</value></data>
+  <data name="Error.InvalidPreview" xml:space="preserve"><value>无法根据当前数据生成请求的覆盖范围预览。</value></data>
+  <data name="Error.InvalidSchedule" xml:space="preserve"><value>时间调度不单调或无效。</value></data>
+  <data name="Error.InvalidSelection" xml:space="preserve"><value>所选来源、工作表或列无效。</value></data>
+  <data name="Error.InvalidSettings" xml:space="preserve"><value>一个或多个测量设置无效。</value></data>
+  <data name="Error.MissingInput" xml:space="preserve"><value>尚未导入或计算所需输入。</value></data>
+  <data name="Error.NoExportSelection" xml:space="preserve"><value>没有选择可导出的当前结果，请重新计算过期结果或更改选择。</value></data>
+  <data name="Error.StaleResult" xml:space="preserve"><value>结果已过期，使用前必须重新计算。</value></data>
+  <data name="Error.UnitsRequired" xml:space="preserve"><value>请明确选择时间和电流单位。</value></data>
+  <data name="Error.UnsupportedInput" xml:space="preserve"><value>不支持该文件格式或单位。</value></data>
   <data name="Error.IPCE.InvalidSchedule" xml:space="preserve"><value>测量调度无效。</value></data>
   <data name="Error.LogWriteFailed" xml:space="preserve"><value>日志写入失败</value></data>
   <data name="Error.Unexpected" xml:space="preserve"><value>发生未预料的错误。诊断日志：&#xA;{0}</value></data>

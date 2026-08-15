@@ -306,7 +306,8 @@ public partial class ResultTabs : UserControl
             _subscribedViewModel?.Session.SelectedIpceSource ==
                 IpceSource.External
                 ? Text["Plot.ExternalIpceSeries"]
-                : Text["Plot.CalculatedIpceSeries"]);
+                : Text["Plot.CalculatedIpceSeries"],
+            Text);
     }
 
     private void RenderSpectrumIntegration()
@@ -333,7 +334,8 @@ public partial class ResultTabs : UserControl
             models.Irradiance,
             models.SelectedIpce,
             models.Cumulative,
-            integration?.Summary);
+            integration?.Summary,
+            Text);
     }
 
     private void AddScheduleSeries(

@@ -4,12 +4,13 @@ Last updated: 2026-08-15
 
 ## Current checkpoint
 
-- Last completed task: Task 5 of the 2026-08-15 repository-normalization plan
-- Status: normalized source, shared-data paths, both portable builds, and Git
-  publication-safety audits pass; external release gates remain pending
+- Last completed task: C# bilingual localization and portable verification
+- Status: normalized repository and bilingual C# WPF application pass all
+  automated gates; MATLAB bilingualization and external release gates remain
+  pending
 - Next tasks:
-  1. implement C# bilingual localization;
-  2. implement MATLAB bilingual localization;
+  1. implement MATLAB bilingual localization;
+  2. prepare English-first public documentation;
   3. prepare the private GitHub repository and `v1.0.0` for public release
 - MATLAB numerical/UI behavior modified by normalization: no; files moved to
   `matlab/` and shared startup files moved to `data/defaults/`
@@ -34,7 +35,60 @@ Last updated: 2026-08-15
 - Baseline verification before implementation: Release build passed with zero
   warnings/errors; Core 58, IO 44, Desktop 97, total 199 tests passed with
   zero failures/skips.
-- Implementation and final portable-release verification: pending.
+- Implementation and automated portable-release verification: complete;
+  external clean-machine and scaling gates remain pending.
+
+## 2026-08-15 C# bilingualization verification
+
+Implemented behavior:
+
+- one WPF build supports live `English` / `中文` switching;
+- first launch follows `zh-*` versus non-Chinese system culture, a valid saved
+  preference wins, and corrupt/inaccessible settings recover safely;
+- preference writes are atomic under `%LOCALAPPDATA%\IPCEApp\settings.json`;
+- main window, workflows, statuses, prerequisites, dialogs, file filters,
+  validation, stable error-code messages, result tabs, summaries, scientific
+  plots, hover text, toolbars, and PNG save UI are localized;
+- a switch preserves `MainViewModel`, `SessionState`, imported/calculated data,
+  selected sources, numeric values, export schemas, and plot layer identity;
+- English is the neutral resource and visible missing-key fallback;
+- plot layers use stable IDs rather than translated labels.
+
+Test-first evidence:
+
+- focused RED runs failed for missing localization types, live switching,
+  workflow localization, plot localization, stable layer IDs, completeness,
+  and fresh release test-count collection before each implementation;
+- Release build: 0 warnings, 0 errors;
+- .NET tests: Core 58, IO 44, Desktop 128, total 230; 0 failed, 0 skipped;
+- MATLAB numerical self-test: passed;
+- MATLAB real-UI construction, `isvalid`, and close smoke: passed;
+- resource parity and non-empty-value audit: passed;
+- English real-window visible-text audit: passed (only self-labelled `中文` is
+  intentionally present);
+- language-invariant plot-value and export-table parity: passed.
+
+Fresh self-contained C# archive:
+
+- path: `csharp/dist/IPCEApp_Windows_x64.zip`;
+- bytes: `85,510,789`;
+- SHA-256:
+  `3da8f3232f8e4771fb46dab45d4d519beb4884e87e7846977182730e77c793b7`;
+- entries: 441;
+- `zh-CN/IPCEApp.resources.dll`: present;
+- self-contained `win-x64`: true;
+- MATLAB Runtime included: false;
+- published and extracted smoke exit codes: `0` and `0`;
+- manifest generated UTC: `2026-08-15T08:16:28.5673743Z`;
+- the release script now derives all test counts from fresh per-project TRX
+  files; a regression test prevents reuse of hard-coded historical counts.
+
+External C# gates still pending:
+
+1. Run this exact ZIP/hash through the complete workflow on clean Windows
+   10/11 x64 with neither MATLAB nor .NET Runtime.
+2. Inspect both languages and representative plots at Windows scaling 100%,
+   125%, and 150% on representative 16–24 inch displays.
 
 ## Environment
 

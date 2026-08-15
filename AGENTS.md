@@ -201,8 +201,8 @@ dotnet build "csharp/IPCE.slnx" -c Release --no-restore
 dotnet test "csharp/IPCE.slnx" -c Release --no-build --no-restore
 ```
 
-The current expected test counts are Core `58`, IO `44`, Desktop `97`, total
-`199`, with zero failures and skips.
+The current expected test counts are Core `58`, IO `44`, Desktop `128`, total
+`230`, with zero failures and skips.
 
 For release work, run:
 

@@ -37,8 +37,10 @@ public partial class IpcePlotView : UserControl
         _controller.Render(model);
     }
 
-    public void SetSelectedSource(string source) =>
-        SourceBadge.Text = Localization.Format(
+    public void SetSelectedSource(
+        string source,
+        ILocalizationService? localization = null) =>
+        SourceBadge.Text = (localization ?? Localization).Format(
             "Plot.IntegrationSource",
             source);
 

@@ -35,8 +35,26 @@
   <data name="Error.GenericDomain" xml:space="preserve"><value>The operation could not be completed ({0}).</value></data>
   <data name="Error.GenericUnexpected" xml:space="preserve"><value>An unexpected error occurred.</value></data>
   <data name="Error.AccessDenied" xml:space="preserve"><value>Access was denied. Check the selected path and file permissions.</value></data>
+  <data name="Error.Calculation" xml:space="preserve"><value>The calculation could not produce a valid result. Check the inputs and ranges.</value></data>
+  <data name="Error.Coverage" xml:space="preserve"><value>The requested range is outside the available data coverage.</value></data>
+  <data name="Error.DuplicateData" xml:space="preserve"><value>Duplicate values or names are not allowed here.</value></data>
+  <data name="Error.ExportOperation" xml:space="preserve"><value>The result export failed or could not be verified.</value></data>
   <data name="Error.FileOperation" xml:space="preserve"><value>The file operation failed. Check the selected path and try again.</value></data>
+  <data name="Error.FileNotFound" xml:space="preserve"><value>The required file could not be found.</value></data>
   <data name="Error.IPCE.InvalidTrace" xml:space="preserve"><value>The i-t trace is invalid.</value></data>
+  <data name="Error.ImportOperation" xml:space="preserve"><value>The data import failed. Check the file format and selected columns.</value></data>
+  <data name="Error.InvalidAxis" xml:space="preserve"><value>The axis settings are invalid for the displayed data.</value></data>
+  <data name="Error.InvalidData" xml:space="preserve"><value>The selected data is invalid or insufficient.</value></data>
+  <data name="Error.InvalidPlot" xml:space="preserve"><value>The plot data or display settings are invalid.</value></data>
+  <data name="Error.InvalidPreview" xml:space="preserve"><value>The requested coverage preview cannot be created from the current data.</value></data>
+  <data name="Error.InvalidSchedule" xml:space="preserve"><value>The time schedule is not monotonic or valid.</value></data>
+  <data name="Error.InvalidSelection" xml:space="preserve"><value>The selected source, worksheet, or column is invalid.</value></data>
+  <data name="Error.InvalidSettings" xml:space="preserve"><value>One or more measurement settings are invalid.</value></data>
+  <data name="Error.MissingInput" xml:space="preserve"><value>A required input has not been imported or calculated.</value></data>
+  <data name="Error.NoExportSelection" xml:space="preserve"><value>No current result is selected for export. Recalculate stale results or change the selection.</value></data>
+  <data name="Error.StaleResult" xml:space="preserve"><value>The result is stale and must be recalculated before use.</value></data>
+  <data name="Error.UnitsRequired" xml:space="preserve"><value>Select the time and current units explicitly.</value></data>
+  <data name="Error.UnsupportedInput" xml:space="preserve"><value>The file format or unit is not supported.</value></data>
   <data name="Error.IPCE.InvalidSchedule" xml:space="preserve"><value>The measurement schedule is invalid.</value></data>
   <data name="Error.LogWriteFailed" xml:space="preserve"><value>Failed to write diagnostic log</value></data>
   <data name="Error.Unexpected" xml:space="preserve"><value>An unexpected error occurred. Diagnostic log:&#xA;{0}</value></data>
