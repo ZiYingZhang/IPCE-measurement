@@ -3,7 +3,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using IPCE.Core.Errors;
 using IPCE.Core.Domain;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Plotting;
+using IPCE.Desktop.ViewModels;
 
 namespace IPCE.Desktop.Views.Plots;
 
@@ -19,15 +21,18 @@ public partial class SpectrumIntegrationPlotView : UserControl
         _irradianceController = new PlotInteractionController(
             IrradiancePlot,
             IrradianceHoverText,
-            IrradianceClippedText);
+            IrradianceClippedText,
+            () => Localization);
         _ipceController = new PlotInteractionController(
             SelectedIpcePlot,
             SelectedIpceHoverText,
-            SelectedIpceClippedText);
+            SelectedIpceClippedText,
+            () => Localization);
         _cumulativeController = new PlotInteractionController(
             CumulativePlot,
             CumulativeHoverText,
-            CumulativeClippedText);
+            CumulativeClippedText,
+            () => Localization);
         WireToolbar(
             IrradianceToolbar,
             _irradianceController,
@@ -58,8 +63,10 @@ public partial class SpectrumIntegrationPlotView : UserControl
         _ipceController.Render(selectedIpce);
         _cumulativeController.Render(cumulative);
         SummaryText.Text = summary is null
-            ? "尚未计算积分电流密度"
-            : $"积分电流密度：{summary.IntegratedCurrentDensityMilliamperePerSquareCentimetre:G8} mA cm⁻²";
+            ? Localization["Summary.NotCalculated"]
+            : Localization.Format(
+                "Summary.CurrentDensityValue",
+                summary.IntegratedCurrentDensityMilliamperePerSquareCentimetre);
     }
 
     private void WireToolbar(
@@ -87,8 +94,8 @@ public partial class SpectrumIntegrationPlotView : UserControl
         {
             MessageBox.Show(
                 Window.GetWindow(this),
-                exception.Message,
-                "坐标轴设置",
+                new UserMessageLocalizer(Localization).Localize(exception),
+                Localization["Dialog.AxisSettings"],
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
@@ -118,4 +125,8 @@ public partial class SpectrumIntegrationPlotView : UserControl
 
         return _cumulativeController;
     }
+
+    private ILocalizationService Localization =>
+        (DataContext as MainViewModel)?.Localization ??
+        LocalizationService.Current;
 }

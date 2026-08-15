@@ -2,7 +2,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using IPCE.Core.Errors;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Plotting;
+using IPCE.Desktop.ViewModels;
 using Microsoft.Win32;
 
 namespace IPCE.Desktop.Views.Plots;
@@ -18,7 +20,8 @@ public partial class TracePlotView : UserControl
         _controller = new PlotInteractionController(
             PlotSurface,
             HoverText,
-            ClippedText);
+            ClippedText,
+            () => Localization);
         Toolbar.ApplyRequested += ApplyRequested;
         Toolbar.ResetRequested += ResetRequested;
         Toolbar.ShowAllRequested += (_, _) => _controller.ShowAll();
@@ -50,8 +53,9 @@ public partial class TracePlotView : UserControl
         {
             MessageBox.Show(
                 Window.GetWindow(this),
-                exception.Message,
-                "坐标轴设置",
+                new UserMessageLocalizer(Localization)
+                    .Localize(exception),
+                Localization["Dialog.AxisSettings"],
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
@@ -66,7 +70,7 @@ public partial class TracePlotView : UserControl
     {
         var dialog = new SaveFileDialog
         {
-            Filter = "PNG 图像 (*.png)|*.png",
+            Filter = Localization["FileFilter.Png"],
             DefaultExt = ".png",
         };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)
@@ -117,9 +121,9 @@ public partial class TracePlotView : UserControl
         IReadOnlyList<PlotSeries> series = _sourceModel.Series
             .Where(series =>
                 (RawTraceLayerBox.IsChecked == true &&
-                 series.Label == "原始轨迹") ||
+                 series.Id == "raw-trace") ||
                 (DiagnosticLayerBox.IsChecked == true &&
-                 series.Label != "原始轨迹"))
+                 series.Id != "raw-trace"))
             .ToArray();
         IReadOnlyList<PlotBand> bands =
             DarkLayerBox.IsChecked == true
@@ -139,4 +143,8 @@ public partial class TracePlotView : UserControl
             intervals,
             _sourceModel.ViewportPolicy));
     }
+
+    private ILocalizationService Localization =>
+        (DataContext as MainViewModel)?.Localization ??
+        LocalizationService.Current;
 }

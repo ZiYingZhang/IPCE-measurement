@@ -8,12 +8,23 @@
   <data name="App.ErrorTitle" xml:space="preserve"><value>IPCEApp 错误</value></data>
   <data name="App.UnhandledError" xml:space="preserve"><value>程序遇到未处理错误，诊断日志已保存到：&#xA;{0}</value></data>
   <data name="Common.Browse" xml:space="preserve"><value>浏览…</value></data>
+  <data name="Common.Add" xml:space="preserve"><value>添加</value></data>
+  <data name="Common.Apply" xml:space="preserve"><value>应用</value></data>
+  <data name="Common.ApplyChanges" xml:space="preserve"><value>应用更改</value></data>
   <data name="Common.Cancel" xml:space="preserve"><value>取消</value></data>
   <data name="Common.Confirm" xml:space="preserve"><value>确认</value></data>
+  <data name="Common.DeleteSelected" xml:space="preserve"><value>删除所选</value></data>
   <data name="Common.Ready" xml:space="preserve"><value>就绪</value></data>
+  <data name="Coverage.Complete" xml:space="preserve"><value>{0}，完整覆盖。</value></data>
+  <data name="Coverage.Exceeded" xml:space="preserve"><value>超出 {0:G6} {1}</value></data>
+  <data name="Coverage.ExceededBoth" xml:space="preserve"><value>左侧超出 {0:G6} {1}、右侧超出 {2:G6} {1}</value></data>
+  <data name="Coverage.Incomplete" xml:space="preserve"><value>{0}，{1}。</value></data>
+  <data name="Coverage.Range" xml:space="preserve"><value>数据范围 {0:G6}–{1:G6} {2}；请求范围 {3:G6}–{4:G6} {2}</value></data>
   <data name="Dialog.ExportCompleted" xml:space="preserve"><value>导出完成</value></data>
   <data name="Dialog.ExportFailed" xml:space="preserve"><value>导出失败</value></data>
   <data name="Dialog.ExportResults" xml:space="preserve"><value>导出 IPCE 结果</value></data>
+  <data name="Dialog.AxisSettings" xml:space="preserve"><value>坐标轴设置</value></data>
+  <data name="Dialog.InvalidAnchorEdit" xml:space="preserve"><value>锚点编辑无效</value></data>
   <data name="Dialog.SelectCalibration" xml:space="preserve"><value>选择标准硅校准文件</value></data>
   <data name="Dialog.SelectExternalIpce" xml:space="preserve"><value>选择外部 IPCE 文件</value></data>
   <data name="Dialog.SelectSampleAnchors" xml:space="preserve"><value>选择样品时间锚点文件</value></data>
@@ -53,6 +64,7 @@
   <data name="FileFilter.ExportMat" xml:space="preserve"><value>MATLAB 数据|*.mat</value></data>
   <data name="FileFilter.ExportXlsx" xml:space="preserve"><value>Excel 工作簿|*.xlsx</value></data>
   <data name="FileFilter.IpceAll" xml:space="preserve"><value>IPCE 数据|*.txt;*.csv;*.xls;*.xlsx|所有文件|*.*</value></data>
+  <data name="FileFilter.Png" xml:space="preserve"><value>PNG 图像 (*.png)|*.png</value></data>
   <data name="FileFilter.SpectrumAll" xml:space="preserve"><value>Excel 工作簿|*.xls;*.xlsx|所有文件|*.*</value></data>
   <data name="FileFilter.TextAll" xml:space="preserve"><value>文本数据|*.txt;*.csv|所有文件|*.*</value></data>
   <data name="Operation.CalculatePowerDensity" xml:space="preserve"><value>计算入射光功率密度</value></data>
@@ -79,6 +91,55 @@
   <data name="Prerequisite.MissingSpectrum" xml:space="preserve"><value>缺少：太阳光谱</value></data>
   <data name="Prerequisite.SampleReady" xml:space="preserve"><value>可以计算：轨迹与调度覆盖将在执行前检查</value></data>
   <data name="Prerequisite.SiliconReady" xml:space="preserve"><value>可以计算：轨迹与调度覆盖将在执行前检查</value></data>
+  <data name="Plot.ConfirmedAnchors" xml:space="preserve"><value>确认锚点</value></data>
+  <data name="Plot.AnchorsAndWindows" xml:space="preserve"><value>锚点与窗口</value></data>
+  <data name="Plot.CalculatedIpceSeries" xml:space="preserve"><value>计算 IPCE</value></data>
+  <data name="Plot.ClippedPoints" xml:space="preserve"><value>默认显示主体范围；视野外 {0} 个极端点。可点“显示全部”。</value></data>
+  <data name="Plot.ConfirmedTimeAxis" xml:space="preserve"><value>确认时间 (s)</value></data>
+  <data name="Plot.CumulativeAxis" xml:space="preserve"><value>累计 Jsc (mA cm⁻²)</value></data>
+  <data name="Plot.CumulativeSeries" xml:space="preserve"><value>累计 Jsc</value></data>
+  <data name="Plot.CumulativeTitle" xml:space="preserve"><value>累计电流密度</value></data>
+  <data name="Plot.CurrentAxis" xml:space="preserve"><value>电流 (A)</value></data>
+  <data name="Plot.DarkCurrentRange" xml:space="preserve"><value>暗电流区间</value></data>
+  <data name="Plot.EmptyCumulative" xml:space="preserve"><value>运行光谱积分后显示累计曲线。</value></data>
+  <data name="Plot.EmptyIpce" xml:space="preserve"><value>计算或导入 IPCE 后显示结果。</value></data>
+  <data name="Plot.EmptyPowerDensity" xml:space="preserve"><value>计算硅探测器功率密度后显示结果。</value></data>
+  <data name="Plot.EmptySchedule" xml:space="preserve"><value>导入 i-t 数据并设置调度参数后显示预览。</value></data>
+  <data name="Plot.EmptySelectedIpce" xml:space="preserve"><value>选择可用 IPCE 后显示。</value></data>
+  <data name="Plot.EmptySpectrum" xml:space="preserve"><value>导入太阳光谱后显示。</value></data>
+  <data name="Plot.EmptyTrace" xml:space="preserve"><value>导入 i-t 数据后显示轨迹。</value></data>
+  <data name="Plot.IntegrationRange" xml:space="preserve"><value>积分范围</value></data>
+  <data name="Plot.IntegrationSource" xml:space="preserve"><value>积分来源：{0}</value></data>
+  <data name="Plot.IrradianceAxis" xml:space="preserve"><value>辐照度 (W m⁻² nm⁻¹)</value></data>
+  <data name="Plot.IrradianceSeries" xml:space="preserve"><value>辐照度</value></data>
+  <data name="Plot.ExternalIpceSeries" xml:space="preserve"><value>外部 IPCE</value></data>
+  <data name="Plot.IpceComparisonTitle" xml:space="preserve"><value>IPCE 对比</value></data>
+  <data name="Plot.PowerDensityAxis" xml:space="preserve"><value>功率密度 (µW cm⁻²)</value></data>
+  <data name="Plot.PowerDensitySeries" xml:space="preserve"><value>入射功率密度</value></data>
+  <data name="Plot.PowerDensityTitle" xml:space="preserve"><value>单色入射功率密度</value></data>
+  <data name="Plot.OwnerAnchors" xml:space="preserve"><value>{0}锚点</value></data>
+  <data name="Plot.OwnerOutOfRange" xml:space="preserve"><value>{0}超出数据范围</value></data>
+  <data name="Plot.OwnerSchedule" xml:space="preserve"><value>{0}调度</value></data>
+  <data name="Plot.RawTrace" xml:space="preserve"><value>原始轨迹</value></data>
+  <data name="Plot.SampleOwner" xml:space="preserve"><value>样品</value></data>
+  <data name="Plot.SampleTraceTitle" xml:space="preserve"><value>样品 i-t</value></data>
+  <data name="Plot.ScheduleTitle" xml:space="preserve"><value>波长—时间调度预览</value></data>
+  <data name="Plot.SelectedIpceSeries" xml:space="preserve"><value>选定 IPCE</value></data>
+  <data name="Plot.SelectedIpceTitle" xml:space="preserve"><value>积分所用 IPCE</value></data>
+  <data name="Plot.SolarSpectrum" xml:space="preserve"><value>太阳光谱</value></data>
+  <data name="Plot.SiliconOwner" xml:space="preserve"><value>硅</value></data>
+  <data name="Plot.SiliconTraceTitle" xml:space="preserve"><value>硅 i-t</value></data>
+  <data name="Plot.TimeAxis" xml:space="preserve"><value>时间 (s)</value></data>
+  <data name="Plot.WavelengthAxis" xml:space="preserve"><value>波长 (nm)</value></data>
+  <data name="PlotToolbar.LogX" xml:space="preserve"><value>X 对数</value></data>
+  <data name="PlotToolbar.LogY" xml:space="preserve"><value>Y 对数</value></data>
+  <data name="PlotToolbar.Reset" xml:space="preserve"><value>复位视图</value></data>
+  <data name="PlotToolbar.SaveImage" xml:space="preserve"><value>保存图像</value></data>
+  <data name="PlotToolbar.ShowAll" xml:space="preserve"><value>显示全部</value></data>
+  <data name="PlotToolbar.XMaximum" xml:space="preserve"><value>X 最大</value></data>
+  <data name="PlotToolbar.XMinimum" xml:space="preserve"><value>X 最小</value></data>
+  <data name="PlotToolbar.YMaximum" xml:space="preserve"><value>Y 最大</value></data>
+  <data name="PlotToolbar.YMinimum" xml:space="preserve"><value>Y 最小</value></data>
   <data name="Result.PowerDensity" xml:space="preserve"><value>功率密度</value></data>
   <data name="Result.SampleIpce" xml:space="preserve"><value>样品 IPCE</value></data>
   <data name="Reason.CalculatedIpceUpdated" xml:space="preserve"><value>计算 IPCE 已更新</value></data>
@@ -112,6 +173,19 @@
   <data name="Reason.SiliconStartChanged" xml:space="preserve"><value>硅起始波长已改变</value></data>
   <data name="Reason.SiliconStepChanged" xml:space="preserve"><value>硅波长步长已改变</value></data>
   <data name="Reason.SpectrumUpdated" xml:space="preserve"><value>太阳光谱已更新</value></data>
+  <data name="Results.AnchorTable" xml:space="preserve"><value>锚点表（可编辑）</value></data>
+  <data name="Results.ConfirmedTimeColumn" xml:space="preserve"><value>确认时间 (s)</value></data>
+  <data name="Results.CumulativeTable" xml:space="preserve"><value>累计积分数据表</value></data>
+  <data name="Results.IntegrationTab" xml:space="preserve"><value>光谱积分</value></data>
+  <data name="Results.IpceTable" xml:space="preserve"><value>IPCE 数据表</value></data>
+  <data name="Results.PowerDensityTab" xml:space="preserve"><value>功率密度</value></data>
+  <data name="Results.PowerDensityTable" xml:space="preserve"><value>功率密度数据表</value></data>
+  <data name="Results.SampleAnchors" xml:space="preserve"><value>样品锚点</value></data>
+  <data name="Results.ScheduleTab" xml:space="preserve"><value>时间调度</value></data>
+  <data name="Results.SiliconAnchors" xml:space="preserve"><value>硅锚点</value></data>
+  <data name="Results.SummaryTab" xml:space="preserve"><value>结果摘要</value></data>
+  <data name="Results.TraceTab" xml:space="preserve"><value>i-t 轨迹</value></data>
+  <data name="Results.WavelengthColumn" xml:space="preserve"><value>波长 (nm)</value></data>
   <data name="Status.Importing" xml:space="preserve"><value>正在导入…</value></data>
   <data name="Startup.Failed" xml:space="preserve"><value>默认数据加载失败：{0}</value></data>
   <data name="Startup.Loaded" xml:space="preserve"><value>默认校准、硅轨迹、锚点和太阳光谱已加载</value></data>
@@ -122,6 +196,17 @@
   <data name="Status.SpectrumImported" xml:space="preserve"><value>已导入 {0} 个光谱点</value></data>
   <data name="Status.SpectrumSummary" xml:space="preserve"><value>{0} · 表: {1} · {2} / {3} · {4} 点 · {5:G6}–{6:G6} nm</value></data>
   <data name="Status.TraceSummary" xml:space="preserve"><value>{0} · {1} 点 · {2:G6}–{3:G6} s · {4}/{5} 已换算为 s/A</value></data>
+  <data name="Summary.CurrentDensity" xml:space="preserve"><value>积分电流密度</value></data>
+  <data name="Summary.CurrentDensityValue" xml:space="preserve"><value>积分电流密度：{0:G8} mA cm⁻²</value></data>
+  <data name="Summary.Interpolation" xml:space="preserve"><value>插值：</value></data>
+  <data name="Summary.Maximum" xml:space="preserve"><value>积分终点：</value></data>
+  <data name="Summary.Minimum" xml:space="preserve"><value>积分起点：</value></data>
+  <data name="Summary.NotCalculated" xml:space="preserve"><value>尚未计算积分电流密度</value></data>
+  <data name="Summary.Power" xml:space="preserve"><value>积分辐照功率：</value></data>
+  <data name="TraceOverlay.Hover" xml:space="preserve"><value>波长：{0:G8} nm&#xA;平均窗口：{1:G8}–{2:G8} s&#xA;平均电流：{3:E6} A&#xA;样本数：{4}</value></data>
+  <data name="TraceOverlay.MeanCurrent" xml:space="preserve"><value>平均电流</value></data>
+  <data name="TraceOverlay.StaleHover" xml:space="preserve"><value>{0}&#xA;状态：结果已过期</value></data>
+  <data name="TraceOverlay.StaleMeanCurrent" xml:space="preserve"><value>平均电流（结果已过期）</value></data>
   <data name="Validation.FiniteNumber" xml:space="preserve"><value>请输入有限数值。</value></data>
   <data name="Workflow.CalculatePowerDensity" xml:space="preserve"><value>计算功率密度</value></data>
   <data name="Workflow.AlignmentAnchors" xml:space="preserve"><value>锚点</value></data>

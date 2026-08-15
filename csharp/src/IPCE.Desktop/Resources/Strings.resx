@@ -8,12 +8,23 @@
   <data name="App.ErrorTitle" xml:space="preserve"><value>IPCEApp Error</value></data>
   <data name="App.UnhandledError" xml:space="preserve"><value>The application encountered an unhandled error. The diagnostic log was saved to:&#xA;{0}</value></data>
   <data name="Common.Browse" xml:space="preserve"><value>Browse…</value></data>
+  <data name="Common.Add" xml:space="preserve"><value>Add</value></data>
+  <data name="Common.Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="Common.ApplyChanges" xml:space="preserve"><value>Apply changes</value></data>
   <data name="Common.Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Common.Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Common.DeleteSelected" xml:space="preserve"><value>Delete selected</value></data>
   <data name="Common.Ready" xml:space="preserve"><value>Ready</value></data>
+  <data name="Coverage.Complete" xml:space="preserve"><value>{0}; fully covered.</value></data>
+  <data name="Coverage.Exceeded" xml:space="preserve"><value>exceeded by {0:G6} {1}</value></data>
+  <data name="Coverage.ExceededBoth" xml:space="preserve"><value>left exceeded by {0:G6} {1}, right exceeded by {2:G6} {1}</value></data>
+  <data name="Coverage.Incomplete" xml:space="preserve"><value>{0}; {1}.</value></data>
+  <data name="Coverage.Range" xml:space="preserve"><value>Data range {0:G6}–{1:G6} {2}; requested range {3:G6}–{4:G6} {2}</value></data>
   <data name="Dialog.ExportCompleted" xml:space="preserve"><value>Export completed</value></data>
   <data name="Dialog.ExportFailed" xml:space="preserve"><value>Export failed</value></data>
   <data name="Dialog.ExportResults" xml:space="preserve"><value>Export IPCE results</value></data>
+  <data name="Dialog.AxisSettings" xml:space="preserve"><value>Axis settings</value></data>
+  <data name="Dialog.InvalidAnchorEdit" xml:space="preserve"><value>Invalid anchor edit</value></data>
   <data name="Dialog.SelectCalibration" xml:space="preserve"><value>Select silicon calibration file</value></data>
   <data name="Dialog.SelectExternalIpce" xml:space="preserve"><value>Select external IPCE file</value></data>
   <data name="Dialog.SelectSampleAnchors" xml:space="preserve"><value>Select sample time-anchor file</value></data>
@@ -53,6 +64,7 @@
   <data name="FileFilter.ExportMat" xml:space="preserve"><value>MATLAB data|*.mat</value></data>
   <data name="FileFilter.ExportXlsx" xml:space="preserve"><value>Excel workbook|*.xlsx</value></data>
   <data name="FileFilter.IpceAll" xml:space="preserve"><value>IPCE data|*.txt;*.csv;*.xls;*.xlsx|All files|*.*</value></data>
+  <data name="FileFilter.Png" xml:space="preserve"><value>PNG image (*.png)|*.png</value></data>
   <data name="FileFilter.SpectrumAll" xml:space="preserve"><value>Excel workbooks|*.xls;*.xlsx|All files|*.*</value></data>
   <data name="FileFilter.TextAll" xml:space="preserve"><value>Text data|*.txt;*.csv|All files|*.*</value></data>
   <data name="Operation.CalculatePowerDensity" xml:space="preserve"><value>Calculate incident power density</value></data>
@@ -79,6 +91,55 @@
   <data name="Prerequisite.MissingSpectrum" xml:space="preserve"><value>Missing: solar spectrum</value></data>
   <data name="Prerequisite.SampleReady" xml:space="preserve"><value>Ready to calculate: trace and schedule coverage will be checked before execution</value></data>
   <data name="Prerequisite.SiliconReady" xml:space="preserve"><value>Ready to calculate: trace and schedule coverage will be checked before execution</value></data>
+  <data name="Plot.ConfirmedAnchors" xml:space="preserve"><value>Confirmed anchors</value></data>
+  <data name="Plot.AnchorsAndWindows" xml:space="preserve"><value>Anchors and windows</value></data>
+  <data name="Plot.CalculatedIpceSeries" xml:space="preserve"><value>Calculated IPCE</value></data>
+  <data name="Plot.ClippedPoints" xml:space="preserve"><value>Showing the main range by default; {0} extreme points are outside the view. Select “Show all”.</value></data>
+  <data name="Plot.ConfirmedTimeAxis" xml:space="preserve"><value>Confirmed time (s)</value></data>
+  <data name="Plot.CumulativeAxis" xml:space="preserve"><value>Cumulative Jsc (mA cm⁻²)</value></data>
+  <data name="Plot.CumulativeSeries" xml:space="preserve"><value>Cumulative Jsc</value></data>
+  <data name="Plot.CumulativeTitle" xml:space="preserve"><value>Cumulative current density</value></data>
+  <data name="Plot.CurrentAxis" xml:space="preserve"><value>Current (A)</value></data>
+  <data name="Plot.DarkCurrentRange" xml:space="preserve"><value>Dark-current range</value></data>
+  <data name="Plot.EmptyCumulative" xml:space="preserve"><value>Run spectrum integration to display the cumulative curve.</value></data>
+  <data name="Plot.EmptyIpce" xml:space="preserve"><value>Calculate or import IPCE to display the result.</value></data>
+  <data name="Plot.EmptyPowerDensity" xml:space="preserve"><value>Calculate silicon detector power density to display the result.</value></data>
+  <data name="Plot.EmptySchedule" xml:space="preserve"><value>Import i-t data and set scheduling parameters to display the preview.</value></data>
+  <data name="Plot.EmptySelectedIpce" xml:space="preserve"><value>Select an available IPCE source to display it.</value></data>
+  <data name="Plot.EmptySpectrum" xml:space="preserve"><value>Import a solar spectrum to display it.</value></data>
+  <data name="Plot.EmptyTrace" xml:space="preserve"><value>Import i-t data to display the trace.</value></data>
+  <data name="Plot.IntegrationRange" xml:space="preserve"><value>Integration range</value></data>
+  <data name="Plot.IntegrationSource" xml:space="preserve"><value>Integration source: {0}</value></data>
+  <data name="Plot.IrradianceAxis" xml:space="preserve"><value>Irradiance (W m⁻² nm⁻¹)</value></data>
+  <data name="Plot.IrradianceSeries" xml:space="preserve"><value>Irradiance</value></data>
+  <data name="Plot.ExternalIpceSeries" xml:space="preserve"><value>External IPCE</value></data>
+  <data name="Plot.IpceComparisonTitle" xml:space="preserve"><value>IPCE comparison</value></data>
+  <data name="Plot.PowerDensityAxis" xml:space="preserve"><value>Power density (µW cm⁻²)</value></data>
+  <data name="Plot.PowerDensitySeries" xml:space="preserve"><value>Incident power density</value></data>
+  <data name="Plot.PowerDensityTitle" xml:space="preserve"><value>Monochromatic incident power density</value></data>
+  <data name="Plot.OwnerAnchors" xml:space="preserve"><value>{0} anchors</value></data>
+  <data name="Plot.OwnerOutOfRange" xml:space="preserve"><value>{0} outside data range</value></data>
+  <data name="Plot.OwnerSchedule" xml:space="preserve"><value>{0} schedule</value></data>
+  <data name="Plot.RawTrace" xml:space="preserve"><value>Raw trace</value></data>
+  <data name="Plot.SampleOwner" xml:space="preserve"><value>Sample</value></data>
+  <data name="Plot.SampleTraceTitle" xml:space="preserve"><value>Sample i-t</value></data>
+  <data name="Plot.ScheduleTitle" xml:space="preserve"><value>Wavelength–time schedule preview</value></data>
+  <data name="Plot.SelectedIpceSeries" xml:space="preserve"><value>Selected IPCE</value></data>
+  <data name="Plot.SelectedIpceTitle" xml:space="preserve"><value>IPCE used for integration</value></data>
+  <data name="Plot.SolarSpectrum" xml:space="preserve"><value>Solar spectrum</value></data>
+  <data name="Plot.SiliconOwner" xml:space="preserve"><value>Silicon</value></data>
+  <data name="Plot.SiliconTraceTitle" xml:space="preserve"><value>Silicon i-t</value></data>
+  <data name="Plot.TimeAxis" xml:space="preserve"><value>Time (s)</value></data>
+  <data name="Plot.WavelengthAxis" xml:space="preserve"><value>Wavelength (nm)</value></data>
+  <data name="PlotToolbar.LogX" xml:space="preserve"><value>Log X</value></data>
+  <data name="PlotToolbar.LogY" xml:space="preserve"><value>Log Y</value></data>
+  <data name="PlotToolbar.Reset" xml:space="preserve"><value>Reset view</value></data>
+  <data name="PlotToolbar.SaveImage" xml:space="preserve"><value>Save image</value></data>
+  <data name="PlotToolbar.ShowAll" xml:space="preserve"><value>Show all</value></data>
+  <data name="PlotToolbar.XMaximum" xml:space="preserve"><value>X max</value></data>
+  <data name="PlotToolbar.XMinimum" xml:space="preserve"><value>X min</value></data>
+  <data name="PlotToolbar.YMaximum" xml:space="preserve"><value>Y max</value></data>
+  <data name="PlotToolbar.YMinimum" xml:space="preserve"><value>Y min</value></data>
   <data name="Result.PowerDensity" xml:space="preserve"><value>Power density</value></data>
   <data name="Result.SampleIpce" xml:space="preserve"><value>Sample IPCE</value></data>
   <data name="Reason.CalculatedIpceUpdated" xml:space="preserve"><value>Calculated IPCE updated</value></data>
@@ -112,6 +173,19 @@
   <data name="Reason.SiliconStartChanged" xml:space="preserve"><value>Silicon start wavelength changed</value></data>
   <data name="Reason.SiliconStepChanged" xml:space="preserve"><value>Silicon wavelength step changed</value></data>
   <data name="Reason.SpectrumUpdated" xml:space="preserve"><value>Solar spectrum updated</value></data>
+  <data name="Results.AnchorTable" xml:space="preserve"><value>Anchor table (editable)</value></data>
+  <data name="Results.ConfirmedTimeColumn" xml:space="preserve"><value>Confirmed time (s)</value></data>
+  <data name="Results.CumulativeTable" xml:space="preserve"><value>Cumulative integration table</value></data>
+  <data name="Results.IntegrationTab" xml:space="preserve"><value>Spectrum integration</value></data>
+  <data name="Results.IpceTable" xml:space="preserve"><value>IPCE data table</value></data>
+  <data name="Results.PowerDensityTab" xml:space="preserve"><value>Power density</value></data>
+  <data name="Results.PowerDensityTable" xml:space="preserve"><value>Power-density data table</value></data>
+  <data name="Results.SampleAnchors" xml:space="preserve"><value>Sample anchors</value></data>
+  <data name="Results.ScheduleTab" xml:space="preserve"><value>Time schedule</value></data>
+  <data name="Results.SiliconAnchors" xml:space="preserve"><value>Silicon anchors</value></data>
+  <data name="Results.SummaryTab" xml:space="preserve"><value>Result summary</value></data>
+  <data name="Results.TraceTab" xml:space="preserve"><value>i-t traces</value></data>
+  <data name="Results.WavelengthColumn" xml:space="preserve"><value>Wavelength (nm)</value></data>
   <data name="Status.Importing" xml:space="preserve"><value>Importing…</value></data>
   <data name="Startup.Failed" xml:space="preserve"><value>Failed to load default data: {0}</value></data>
   <data name="Startup.Loaded" xml:space="preserve"><value>Default calibration, silicon trace, anchors, and solar spectrum loaded</value></data>
@@ -122,6 +196,17 @@
   <data name="Status.SpectrumImported" xml:space="preserve"><value>Imported {0} spectrum points</value></data>
   <data name="Status.SpectrumSummary" xml:space="preserve"><value>{0} · sheet: {1} · {2} / {3} · {4} points · {5:G6}–{6:G6} nm</value></data>
   <data name="Status.TraceSummary" xml:space="preserve"><value>{0} · {1} points · {2:G6}–{3:G6} s · {4}/{5} converted to s/A</value></data>
+  <data name="Summary.CurrentDensity" xml:space="preserve"><value>Integrated current density</value></data>
+  <data name="Summary.CurrentDensityValue" xml:space="preserve"><value>Integrated current density: {0:G8} mA cm⁻²</value></data>
+  <data name="Summary.Interpolation" xml:space="preserve"><value>Interpolation: </value></data>
+  <data name="Summary.Maximum" xml:space="preserve"><value>Integration end: </value></data>
+  <data name="Summary.Minimum" xml:space="preserve"><value>Integration start: </value></data>
+  <data name="Summary.NotCalculated" xml:space="preserve"><value>Integrated current density has not been calculated</value></data>
+  <data name="Summary.Power" xml:space="preserve"><value>Integrated irradiance: </value></data>
+  <data name="TraceOverlay.Hover" xml:space="preserve"><value>Wavelength: {0:G8} nm&#xA;Average window: {1:G8}–{2:G8} s&#xA;Mean current: {3:E6} A&#xA;Samples: {4}</value></data>
+  <data name="TraceOverlay.MeanCurrent" xml:space="preserve"><value>Mean current</value></data>
+  <data name="TraceOverlay.StaleHover" xml:space="preserve"><value>{0}&#xA;Status: result is stale</value></data>
+  <data name="TraceOverlay.StaleMeanCurrent" xml:space="preserve"><value>Mean current (stale result)</value></data>
   <data name="Validation.FiniteNumber" xml:space="preserve"><value>Enter a finite numeric value.</value></data>
   <data name="Workflow.CalculatePowerDensity" xml:space="preserve"><value>Calculate power density</value></data>
   <data name="Workflow.AlignmentAnchors" xml:space="preserve"><value>Anchors</value></data>

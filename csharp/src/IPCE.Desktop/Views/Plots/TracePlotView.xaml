@@ -29,13 +29,13 @@
         </Border>
         <StackPanel Grid.Row="1" Orientation="Horizontal">
             <CheckBox x:Name="RawTraceLayerBox" Margin="5" IsChecked="True"
-                      Content="原始轨迹" Checked="LayerBox_Changed"
+                      Content="{Binding Localization[Plot.RawTrace]}" Checked="LayerBox_Changed"
                       Unchecked="LayerBox_Changed" />
             <CheckBox x:Name="DarkLayerBox" Margin="5" IsChecked="True"
-                      Content="暗电流区间" Checked="LayerBox_Changed"
+                      Content="{Binding Localization[Plot.DarkCurrentRange]}" Checked="LayerBox_Changed"
                       Unchecked="LayerBox_Changed" />
             <CheckBox x:Name="DiagnosticLayerBox" Margin="5" IsChecked="True"
-                      Content="锚点与窗口" Checked="LayerBox_Changed"
+                      Content="{Binding Localization[Plot.AnchorsAndWindows]}" Checked="LayerBox_Changed"
                       Unchecked="LayerBox_Changed" />
             <TextBlock x:Name="ClippedText" Margin="16,5"
                        FontFamily="Microsoft YaHei UI" FontSize="14"

@@ -2,7 +2,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using IPCE.Core.Errors;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Plotting;
+using IPCE.Desktop.ViewModels;
 
 namespace IPCE.Desktop.Views.Plots;
 
@@ -16,7 +18,8 @@ public partial class PowerDensityPlotView : UserControl
         _controller = new PlotInteractionController(
             PlotSurface,
             HoverText,
-            ClippedText);
+            ClippedText,
+            () => Localization);
         Toolbar.ApplyRequested += (_, settings) => Apply(settings);
         Toolbar.ResetRequested += (_, _) => _controller.Reset();
         Toolbar.ShowAllRequested += (_, _) => _controller.ShowAll();
@@ -42,8 +45,12 @@ public partial class PowerDensityPlotView : UserControl
         }
         catch (IpceException exception)
         {
-            MessageBox.Show(Window.GetWindow(this), exception.Message,
-                "坐标轴设置", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(
+                Window.GetWindow(this),
+                new UserMessageLocalizer(Localization).Localize(exception),
+                Localization["Dialog.AxisSettings"],
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
     }
 
@@ -56,4 +63,8 @@ public partial class PowerDensityPlotView : UserControl
         object sender,
         MouseEventArgs eventArgs) =>
         _controller.ClearHover();
+
+    private ILocalizationService Localization =>
+        (DataContext as MainViewModel)?.Localization ??
+        LocalizationService.Current;
 }

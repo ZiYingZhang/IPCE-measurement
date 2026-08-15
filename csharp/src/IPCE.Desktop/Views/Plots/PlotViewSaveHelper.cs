@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
+using IPCE.Desktop.Localization;
+using IPCE.Desktop.ViewModels;
 using Microsoft.Win32;
 using ScottPlot.WPF;
 
@@ -11,7 +13,7 @@ internal static class PlotViewSaveHelper
     {
         var dialog = new SaveFileDialog
         {
-            Filter = "PNG 图像 (*.png)|*.png",
+            Filter = Localization(owner)["FileFilter.Png"],
             DefaultExt = ".png",
         };
         if (dialog.ShowDialog(Window.GetWindow(owner)) == true)
@@ -22,4 +24,8 @@ internal static class PlotViewSaveHelper
                 Math.Max(1, (int)plot.ActualHeight));
         }
     }
+
+    private static ILocalizationService Localization(UserControl owner) =>
+        (owner.DataContext as MainViewModel)?.Localization ??
+        LocalizationService.Current;
 }

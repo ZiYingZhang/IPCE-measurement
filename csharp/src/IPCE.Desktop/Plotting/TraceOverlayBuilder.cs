@@ -1,5 +1,6 @@
 using IPCE.Core.Errors;
 using IPCE.Core.Extraction;
+using IPCE.Desktop.Localization;
 
 namespace IPCE.Desktop.Plotting;
 
@@ -13,8 +14,11 @@ public static class TraceOverlayBuilder
     public static IReadOnlyList<PlotIntervalMarker> BuildMeans(
         SchedulePreview? preview,
         double averagingDurationSeconds,
-        IReadOnlyList<TraceMeanResult> means)
+        IReadOnlyList<TraceMeanResult> means,
+        ILocalizationService? localization = null)
     {
+        ILocalizationService text =
+            localization ?? LocalizationService.Current;
         ArgumentNullException.ThrowIfNull(means);
         if (preview is null)
         {
@@ -66,12 +70,15 @@ public static class TraceOverlayBuilder
                 start,
                 end,
                 mean.MeanCurrentAmperes,
-                "平均电流",
+                text["TraceOverlay.MeanCurrent"],
                 "#EF6C00",
-                $"波长：{mean.WavelengthNm:G8} nm\n" +
-                $"平均窗口：{start:G8}–{end:G8} s\n" +
-                $"平均电流：{mean.MeanCurrentAmperes:E6} A\n" +
-                $"样本数：{mean.SampleCount}"));
+                text.Format(
+                    "TraceOverlay.Hover",
+                    mean.WavelengthNm,
+                    start,
+                    end,
+                    mean.MeanCurrentAmperes,
+                    mean.SampleCount)));
         }
 
         return Array.AsReadOnly(markers.ToArray());

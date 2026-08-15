@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using IPCE.Desktop.Localization;
 using ScottPlot;
 using ScottPlot.WPF;
 
@@ -14,17 +15,21 @@ public sealed class PlotInteractionController
     private readonly TextBlock _clippedText;
     private readonly List<IPlottable> _hoverPlottables = [];
     private PlotViewSettings? _settings;
+    private readonly Func<ILocalizationService> _localization;
 
     public PlotInteractionController(
         WpfPlot plot,
         TextBlock hoverText,
-        TextBlock clippedText)
+        TextBlock clippedText,
+        Func<ILocalizationService>? localization = null)
     {
         _plot = plot ?? throw new ArgumentNullException(nameof(plot));
         _hoverText =
             hoverText ?? throw new ArgumentNullException(nameof(hoverText));
         _clippedText =
             clippedText ?? throw new ArgumentNullException(nameof(clippedText));
+        _localization = localization ??
+            (() => LocalizationService.Current);
     }
 
     public PlotModel? Model { get; private set; }
@@ -155,8 +160,9 @@ public sealed class PlotInteractionController
         if (ViewportMode == PlotViewportMode.Robust &&
             viewport.ClippedYPointCount > 0)
         {
-            _clippedText.Text =
-                $"默认显示主体范围；视野外 {viewport.ClippedYPointCount} 个极端点。可点“显示全部”。";
+            _clippedText.Text = _localization().Format(
+                "Plot.ClippedPoints",
+                viewport.ClippedYPointCount);
             _clippedText.Visibility = Visibility.Visible;
         }
         else

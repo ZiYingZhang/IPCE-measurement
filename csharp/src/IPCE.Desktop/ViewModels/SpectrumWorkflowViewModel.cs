@@ -212,7 +212,8 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
                     ipce,
                     Spectrum,
                     IntegrationMinimumNanometres,
-                    IntegrationMaximumNanometres);
+                    IntegrationMaximumNanometres,
+                    Localization);
             }
             catch (IpceException)
             {

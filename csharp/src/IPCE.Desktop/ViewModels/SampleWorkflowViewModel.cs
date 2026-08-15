@@ -175,7 +175,8 @@ public sealed class SampleWorkflowViewModel : ViewModelBase
                         AlignmentMode,
                         Anchors),
                     FixedStartTimeSeconds,
-                    NominalDelaySeconds);
+                    NominalDelaySeconds,
+                    Localization);
             }
             catch (IpceException)
             {

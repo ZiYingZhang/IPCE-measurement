@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using IPCE.Core.Domain;
 using IPCE.Core.Errors;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Plotting;
 using IPCE.Desktop.State;
 using IPCE.Desktop.ViewModels;
@@ -35,6 +36,11 @@ public partial class ResultTabs : UserControl
         _subscribedViewModel.Silicon.PropertyChanged += SiliconChanged;
         _subscribedViewModel.Sample.PropertyChanged += SampleChanged;
         _subscribedViewModel.Spectrum.PropertyChanged += SpectrumChanged;
+        PropertyChangedEventManager.AddHandler(
+            _subscribedViewModel.Localization,
+            LocalizationChanged,
+            "Item[]");
+        UpdateLocalizedHeaders();
         RenderAll();
     }
 
@@ -49,6 +55,10 @@ public partial class ResultTabs : UserControl
         _subscribedViewModel.Silicon.PropertyChanged -= SiliconChanged;
         _subscribedViewModel.Sample.PropertyChanged -= SampleChanged;
         _subscribedViewModel.Spectrum.PropertyChanged -= SpectrumChanged;
+        PropertyChangedEventManager.RemoveHandler(
+            _subscribedViewModel.Localization,
+            LocalizationChanged,
+            "Item[]");
         _subscribedViewModel = null;
     }
 
@@ -131,6 +141,26 @@ public partial class ResultTabs : UserControl
         }
     }
 
+    private void LocalizationChanged(
+        object? sender,
+        PropertyChangedEventArgs eventArgs)
+    {
+        UpdateLocalizedHeaders();
+        RenderAll();
+    }
+
+    private void UpdateLocalizedHeaders()
+    {
+        SiliconWavelengthColumn.Header =
+            Text["Results.WavelengthColumn"];
+        SampleWavelengthColumn.Header =
+            Text["Results.WavelengthColumn"];
+        SiliconConfirmedTimeColumn.Header =
+            Text["Results.ConfirmedTimeColumn"];
+        SampleConfirmedTimeColumn.Header =
+            Text["Results.ConfirmedTimeColumn"];
+    }
+
     private void RenderAll()
     {
         RenderTraces();
@@ -158,7 +188,7 @@ public partial class ResultTabs : UserControl
                     point.SampleCount))
                 .ToArray() ?? [];
         SiliconTraceView.Render(ResultPlotModelBuilder.BuildTrace(
-            "硅 i-t",
+            Text["Plot.SiliconTraceTitle"],
             viewModel?.Silicon.Trace,
             viewModel?.Silicon.Anchors,
             viewModel?.Silicon.SubtractDark ?? false,
@@ -168,9 +198,10 @@ public partial class ResultTabs : UserControl
             viewModel?.Silicon.AveragingDurationSeconds ?? 0,
             siliconMeans,
             viewModel?.Session.PowerDensityStatus ??
-                new ResultStatus(ResultFreshness.Missing, "")));
+                new ResultStatus(ResultFreshness.Missing, ""),
+            Text));
         SampleTraceView.Render(ResultPlotModelBuilder.BuildTrace(
-            "样品 i-t",
+            Text["Plot.SampleTraceTitle"],
             viewModel?.Sample.Trace,
             viewModel?.Sample.Anchors,
             viewModel?.Sample.SubtractDark ?? false,
@@ -180,7 +211,8 @@ public partial class ResultTabs : UserControl
             viewModel?.Sample.AveragingDurationSeconds ?? 0,
             sampleMeans,
             viewModel?.Session.CalculatedIpceStatus ??
-                new ResultStatus(ResultFreshness.Missing, "")));
+                new ResultStatus(ResultFreshness.Missing, ""),
+            Text));
     }
 
     private void RenderSchedule()
@@ -188,19 +220,21 @@ public partial class ResultTabs : UserControl
         List<PlotSeries> series = [];
         AddScheduleSeries(
             series,
-            "硅",
+            Text["Plot.SiliconOwner"],
+            "#1976D2",
             _subscribedViewModel?.Silicon.Preview);
         AddScheduleSeries(
             series,
-            "样品",
+            Text["Plot.SampleOwner"],
+            "#00897B",
             _subscribedViewModel?.Sample.Preview);
         SchedulePlotView.Render(new PlotModel(
-            "波长—时间调度预览",
-            "波长 (nm)",
-            "确认时间 (s)",
+            Text["Plot.ScheduleTitle"],
+            Text["Plot.WavelengthAxis"],
+            Text["Plot.ConfirmedTimeAxis"],
             series,
             [],
-            "导入 i-t 数据并设置调度参数后显示预览。"));
+            Text["Plot.EmptySchedule"]));
     }
 
     private void RenderPowerDensity()
@@ -211,7 +245,7 @@ public partial class ResultTabs : UserControl
             ?
             [
                 new PlotSeries(
-                    "入射功率密度",
+                    Text["Plot.PowerDensitySeries"],
                     points.Select(point => point.WavelengthNm).ToArray(),
                     points.Select(point =>
                         point.IncidentPowerDensityWattsPerSquareCentimetre *
@@ -224,12 +258,12 @@ public partial class ResultTabs : UserControl
             ]
             : [];
         PowerDensityPlotView.Render(new PlotModel(
-            "单色入射功率密度",
-            "波长 (nm)",
-            "功率密度 (µW cm⁻²)",
+            Text["Plot.PowerDensityTitle"],
+            Text["Plot.WavelengthAxis"],
+            Text["Plot.PowerDensityAxis"],
             series,
             [],
-            "计算硅探测器功率密度后显示结果。"));
+            Text["Plot.EmptyPowerDensity"]));
     }
 
     private void RenderIpce()
@@ -240,7 +274,7 @@ public partial class ResultTabs : UserControl
         if (calculated is { Count: > 0 })
         {
             series.Add(new PlotSeries(
-                "计算 IPCE",
+                Text["Plot.CalculatedIpceSeries"],
                 calculated.Select(point => point.WavelengthNm).ToArray(),
                 calculated.Select(point => point.IpcePercent).ToArray(),
                 PlotSeriesKind.Line,
@@ -254,7 +288,7 @@ public partial class ResultTabs : UserControl
         if (external?.Points is { Count: > 0 } externalPoints)
         {
             series.Add(new PlotSeries(
-                "外部 IPCE",
+                Text["Plot.ExternalIpceSeries"],
                 externalPoints.Select(point => point.WavelengthNm).ToArray(),
                 externalPoints.Select(point => point.IpcePercent).ToArray(),
                 PlotSeriesKind.Line,
@@ -262,17 +296,17 @@ public partial class ResultTabs : UserControl
         }
 
         IpcePlotView.Render(new PlotModel(
-            "IPCE 对比",
-            "波长 (nm)",
+            Text["Plot.IpceComparisonTitle"],
+            Text["Plot.WavelengthAxis"],
             "IPCE (%)",
             series,
             [],
-            "计算或导入 IPCE 后显示结果。"));
+            Text["Plot.EmptyIpce"]));
         IpcePlotView.SetSelectedSource(
             _subscribedViewModel?.Session.SelectedIpceSource ==
                 IpceSource.External
-                ? "外部 IPCE"
-                : "计算 IPCE");
+                ? Text["Plot.ExternalIpceSeries"]
+                : Text["Plot.CalculatedIpceSeries"]);
     }
 
     private void RenderSpectrumIntegration()
@@ -293,7 +327,8 @@ public partial class ResultTabs : UserControl
                 selected,
                 integration,
                 minimum,
-                maximum);
+                maximum,
+                Text);
         SpectrumIntegrationPlotView.Render(
             models.Irradiance,
             models.SelectedIpce,
@@ -301,9 +336,10 @@ public partial class ResultTabs : UserControl
             integration?.Summary);
     }
 
-    private static void AddScheduleSeries(
+    private void AddScheduleSeries(
         List<PlotSeries> target,
         string owner,
+        string colorHex,
         SchedulePreview? preview)
     {
         if (preview is null)
@@ -320,16 +356,16 @@ public partial class ResultTabs : UserControl
         if (valid.Length > 0)
         {
             target.Add(new PlotSeries(
-                $"{owner}调度",
+                Text.Format("Plot.OwnerSchedule", owner),
                 valid.Select(point => point.WavelengthNm).ToArray(),
                 valid.Select(point => point.ReferenceTimeSeconds).ToArray(),
                 PlotSeriesKind.Line,
-                owner == "硅" ? "#1976D2" : "#00897B"));
+                colorHex));
         }
         if (invalid.Length > 0)
         {
             target.Add(new PlotSeries(
-                $"{owner}超出数据范围",
+                Text.Format("Plot.OwnerOutOfRange", owner),
                 invalid.Select(point => point.WavelengthNm).ToArray(),
                 invalid.Select(point => point.ReferenceTimeSeconds).ToArray(),
                 PlotSeriesKind.Scatter,
@@ -338,7 +374,7 @@ public partial class ResultTabs : UserControl
         if (preview.Anchors.Count > 0)
         {
             target.Add(new PlotSeries(
-                $"{owner}锚点",
+                Text.Format("Plot.OwnerAnchors", owner),
                 preview.Anchors.Select(point => point.WavelengthNm).ToArray(),
                 preview.Anchors.Select(point =>
                     point.ConfirmedTimeSeconds).ToArray(),
@@ -446,10 +482,14 @@ public partial class ResultTabs : UserControl
         {
             MessageBox.Show(
                 Window.GetWindow(this),
-                exception.Message,
-                "锚点编辑无效",
+                new UserMessageLocalizer(Text).Localize(exception),
+                Text["Dialog.InvalidAnchorEdit"],
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
     }
+
+    private ILocalizationService Text =>
+        _subscribedViewModel?.Localization ??
+        LocalizationService.Current;
 }

@@ -177,7 +177,8 @@ public sealed class SiliconWorkflowViewModel : ViewModelBase
                         AlignmentMode,
                         Anchors),
                     FixedStartTimeSeconds,
-                    NominalDelaySeconds);
+                    NominalDelaySeconds,
+                    Localization);
             }
             catch (IpceException)
             {

@@ -6,6 +6,8 @@ using IPCE.Core.Domain;
 using IPCE.Desktop.Localization;
 using IPCE.Desktop.State;
 using IPCE.Desktop.ViewModels;
+using IPCE.Desktop.Views;
+using IPCE.Desktop.Views.Plots;
 
 namespace IPCE.Desktop.Tests;
 
@@ -65,6 +67,13 @@ public sealed class LanguageSwitchingTests
                 Assert.AreEqual(
                     AppLanguage.English,
                     selector.SelectedValue);
+                var results = Assert.IsInstanceOfType<ResultTabs>(
+                    window.FindName("ResultsPanel"));
+                var schedule = Assert.IsInstanceOfType<SchedulePlotView>(
+                    results.FindName("SchedulePlotView"));
+                Assert.AreEqual(
+                    "Wavelength–time schedule preview",
+                    schedule.InteractionController.Model?.Title);
 
                 object originalDataContext = window.DataContext;
                 SessionState originalSession = viewModel.Session;
@@ -83,6 +92,9 @@ public sealed class LanguageSwitchingTests
                 Assert.AreEqual(
                     AppLanguage.SimplifiedChinese,
                     selector.SelectedValue);
+                Assert.AreEqual(
+                    "波长—时间调度预览",
+                    schedule.InteractionController.Model?.Title);
                 Assert.AreSame(originalDataContext, window.DataContext);
                 Assert.AreSame(originalSession, viewModel.Session);
                 Assert.AreSame(

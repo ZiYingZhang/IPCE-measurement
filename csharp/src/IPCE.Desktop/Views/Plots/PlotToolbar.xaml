@@ -4,20 +4,20 @@
              FontFamily="Microsoft YaHei UI"
              FontSize="14">
     <WrapPanel Margin="0,4,0,0" VerticalAlignment="Center">
-        <TextBlock Margin="4" VerticalAlignment="Center" Text="X 最小" />
+        <TextBlock Margin="4" VerticalAlignment="Center" Text="{Binding Localization[PlotToolbar.XMinimum]}" />
         <TextBox x:Name="MinimumXBox" Width="96" MinHeight="30" Margin="2" />
-        <TextBlock Margin="4" VerticalAlignment="Center" Text="X 最大" />
+        <TextBlock Margin="4" VerticalAlignment="Center" Text="{Binding Localization[PlotToolbar.XMaximum]}" />
         <TextBox x:Name="MaximumXBox" Width="96" MinHeight="30" Margin="2" />
-        <TextBlock Margin="4" VerticalAlignment="Center" Text="Y 最小" />
+        <TextBlock Margin="4" VerticalAlignment="Center" Text="{Binding Localization[PlotToolbar.YMinimum]}" />
         <TextBox x:Name="MinimumYBox" Width="96" MinHeight="30" Margin="2" />
-        <TextBlock Margin="4" VerticalAlignment="Center" Text="Y 最大" />
+        <TextBlock Margin="4" VerticalAlignment="Center" Text="{Binding Localization[PlotToolbar.YMaximum]}" />
         <TextBox x:Name="MaximumYBox" Width="96" MinHeight="30" Margin="2" />
-        <CheckBox x:Name="LogarithmicXBox" Margin="8,4" Content="X 对数" />
-        <CheckBox x:Name="LogarithmicYBox" Margin="8,4" Content="Y 对数" />
-        <Button Margin="2" MinHeight="32" Padding="12,5" Content="应用" Click="Apply_Click" />
-        <Button Margin="2" MinHeight="32" Padding="12,5" Content="复位视图" Click="Reset_Click" />
+        <CheckBox x:Name="LogarithmicXBox" Margin="8,4" Content="{Binding Localization[PlotToolbar.LogX]}" />
+        <CheckBox x:Name="LogarithmicYBox" Margin="8,4" Content="{Binding Localization[PlotToolbar.LogY]}" />
+        <Button Margin="2" MinHeight="32" Padding="12,5" Content="{Binding Localization[Common.Apply]}" Click="Apply_Click" />
+        <Button Margin="2" MinHeight="32" Padding="12,5" Content="{Binding Localization[PlotToolbar.Reset]}" Click="Reset_Click" />
         <Button x:Name="ShowAllButton" Margin="2" MinHeight="32"
-                Padding="12,5" Content="显示全部" Click="ShowAll_Click" />
-        <Button Margin="2" MinHeight="32" Padding="12,5" Content="保存图像" Click="Save_Click" />
+                Padding="12,5" Content="{Binding Localization[PlotToolbar.ShowAll]}" Click="ShowAll_Click" />
+        <Button Margin="2" MinHeight="32" Padding="12,5" Content="{Binding Localization[PlotToolbar.SaveImage]}" Click="Save_Click" />
     </WrapPanel>
 </UserControl>
