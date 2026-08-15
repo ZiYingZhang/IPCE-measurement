@@ -35,30 +35,33 @@ public sealed class MainViewModel : ViewModelBase
             nameof(session));
         Localization = localization ?? LocalizationService.Current;
         IUserOperationRunner operationRunner =
-            operations ?? UserOperationRunner.CreateDefault();
+            operations ?? UserOperationRunner.CreateDefault(Localization);
         TraceImportCoordinator traceImportCoordinator =
             traceImports ?? new TraceImportCoordinator(
-                new ImportSelectionService());
+                new ImportSelectionService(Localization));
         SpectrumImportCoordinator spectrumImportCoordinator =
             spectrumImports ?? new SpectrumImportCoordinator(
-                new ImportSelectionService());
+                new ImportSelectionService(Localization));
         Silicon = new SiliconWorkflowViewModel(
             session,
             synchronizationContext,
             operationRunner,
-            traceImportCoordinator);
+            traceImportCoordinator,
+            Localization);
         Sample = new SampleWorkflowViewModel(
             session,
             synchronizationContext,
             operationRunner,
-            traceImportCoordinator);
+            traceImportCoordinator,
+            Localization);
         Spectrum = new SpectrumWorkflowViewModel(
             session,
             synchronizationContext,
             operationRunner,
             spectrumImportCoordinator,
             Silicon,
-            Sample);
+            Sample,
+            Localization);
         Session.PropertyChanged += OnSessionPropertyChanged;
         PropertyChangedEventManager.AddHandler(
             Localization,

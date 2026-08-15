@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using IPCE.Desktop.Input;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.State;
 using IPCE.Desktop.ViewModels;
 
@@ -69,6 +71,37 @@ public sealed class FiniteDoubleConverterTests
             CultureInfo.GetCultureInfo("de-DE"));
 
         Assert.AreEqual("0.35999999999999999", result);
+    }
+
+    [TestMethod]
+    public void ConvertBack_ValidationUsesSelectedLanguage()
+    {
+        string path = Path.Combine(
+            Path.GetTempPath(),
+            $"ipce-converter-language-{Guid.NewGuid():N}.json");
+        try
+        {
+            var localization = new LocalizationService(
+                new LanguagePreferenceStore(path),
+                CultureInfo.GetCultureInfo("en-US"));
+            var converter = new FiniteDoubleConverter(localization);
+
+            ValidationException exception =
+                Assert.Throws<ValidationException>(() =>
+                    converter.ConvertBack(
+                        "NaN",
+                        typeof(double),
+                        null!,
+                        CultureInfo.GetCultureInfo("en-US")));
+
+            Assert.AreEqual(
+                "Enter a finite numeric value.",
+                exception.Message);
+        }
+        finally
+        {
+            if (File.Exists(path)) File.Delete(path);
+        }
     }
 
     [TestMethod]

@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using IPCE.Desktop.Import;
+using IPCE.Desktop.Localization;
 using IPCE.IO.Import;
 
 namespace IPCE.Desktop.Services;
@@ -22,6 +23,11 @@ public sealed class ImportSelectionService : IImportSelectionService
         ["s", "ms", "min", "h"];
     private static readonly string[] CurrentUnits =
         ["A", "mA", "uA", "nA", "pA"];
+    private readonly ILocalizationService _localization;
+
+    public ImportSelectionService(
+        ILocalizationService? localization = null) =>
+        _localization = localization ?? LocalizationService.Current;
 
     public UnitOverrides? SelectTraceUnits(
         TraceImportInspection inspection)
@@ -47,13 +53,13 @@ public sealed class ImportSelectionService : IImportSelectionService
         };
         var confirm = new Button
         {
-            Content = "确认",
+            Content = _localization["Common.Confirm"],
             IsDefault = true,
             MinWidth = 80,
         };
         var cancel = new Button
         {
-            Content = "取消",
+            Content = _localization["Common.Cancel"],
             IsCancel = true,
             MinWidth = 80,
         };
@@ -71,25 +77,29 @@ public sealed class ImportSelectionService : IImportSelectionService
         };
         content.Children.Add(new TextBlock
         {
-            Text = "无法从表头完整识别单位，请明确选择。",
+            Text = _localization["Import.UnitsRequired"],
             TextWrapping = TextWrapping.Wrap,
             Margin = new Thickness(0, 0, 0, 8),
         });
         content.Children.Add(new TextBlock
         {
-            Text = $"时间列：{inspection.TimeHeader}",
+            Text = _localization.Format(
+                "Import.TimeColumn",
+                inspection.TimeHeader),
         });
         content.Children.Add(timeUnits);
         content.Children.Add(new TextBlock
         {
-            Text = $"电流列：{inspection.CurrentHeader}",
+            Text = _localization.Format(
+                "Import.CurrentColumn",
+                inspection.CurrentHeader),
         });
         content.Children.Add(currentUnits);
         content.Children.Add(buttons);
 
         var dialog = new Window
         {
-            Title = "选择 i-t 数据单位",
+            Title = _localization["Import.SelectTraceUnits"],
             Content = content,
             SizeToContent = SizeToContent.WidthAndHeight,
             MinWidth = 390,
@@ -140,7 +150,10 @@ public sealed class ImportSelectionService : IImportSelectionService
             ColumnOption[] options = columns
                 .Select(column => new ColumnOption(
                     column,
-                    $"{column.DisplayName} · {column.NumericValueCount} 个数值"))
+                    _localization.Format(
+                        "Import.NumericValues",
+                        column.DisplayName,
+                        column.NumericValueCount)))
                 .ToArray();
             wavelengthBox.ItemsSource = options;
             irradianceBox.ItemsSource = options;
@@ -168,13 +181,13 @@ public sealed class ImportSelectionService : IImportSelectionService
         LoadColumns();
         var confirm = new Button
         {
-            Content = "确认",
+            Content = _localization["Common.Confirm"],
             IsDefault = true,
             MinWidth = 80,
         };
         var cancel = new Button
         {
-            Content = "取消",
+            Content = _localization["Common.Cancel"],
             IsCancel = true,
             MinWidth = 80,
         };
@@ -189,19 +202,25 @@ public sealed class ImportSelectionService : IImportSelectionService
         {
             Margin = new Thickness(14),
         };
-        content.Children.Add(new TextBlock { Text = "工作表" });
+        content.Children.Add(new TextBlock
+        {
+            Text = _localization["Import.Worksheet"],
+        });
         content.Children.Add(sheetBox);
-        content.Children.Add(new TextBlock { Text = "波长列 (nm)" });
+        content.Children.Add(new TextBlock
+        {
+            Text = _localization["Import.WavelengthColumn"],
+        });
         content.Children.Add(wavelengthBox);
         content.Children.Add(new TextBlock
         {
-            Text = "辐照度列 (W m⁻² nm⁻¹)",
+            Text = _localization["Import.IrradianceColumn"],
         });
         content.Children.Add(irradianceBox);
         content.Children.Add(buttons);
         var dialog = new Window
         {
-            Title = "选择太阳光谱工作表与列",
+            Title = _localization["Import.SelectSpectrumColumns"],
             Content = content,
             SizeToContent = SizeToContent.WidthAndHeight,
             MinWidth = 480,
@@ -217,7 +236,7 @@ public sealed class ImportSelectionService : IImportSelectionService
             {
                 MessageBox.Show(
                     dialog,
-                    "请选择两个有效的数值列。",
+                    _localization["Import.SelectTwoNumericColumns"],
                     dialog.Title,
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
@@ -229,7 +248,7 @@ public sealed class ImportSelectionService : IImportSelectionService
             {
                 MessageBox.Show(
                     dialog,
-                    "波长列和辐照度列不能相同。",
+                    _localization["Import.ColumnsMustDiffer"],
                     dialog.Title,
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);

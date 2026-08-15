@@ -1,9 +1,11 @@
 using System.ComponentModel;
 using System.IO;
+using System.Windows;
 using IPCE.Core.Calculation;
 using IPCE.Core.Domain;
 using IPCE.Core.Errors;
 using IPCE.Desktop.Import;
+using IPCE.Desktop.Localization;
 using IPCE.Desktop.Plotting;
 using IPCE.Desktop.Services;
 using IPCE.Desktop.State;
@@ -31,7 +33,8 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
     private bool _includeCalculatedIpceExport = true;
     private bool _includeExternalIpceExport = true;
     private bool _includeIntegrationExport = true;
-    private string _lastOperationMessage = "就绪";
+    private string _lastOperationKey = "Common.Ready";
+    private object?[] _lastOperationArguments = [];
     private readonly SpectrumImportCoordinator _spectrumImports;
     private SpectrumImportResult? _spectrumImportMetadata;
     private string _spectrumImportSummary = "";
@@ -39,6 +42,7 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
     private string _externalIpceFileName = "";
     private readonly SiliconWorkflowViewModel? _siliconWorkflow;
     private readonly SampleWorkflowViewModel? _sampleWorkflow;
+    private readonly LocalizedReasonFormatter _reasonFormatter;
 
     public SpectrumWorkflowViewModel(
         SessionState session,
@@ -46,27 +50,34 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
         IUserOperationRunner? operations = null,
         SpectrumImportCoordinator? spectrumImports = null,
         SiliconWorkflowViewModel? siliconWorkflow = null,
-        SampleWorkflowViewModel? sampleWorkflow = null)
+        SampleWorkflowViewModel? sampleWorkflow = null,
+        ILocalizationService? localization = null)
         : base(synchronizationContext)
     {
         Session = session ?? throw new ArgumentNullException(
             nameof(session));
+        Localization = localization ?? LocalizationService.Current;
+        _reasonFormatter = new LocalizedReasonFormatter(Localization);
         IUserOperationRunner operationRunner =
-            operations ?? UserOperationRunner.CreateDefault();
+            operations ?? UserOperationRunner.CreateDefault(Localization);
         _spectrumImports =
             spectrumImports ?? new SpectrumImportCoordinator(
-                new ImportSelectionService());
+                new ImportSelectionService(Localization));
         _siliconWorkflow = siliconWorkflow;
         _sampleWorkflow = sampleWorkflow;
         Session.PropertyChanged += OnSessionPropertyChanged;
+        PropertyChangedEventManager.AddHandler(
+            Localization,
+            OnLocalizationPropertyChanged,
+            "Item[]");
         ImportExternalIpceCommand = new SafeAsyncRelayCommand(
             operationRunner,
-            "导入外部 IPCE 数据",
+            () => Localization["Operation.ImportExternalIpce"],
             parameter => ImportExternalIpceAsync(RequirePath(parameter)),
             HasPath);
         ImportSpectrumCommand = new SafeAsyncRelayCommand(
             operationRunner,
-            "导入太阳光谱",
+            () => Localization["Operation.ImportSpectrum"],
             parameter => ImportSpectrumAsync(RequirePath(parameter)),
             HasPath);
         SelectSourceCommand = new RelayCommand(
@@ -75,7 +86,7 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
             parameter => parameter is IpceSource);
         IntegrateCommand = new SafeRelayCommand(
             operationRunner,
-            "计算积分电流密度",
+            () => Localization["Operation.Integrate"],
             parameter =>
             {
                 if (parameter is IntegrationRange range)
@@ -91,7 +102,7 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
             _ => CanIntegrate);
         ExportCommand = new SafeRelayCommand(
             operationRunner,
-            "导出结果",
+            () => Localization["Operation.Export"],
             parameter =>
             {
                 ExportRequest request =
@@ -103,6 +114,8 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
 
     public SessionState Session { get; }
 
+    public ILocalizationService Localization { get; }
+
     public ExternalIpceData? ExternalIpce => Session.ExternalIpce;
 
     public IReadOnlyList<SpectrumPoint>? Spectrum => Session.Spectrum;
@@ -110,7 +123,13 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
     public SpectrumImportResult? SpectrumImportMetadata =>
         _spectrumImportMetadata;
 
-    public string SpectrumImportSummary => _spectrumImportSummary;
+    public string SpectrumImportSummary =>
+        _spectrumImportSummary.Length > 0 &&
+        _spectrumImportMetadata is not null
+            ? FormatSpectrumSummary(
+                _spectrumImportSummary,
+                _spectrumImportMetadata)
+            : "";
 
     public string SpectrumFileName => _spectrumFileName;
 
@@ -134,26 +153,44 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
 
     public string PrerequisiteMessage =>
         Spectrum is not { Count: > 1 }
-            ? "缺少：太阳光谱"
+            ? Localization["Prerequisite.MissingSpectrum"]
             : SelectedIpceSource == IpceSource.Calculated
                 ? Session.CalculatedIpceStatus.Freshness ==
                     ResultFreshness.Stale
-                    ? $"需要重新计算：{Session.CalculatedIpceStatus.Reason}"
+                    ? Localization.Format(
+                        "Freshness.Stale",
+                        _reasonFormatter.Format(
+                            Session.CalculatedIpceStatus.Reason))
                     : !Session.CalculatedIpceStatus.CanUse
-                        ? "缺少：当前计算 IPCE"
-                        : "可以积分：计算 IPCE 与光谱已就绪"
+                        ? Localization["Prerequisite.MissingCalculatedIpce"]
+                        : Localization["Prerequisite.CalculatedReady"]
                 : ExternalIpce is null
-                    ? "缺少：外部 IPCE"
-                    : "可以积分：外部 IPCE 与光谱已就绪";
+                    ? Localization["Prerequisite.MissingExternalIpce"]
+                    : Localization["Prerequisite.ExternalReady"];
 
     public string ResultStatusMessage =>
         Session.IntegrationStatus.Freshness switch
         {
-            ResultFreshness.Current => "当前积分结果可用",
+            ResultFreshness.Current =>
+                Localization["Freshness.CurrentIntegration"],
             ResultFreshness.Stale =>
-                $"需要重新计算：{Session.IntegrationStatus.Reason}",
-            _ => "尚未生成积分结果",
+                Localization.Format(
+                    "Freshness.Stale",
+                    _reasonFormatter.Format(
+                        Session.IntegrationStatus.Reason)),
+            _ => Localization["Freshness.MissingIntegration"],
         };
+
+    private void OnLocalizationPropertyChanged(
+        object? sender,
+        PropertyChangedEventArgs eventArgs)
+    {
+        OnPropertyChanged(nameof(PrerequisiteMessage));
+        OnPropertyChanged(nameof(ResultStatusMessage));
+        OnPropertyChanged(nameof(SpectrumImportSummary));
+        OnPropertyChanged(nameof(LastOperationMessage));
+        NotifyCoverageChanged();
+    }
 
     public CoveragePreview? Coverage
     {
@@ -274,8 +311,9 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
 
     public string LastOperationMessage
     {
-        get => _lastOperationMessage;
-        private set => SetProperty(ref _lastOperationMessage, value);
+        get => Localization.Format(
+            _lastOperationKey,
+            _lastOperationArguments);
     }
 
     public IAsyncCommand ImportExternalIpceCommand { get; }
@@ -299,8 +337,9 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
                 Session.SelectIpceSource(IpceSource.External);
                 _externalIpceFileName = Path.GetFileName(path);
                 OnPropertyChanged(nameof(ExternalIpceFileName));
-                LastOperationMessage =
-                    $"已导入 {replacement.Points.Count} 个外部 IPCE 点";
+                SetLastOperation(
+                    "Status.ExternalIpceImported",
+                    replacement.Points.Count);
             });
     }
 
@@ -319,13 +358,13 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
                 Session.SetSpectrum(replacement.Points);
                 _spectrumImportMetadata = replacement;
                 _spectrumFileName = Path.GetFileName(path);
-                _spectrumImportSummary =
-                    FormatSpectrumSummary(path, replacement);
+                _spectrumImportSummary = path;
                 OnPropertyChanged(nameof(SpectrumImportMetadata));
                 OnPropertyChanged(nameof(SpectrumFileName));
                 OnPropertyChanged(nameof(SpectrumImportSummary));
-                LastOperationMessage =
-                    $"已导入 {replacement.Points.Count} 个光谱点";
+                SetLastOperation(
+                    "Status.SpectrumImported",
+                    replacement.Points.Count);
             });
         return true;
     }
@@ -335,8 +374,10 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
         IntegrationResult replacement = Session.Integrate(
             IntegrationMinimumNanometres,
             IntegrationMaximumNanometres);
-        LastOperationMessage =
-            $"积分完成：{replacement.Summary.IntegratedCurrentDensityMilliamperePerSquareCentimetre:g6} mA cm⁻²";
+        SetLastOperation(
+            "Status.IntegrationCompleted",
+            replacement.Summary
+                .IntegratedCurrentDensityMilliamperePerSquareCentimetre);
         return replacement;
     }
 
@@ -413,7 +454,7 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
             BuildSelectedExportTables(),
             outputPath,
             format);
-        LastOperationMessage = $"已导出 {written.Count} 个文件";
+        SetLastOperation("Status.FilesExported", written.Count);
         return written;
     }
 
@@ -495,6 +536,15 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsCoverageValid));
     }
 
+    private void SetLastOperation(
+        string key,
+        params object?[] arguments)
+    {
+        _lastOperationKey = key;
+        _lastOperationArguments = arguments;
+        OnPropertyChanged(nameof(LastOperationMessage));
+    }
+
     private static bool HasPath(object? parameter) =>
         parameter is string path && !string.IsNullOrWhiteSpace(path);
 
@@ -511,12 +561,15 @@ public sealed class SpectrumWorkflowViewModel : ViewModelBase
                 $"命令参数必须为 {typeof(T).Name}。",
                 nameof(parameter));
 
-    private static string FormatSpectrumSummary(
+    private string FormatSpectrumSummary(
         string path,
-        SpectrumImportResult result) =>
-        $"{Path.GetFileName(path)} · 表: {result.Selection.SheetName} · " +
-        $"{result.WavelengthHeader} / {result.IrradianceHeader} · " +
-        $"{result.Points.Count} 点 · " +
-        $"{result.Points[0].WavelengthNm:g6}–" +
-        $"{result.Points[^1].WavelengthNm:g6} nm";
+        SpectrumImportResult result) => Localization.Format(
+            "Status.SpectrumSummary",
+            Path.GetFileName(path),
+            result.Selection.SheetName,
+            result.WavelengthHeader,
+            result.IrradianceHeader,
+            result.Points.Count,
+            result.Points[0].WavelengthNm,
+            result.Points[^1].WavelengthNm);
 }

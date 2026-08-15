@@ -11,15 +11,164 @@
   <data name="Common.Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Common.Confirm" xml:space="preserve"><value>Confirm</value></data>
   <data name="Common.Ready" xml:space="preserve"><value>Ready</value></data>
+  <data name="Dialog.ExportCompleted" xml:space="preserve"><value>Export completed</value></data>
+  <data name="Dialog.ExportFailed" xml:space="preserve"><value>Export failed</value></data>
+  <data name="Dialog.ExportResults" xml:space="preserve"><value>Export IPCE results</value></data>
+  <data name="Dialog.SelectCalibration" xml:space="preserve"><value>Select silicon calibration file</value></data>
+  <data name="Dialog.SelectExternalIpce" xml:space="preserve"><value>Select external IPCE file</value></data>
+  <data name="Dialog.SelectSampleAnchors" xml:space="preserve"><value>Select sample time-anchor file</value></data>
+  <data name="Dialog.SelectSampleTrace" xml:space="preserve"><value>Select sample i-t file</value></data>
+  <data name="Dialog.SelectSiliconAnchors" xml:space="preserve"><value>Select silicon time-anchor file</value></data>
+  <data name="Dialog.SelectSiliconTrace" xml:space="preserve"><value>Select silicon i-t file</value></data>
+  <data name="Dialog.SelectSpectrum" xml:space="preserve"><value>Select solar-spectrum file</value></data>
   <data name="Error.GenericDomain" xml:space="preserve"><value>The operation could not be completed ({0}).</value></data>
+  <data name="Error.GenericUnexpected" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+  <data name="Error.AccessDenied" xml:space="preserve"><value>Access was denied. Check the selected path and file permissions.</value></data>
+  <data name="Error.FileOperation" xml:space="preserve"><value>The file operation failed. Check the selected path and try again.</value></data>
+  <data name="Error.IPCE.InvalidTrace" xml:space="preserve"><value>The i-t trace is invalid.</value></data>
+  <data name="Error.IPCE.InvalidSchedule" xml:space="preserve"><value>The measurement schedule is invalid.</value></data>
   <data name="Error.LogWriteFailed" xml:space="preserve"><value>Failed to write diagnostic log</value></data>
   <data name="Error.Unexpected" xml:space="preserve"><value>An unexpected error occurred. Diagnostic log:&#xA;{0}</value></data>
   <data name="Language.Chinese" xml:space="preserve"><value>中文</value></data>
   <data name="Language.English" xml:space="preserve"><value>English</value></data>
   <data name="Language.Label" xml:space="preserve"><value>Language</value></data>
+  <data name="Import.ColumnsMustDiffer" xml:space="preserve"><value>The wavelength and irradiance columns must be different.</value></data>
+  <data name="Import.CurrentColumn" xml:space="preserve"><value>Current column: {0}</value></data>
+  <data name="Import.IrradianceColumn" xml:space="preserve"><value>Irradiance column (W m⁻² nm⁻¹)</value></data>
+  <data name="Import.NumericValues" xml:space="preserve"><value>{0} · {1} numeric values</value></data>
+  <data name="Import.SelectSpectrumColumns" xml:space="preserve"><value>Select solar-spectrum worksheet and columns</value></data>
+  <data name="Import.SelectTraceUnits" xml:space="preserve"><value>Select i-t data units</value></data>
+  <data name="Import.SelectTwoNumericColumns" xml:space="preserve"><value>Select two valid numeric columns.</value></data>
+  <data name="Import.TimeColumn" xml:space="preserve"><value>Time column: {0}</value></data>
+  <data name="Import.UnitsRequired" xml:space="preserve"><value>Units could not be fully identified from the headers. Select them explicitly.</value></data>
+  <data name="Import.WavelengthColumn" xml:space="preserve"><value>Wavelength column (nm)</value></data>
+  <data name="Import.Worksheet" xml:space="preserve"><value>Worksheet</value></data>
+  <data name="Freshness.Current" xml:space="preserve"><value>Current {0} is available</value></data>
+  <data name="Freshness.CurrentIntegration" xml:space="preserve"><value>Current integration result is available</value></data>
+  <data name="Freshness.Missing" xml:space="preserve"><value>{0} has not been generated</value></data>
+  <data name="Freshness.MissingIntegration" xml:space="preserve"><value>Integration result has not been generated</value></data>
+  <data name="Freshness.Stale" xml:space="preserve"><value>Recalculation required: {0}</value></data>
+  <data name="FileFilter.ExcelAll" xml:space="preserve"><value>Excel workbooks|*.xlsx;*.xls|All files|*.*</value></data>
+  <data name="FileFilter.ExportCsv" xml:space="preserve"><value>CSV text|*.csv</value></data>
+  <data name="FileFilter.ExportMat" xml:space="preserve"><value>MATLAB data|*.mat</value></data>
+  <data name="FileFilter.ExportXlsx" xml:space="preserve"><value>Excel workbook|*.xlsx</value></data>
+  <data name="FileFilter.IpceAll" xml:space="preserve"><value>IPCE data|*.txt;*.csv;*.xls;*.xlsx|All files|*.*</value></data>
+  <data name="FileFilter.SpectrumAll" xml:space="preserve"><value>Excel workbooks|*.xls;*.xlsx|All files|*.*</value></data>
+  <data name="FileFilter.TextAll" xml:space="preserve"><value>Text data|*.txt;*.csv|All files|*.*</value></data>
+  <data name="Operation.CalculatePowerDensity" xml:space="preserve"><value>Calculate incident power density</value></data>
+  <data name="Operation.CalculateSampleIpce" xml:space="preserve"><value>Calculate sample IPCE</value></data>
+  <data name="Operation.Export" xml:space="preserve"><value>Export results</value></data>
+  <data name="Operation.ImportCalibration" xml:space="preserve"><value>Import silicon detector calibration</value></data>
+  <data name="Operation.ImportExternalIpce" xml:space="preserve"><value>Import external IPCE data</value></data>
+  <data name="Operation.ImportSampleAnchors" xml:space="preserve"><value>Import sample time anchors</value></data>
+  <data name="Operation.ImportSampleTrace" xml:space="preserve"><value>Import sample i-t data</value></data>
+  <data name="Operation.ImportSiliconAnchors" xml:space="preserve"><value>Import silicon time anchors</value></data>
+  <data name="Operation.ImportSiliconTrace" xml:space="preserve"><value>Import silicon detector i-t data</value></data>
+  <data name="Operation.ImportSpectrum" xml:space="preserve"><value>Import solar spectrum</value></data>
+  <data name="Operation.Integrate" xml:space="preserve"><value>Calculate integrated current density</value></data>
+  <data name="Prerequisite.MissingCalibration" xml:space="preserve"><value>Missing: silicon detector calibration</value></data>
+  <data name="Prerequisite.CalculatedReady" xml:space="preserve"><value>Ready to integrate: calculated IPCE and spectrum are available</value></data>
+  <data name="Prerequisite.ExternalReady" xml:space="preserve"><value>Ready to integrate: external IPCE and spectrum are available</value></data>
+  <data name="Prerequisite.MissingCalculatedIpce" xml:space="preserve"><value>Missing: current calculated IPCE</value></data>
+  <data name="Prerequisite.MissingExternalIpce" xml:space="preserve"><value>Missing: external IPCE</value></data>
+  <data name="Prerequisite.MissingCurrentPowerDensity" xml:space="preserve"><value>Missing: current power density</value></data>
+  <data name="Prerequisite.MissingSampleAnchors" xml:space="preserve"><value>Missing: sample time anchors</value></data>
+  <data name="Prerequisite.MissingSampleTrace" xml:space="preserve"><value>Missing: sample i-t trace</value></data>
+  <data name="Prerequisite.MissingSiliconAnchors" xml:space="preserve"><value>Missing: silicon time anchors</value></data>
+  <data name="Prerequisite.MissingSiliconTrace" xml:space="preserve"><value>Missing: silicon i-t trace</value></data>
+  <data name="Prerequisite.MissingSpectrum" xml:space="preserve"><value>Missing: solar spectrum</value></data>
+  <data name="Prerequisite.SampleReady" xml:space="preserve"><value>Ready to calculate: trace and schedule coverage will be checked before execution</value></data>
+  <data name="Prerequisite.SiliconReady" xml:space="preserve"><value>Ready to calculate: trace and schedule coverage will be checked before execution</value></data>
+  <data name="Result.PowerDensity" xml:space="preserve"><value>Power density</value></data>
+  <data name="Result.SampleIpce" xml:space="preserve"><value>Sample IPCE</value></data>
+  <data name="Reason.CalculatedIpceUpdated" xml:space="preserve"><value>Calculated IPCE updated</value></data>
+  <data name="Reason.ExternalIpceUpdated" xml:space="preserve"><value>External IPCE updated</value></data>
+  <data name="Reason.IntegrationEndChanged" xml:space="preserve"><value>Integration end changed</value></data>
+  <data name="Reason.IntegrationStartChanged" xml:space="preserve"><value>Integration start changed</value></data>
+  <data name="Reason.IpceSourceChanged" xml:space="preserve"><value>IPCE source for integration changed</value></data>
+  <data name="Reason.RelatedInputChanged" xml:space="preserve"><value>Related input changed</value></data>
+  <data name="Reason.SampleAlignmentChanged" xml:space="preserve"><value>Sample time alignment changed</value></data>
+  <data name="Reason.SampleAreaChanged" xml:space="preserve"><value>Sample area changed</value></data>
+  <data name="Reason.SampleAverageChanged" xml:space="preserve"><value>Sample averaging duration changed</value></data>
+  <data name="Reason.SampleDarkEndChanged" xml:space="preserve"><value>Sample dark-range end changed</value></data>
+  <data name="Reason.SampleDarkStartChanged" xml:space="preserve"><value>Sample dark-range start changed</value></data>
+  <data name="Reason.SampleDarkSubtractionChanged" xml:space="preserve"><value>Sample dark-current subtraction changed</value></data>
+  <data name="Reason.SampleDelayChanged" xml:space="preserve"><value>Sample nominal delay changed</value></data>
+  <data name="Reason.SampleEndChanged" xml:space="preserve"><value>Sample end wavelength changed</value></data>
+  <data name="Reason.SampleFixedStartChanged" xml:space="preserve"><value>Sample fixed start changed</value></data>
+  <data name="Reason.SampleInputUpdated" xml:space="preserve"><value>Sample calculation input updated</value></data>
+  <data name="Reason.SampleStartChanged" xml:space="preserve"><value>Sample start wavelength changed</value></data>
+  <data name="Reason.SampleStepChanged" xml:space="preserve"><value>Sample wavelength step changed</value></data>
+  <data name="Reason.SiliconAlignmentChanged" xml:space="preserve"><value>Silicon time alignment changed</value></data>
+  <data name="Reason.SiliconAreaChanged" xml:space="preserve"><value>Silicon area changed</value></data>
+  <data name="Reason.SiliconAverageChanged" xml:space="preserve"><value>Silicon averaging duration changed</value></data>
+  <data name="Reason.SiliconDarkEndChanged" xml:space="preserve"><value>Silicon dark-range end changed</value></data>
+  <data name="Reason.SiliconDarkStartChanged" xml:space="preserve"><value>Silicon dark-range start changed</value></data>
+  <data name="Reason.SiliconDarkSubtractionChanged" xml:space="preserve"><value>Silicon dark-current subtraction changed</value></data>
+  <data name="Reason.SiliconDelayChanged" xml:space="preserve"><value>Silicon nominal delay changed</value></data>
+  <data name="Reason.SiliconEndChanged" xml:space="preserve"><value>Silicon end wavelength changed</value></data>
+  <data name="Reason.SiliconFixedStartChanged" xml:space="preserve"><value>Silicon fixed start changed</value></data>
+  <data name="Reason.SiliconInputUpdated" xml:space="preserve"><value>Silicon measurement input updated</value></data>
+  <data name="Reason.SiliconStartChanged" xml:space="preserve"><value>Silicon start wavelength changed</value></data>
+  <data name="Reason.SiliconStepChanged" xml:space="preserve"><value>Silicon wavelength step changed</value></data>
+  <data name="Reason.SpectrumUpdated" xml:space="preserve"><value>Solar spectrum updated</value></data>
+  <data name="Status.Importing" xml:space="preserve"><value>Importing…</value></data>
   <data name="Startup.Failed" xml:space="preserve"><value>Failed to load default data: {0}</value></data>
   <data name="Startup.Loaded" xml:space="preserve"><value>Default calibration, silicon trace, anchors, and solar spectrum loaded</value></data>
   <data name="Startup.Loading" xml:space="preserve"><value>Loading built-in default data…</value></data>
   <data name="Status.IntegrationCompleted" xml:space="preserve"><value>Integration completed: {0:G6} mA cm⁻²</value></data>
+  <data name="Status.ExternalIpceImported" xml:space="preserve"><value>Imported {0} external IPCE points</value></data>
+  <data name="Status.FilesExported" xml:space="preserve"><value>Exported {0} files</value></data>
   <data name="Status.SpectrumImported" xml:space="preserve"><value>Imported {0} spectrum points</value></data>
+  <data name="Status.SpectrumSummary" xml:space="preserve"><value>{0} · sheet: {1} · {2} / {3} · {4} points · {5:G6}–{6:G6} nm</value></data>
+  <data name="Status.TraceSummary" xml:space="preserve"><value>{0} · {1} points · {2:G6}–{3:G6} s · {4}/{5} converted to s/A</value></data>
+  <data name="Validation.FiniteNumber" xml:space="preserve"><value>Enter a finite numeric value.</value></data>
+  <data name="Workflow.CalculatePowerDensity" xml:space="preserve"><value>Calculate power density</value></data>
+  <data name="Workflow.AlignmentAnchors" xml:space="preserve"><value>Anchors</value></data>
+  <data name="Workflow.AlignmentFixedDelay" xml:space="preserve"><value>Fixed delay</value></data>
+  <data name="Workflow.AreaCm2" xml:space="preserve"><value>Area cm²</value></data>
+  <data name="Workflow.AverageSeconds" xml:space="preserve"><value>Average duration s</value></data>
+  <data name="Workflow.CalculatedIpce" xml:space="preserve"><value>Calculated IPCE</value></data>
+  <data name="Workflow.CalibrationFile" xml:space="preserve"><value>Silicon calibration file</value></data>
+  <data name="Workflow.CalculateSampleIpce" xml:space="preserve"><value>Calculate sample IPCE</value></data>
+  <data name="Workflow.DarkEndSeconds" xml:space="preserve"><value>Dark range end s</value></data>
+  <data name="Workflow.DarkStartSeconds" xml:space="preserve"><value>Dark range start s</value></data>
+  <data name="Workflow.EndNm" xml:space="preserve"><value>End nm</value></data>
+  <data name="Workflow.ExportExternalIpce" xml:space="preserve"><value>External IPCE</value></data>
+  <data name="Workflow.ExportIntegration" xml:space="preserve"><value>Integration summary and curve</value></data>
+  <data name="Workflow.ExportItems" xml:space="preserve"><value>Export items</value></data>
+  <data name="Workflow.ExportPowerDensity" xml:space="preserve"><value>Silicon power density</value></data>
+  <data name="Workflow.ExportSampleIpce" xml:space="preserve"><value>Sample IPCE</value></data>
+  <data name="Workflow.ExportSelected" xml:space="preserve"><value>Export selected results…</value></data>
+  <data name="Workflow.ExternalIpce" xml:space="preserve"><value>External IPCE</value></data>
+  <data name="Workflow.ExternalIpceFile" xml:space="preserve"><value>External IPCE (TXT/CSV)</value></data>
+  <data name="Workflow.FixedStartSeconds" xml:space="preserve"><value>Fixed start s</value></data>
+  <data name="Workflow.FormatCsv" xml:space="preserve"><value>CSV text (.csv)</value></data>
+  <data name="Workflow.FormatMat" xml:space="preserve"><value>MATLAB data (.mat)</value></data>
+  <data name="Workflow.FormatXlsx" xml:space="preserve"><value>Excel workbook (.xlsx)</value></data>
+  <data name="Workflow.ImportCalibration" xml:space="preserve"><value>Import calibration</value></data>
+  <data name="Workflow.ImportExternalIpce" xml:space="preserve"><value>Import external IPCE</value></data>
+  <data name="Workflow.ImportSampleAnchors" xml:space="preserve"><value>Import sample anchors</value></data>
+  <data name="Workflow.ImportSampleTrace" xml:space="preserve"><value>Import sample i-t</value></data>
+  <data name="Workflow.ImportSiliconAnchors" xml:space="preserve"><value>Import silicon anchors</value></data>
+  <data name="Workflow.ImportSiliconTrace" xml:space="preserve"><value>Import silicon i-t</value></data>
+  <data name="Workflow.ImportSpectrum" xml:space="preserve"><value>Import solar spectrum</value></data>
+  <data name="Workflow.IntegrationEndNm" xml:space="preserve"><value>Integration end nm</value></data>
+  <data name="Workflow.IntegrationStartNm" xml:space="preserve"><value>Integration start nm</value></data>
+  <data name="Workflow.IpceSource" xml:space="preserve"><value>IPCE source for integration</value></data>
+  <data name="Workflow.NominalDelaySeconds" xml:space="preserve"><value>Nominal delay s</value></data>
+  <data name="Workflow.RunIntegration" xml:space="preserve"><value>Run spectrum integration</value></data>
+  <data name="Workflow.SampleAnchorFile" xml:space="preserve"><value>Sample time-anchor file</value></data>
+  <data name="Workflow.SampleSection" xml:space="preserve"><value>2. Sample IPCE</value></data>
+  <data name="Workflow.SampleTraceFile" xml:space="preserve"><value>Sample i-t file</value></data>
+  <data name="Workflow.SiliconAnchorFile" xml:space="preserve"><value>Silicon time-anchor file</value></data>
+  <data name="Workflow.SiliconSection" xml:space="preserve"><value>1. Silicon calibration and monochromatic power density</value></data>
+  <data name="Workflow.SiliconTraceFile" xml:space="preserve"><value>Silicon i-t file</value></data>
+  <data name="Workflow.SpectrumFile" xml:space="preserve"><value>Solar spectrum (XLS/XLSX)</value></data>
+  <data name="Workflow.SpectrumSection" xml:space="preserve"><value>3. Spectrum integration and export</value></data>
+  <data name="Workflow.StartNm" xml:space="preserve"><value>Start nm</value></data>
+  <data name="Workflow.StepNm" xml:space="preserve"><value>Step nm</value></data>
+  <data name="Workflow.SubtractDark" xml:space="preserve"><value>Subtract dark current</value></data>
+  <data name="Workflow.TimeAlignment" xml:space="preserve"><value>Time alignment</value></data>
+  <data name="Workflow.Title" xml:space="preserve"><value>Measurement and post-processing workflow</value></data>
 </root>

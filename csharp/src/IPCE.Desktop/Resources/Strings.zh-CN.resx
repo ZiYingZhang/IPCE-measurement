@@ -11,15 +11,164 @@
   <data name="Common.Cancel" xml:space="preserve"><value>取消</value></data>
   <data name="Common.Confirm" xml:space="preserve"><value>确认</value></data>
   <data name="Common.Ready" xml:space="preserve"><value>就绪</value></data>
+  <data name="Dialog.ExportCompleted" xml:space="preserve"><value>导出完成</value></data>
+  <data name="Dialog.ExportFailed" xml:space="preserve"><value>导出失败</value></data>
+  <data name="Dialog.ExportResults" xml:space="preserve"><value>导出 IPCE 结果</value></data>
+  <data name="Dialog.SelectCalibration" xml:space="preserve"><value>选择标准硅校准文件</value></data>
+  <data name="Dialog.SelectExternalIpce" xml:space="preserve"><value>选择外部 IPCE 文件</value></data>
+  <data name="Dialog.SelectSampleAnchors" xml:space="preserve"><value>选择样品时间锚点文件</value></data>
+  <data name="Dialog.SelectSampleTrace" xml:space="preserve"><value>选择样品 i-t 文件</value></data>
+  <data name="Dialog.SelectSiliconAnchors" xml:space="preserve"><value>选择硅时间锚点文件</value></data>
+  <data name="Dialog.SelectSiliconTrace" xml:space="preserve"><value>选择硅 i-t 文件</value></data>
+  <data name="Dialog.SelectSpectrum" xml:space="preserve"><value>选择太阳光谱文件</value></data>
   <data name="Error.GenericDomain" xml:space="preserve"><value>无法完成操作（{0}）。</value></data>
+  <data name="Error.GenericUnexpected" xml:space="preserve"><value>发生未预料的错误。</value></data>
+  <data name="Error.AccessDenied" xml:space="preserve"><value>访问被拒绝，请检查所选路径和文件权限。</value></data>
+  <data name="Error.FileOperation" xml:space="preserve"><value>文件操作失败，请检查所选路径后重试。</value></data>
+  <data name="Error.IPCE.InvalidTrace" xml:space="preserve"><value>i-t 轨迹无效。</value></data>
+  <data name="Error.IPCE.InvalidSchedule" xml:space="preserve"><value>测量调度无效。</value></data>
   <data name="Error.LogWriteFailed" xml:space="preserve"><value>日志写入失败</value></data>
   <data name="Error.Unexpected" xml:space="preserve"><value>发生未预料的错误。诊断日志：&#xA;{0}</value></data>
   <data name="Language.Chinese" xml:space="preserve"><value>中文</value></data>
   <data name="Language.English" xml:space="preserve"><value>English</value></data>
   <data name="Language.Label" xml:space="preserve"><value>语言</value></data>
+  <data name="Import.ColumnsMustDiffer" xml:space="preserve"><value>波长列和辐照度列不能相同。</value></data>
+  <data name="Import.CurrentColumn" xml:space="preserve"><value>电流列：{0}</value></data>
+  <data name="Import.IrradianceColumn" xml:space="preserve"><value>辐照度列 (W m⁻² nm⁻¹)</value></data>
+  <data name="Import.NumericValues" xml:space="preserve"><value>{0} · {1} 个数值</value></data>
+  <data name="Import.SelectSpectrumColumns" xml:space="preserve"><value>选择太阳光谱工作表与列</value></data>
+  <data name="Import.SelectTraceUnits" xml:space="preserve"><value>选择 i-t 数据单位</value></data>
+  <data name="Import.SelectTwoNumericColumns" xml:space="preserve"><value>请选择两个有效的数值列。</value></data>
+  <data name="Import.TimeColumn" xml:space="preserve"><value>时间列：{0}</value></data>
+  <data name="Import.UnitsRequired" xml:space="preserve"><value>无法从表头完整识别单位，请明确选择。</value></data>
+  <data name="Import.WavelengthColumn" xml:space="preserve"><value>波长列 (nm)</value></data>
+  <data name="Import.Worksheet" xml:space="preserve"><value>工作表</value></data>
+  <data name="Freshness.Current" xml:space="preserve"><value>当前{0}可用</value></data>
+  <data name="Freshness.CurrentIntegration" xml:space="preserve"><value>当前积分结果可用</value></data>
+  <data name="Freshness.Missing" xml:space="preserve"><value>尚未生成{0}</value></data>
+  <data name="Freshness.MissingIntegration" xml:space="preserve"><value>尚未生成积分结果</value></data>
+  <data name="Freshness.Stale" xml:space="preserve"><value>需要重新计算：{0}</value></data>
+  <data name="FileFilter.ExcelAll" xml:space="preserve"><value>Excel 工作簿|*.xlsx;*.xls|所有文件|*.*</value></data>
+  <data name="FileFilter.ExportCsv" xml:space="preserve"><value>CSV 文本|*.csv</value></data>
+  <data name="FileFilter.ExportMat" xml:space="preserve"><value>MATLAB 数据|*.mat</value></data>
+  <data name="FileFilter.ExportXlsx" xml:space="preserve"><value>Excel 工作簿|*.xlsx</value></data>
+  <data name="FileFilter.IpceAll" xml:space="preserve"><value>IPCE 数据|*.txt;*.csv;*.xls;*.xlsx|所有文件|*.*</value></data>
+  <data name="FileFilter.SpectrumAll" xml:space="preserve"><value>Excel 工作簿|*.xls;*.xlsx|所有文件|*.*</value></data>
+  <data name="FileFilter.TextAll" xml:space="preserve"><value>文本数据|*.txt;*.csv|所有文件|*.*</value></data>
+  <data name="Operation.CalculatePowerDensity" xml:space="preserve"><value>计算入射光功率密度</value></data>
+  <data name="Operation.CalculateSampleIpce" xml:space="preserve"><value>计算样品 IPCE</value></data>
+  <data name="Operation.Export" xml:space="preserve"><value>导出结果</value></data>
+  <data name="Operation.ImportCalibration" xml:space="preserve"><value>导入硅探测器校准数据</value></data>
+  <data name="Operation.ImportExternalIpce" xml:space="preserve"><value>导入外部 IPCE 数据</value></data>
+  <data name="Operation.ImportSampleAnchors" xml:space="preserve"><value>导入样品时间锚点</value></data>
+  <data name="Operation.ImportSampleTrace" xml:space="preserve"><value>导入样品 i-t 数据</value></data>
+  <data name="Operation.ImportSiliconAnchors" xml:space="preserve"><value>导入硅探测器时间锚点</value></data>
+  <data name="Operation.ImportSiliconTrace" xml:space="preserve"><value>导入硅探测器 i-t 数据</value></data>
+  <data name="Operation.ImportSpectrum" xml:space="preserve"><value>导入太阳光谱</value></data>
+  <data name="Operation.Integrate" xml:space="preserve"><value>计算积分电流密度</value></data>
+  <data name="Prerequisite.MissingCalibration" xml:space="preserve"><value>缺少：硅探测器校准数据</value></data>
+  <data name="Prerequisite.CalculatedReady" xml:space="preserve"><value>可以积分：计算 IPCE 与光谱已就绪</value></data>
+  <data name="Prerequisite.ExternalReady" xml:space="preserve"><value>可以积分：外部 IPCE 与光谱已就绪</value></data>
+  <data name="Prerequisite.MissingCalculatedIpce" xml:space="preserve"><value>缺少：当前计算 IPCE</value></data>
+  <data name="Prerequisite.MissingExternalIpce" xml:space="preserve"><value>缺少：外部 IPCE</value></data>
+  <data name="Prerequisite.MissingCurrentPowerDensity" xml:space="preserve"><value>缺少：当前功率密度</value></data>
+  <data name="Prerequisite.MissingSampleAnchors" xml:space="preserve"><value>缺少：样品时间锚点</value></data>
+  <data name="Prerequisite.MissingSampleTrace" xml:space="preserve"><value>缺少：样品 i-t</value></data>
+  <data name="Prerequisite.MissingSiliconAnchors" xml:space="preserve"><value>缺少：硅时间锚点</value></data>
+  <data name="Prerequisite.MissingSiliconTrace" xml:space="preserve"><value>缺少：硅 i-t</value></data>
+  <data name="Prerequisite.MissingSpectrum" xml:space="preserve"><value>缺少：太阳光谱</value></data>
+  <data name="Prerequisite.SampleReady" xml:space="preserve"><value>可以计算：轨迹与调度覆盖将在执行前检查</value></data>
+  <data name="Prerequisite.SiliconReady" xml:space="preserve"><value>可以计算：轨迹与调度覆盖将在执行前检查</value></data>
+  <data name="Result.PowerDensity" xml:space="preserve"><value>功率密度</value></data>
+  <data name="Result.SampleIpce" xml:space="preserve"><value>样品 IPCE</value></data>
+  <data name="Reason.CalculatedIpceUpdated" xml:space="preserve"><value>计算 IPCE 已更新</value></data>
+  <data name="Reason.ExternalIpceUpdated" xml:space="preserve"><value>外部 IPCE 已更新</value></data>
+  <data name="Reason.IntegrationEndChanged" xml:space="preserve"><value>积分终点已改变</value></data>
+  <data name="Reason.IntegrationStartChanged" xml:space="preserve"><value>积分起点已改变</value></data>
+  <data name="Reason.IpceSourceChanged" xml:space="preserve"><value>积分使用的 IPCE 来源已改变</value></data>
+  <data name="Reason.RelatedInputChanged" xml:space="preserve"><value>相关输入已改变</value></data>
+  <data name="Reason.SampleAlignmentChanged" xml:space="preserve"><value>样品时间对齐方式已改变</value></data>
+  <data name="Reason.SampleAreaChanged" xml:space="preserve"><value>样品面积已改变</value></data>
+  <data name="Reason.SampleAverageChanged" xml:space="preserve"><value>样品平均时长已改变</value></data>
+  <data name="Reason.SampleDarkEndChanged" xml:space="preserve"><value>样品暗区终点已改变</value></data>
+  <data name="Reason.SampleDarkStartChanged" xml:space="preserve"><value>样品暗区起点已改变</value></data>
+  <data name="Reason.SampleDarkSubtractionChanged" xml:space="preserve"><value>样品暗电流扣除设置已改变</value></data>
+  <data name="Reason.SampleDelayChanged" xml:space="preserve"><value>样品标称延时已改变</value></data>
+  <data name="Reason.SampleEndChanged" xml:space="preserve"><value>样品终止波长已改变</value></data>
+  <data name="Reason.SampleFixedStartChanged" xml:space="preserve"><value>样品固定起点已改变</value></data>
+  <data name="Reason.SampleInputUpdated" xml:space="preserve"><value>样品计算输入已更新</value></data>
+  <data name="Reason.SampleStartChanged" xml:space="preserve"><value>样品起始波长已改变</value></data>
+  <data name="Reason.SampleStepChanged" xml:space="preserve"><value>样品波长步长已改变</value></data>
+  <data name="Reason.SiliconAlignmentChanged" xml:space="preserve"><value>硅时间对齐方式已改变</value></data>
+  <data name="Reason.SiliconAreaChanged" xml:space="preserve"><value>硅面积已改变</value></data>
+  <data name="Reason.SiliconAverageChanged" xml:space="preserve"><value>硅平均时长已改变</value></data>
+  <data name="Reason.SiliconDarkEndChanged" xml:space="preserve"><value>硅暗区终点已改变</value></data>
+  <data name="Reason.SiliconDarkStartChanged" xml:space="preserve"><value>硅暗区起点已改变</value></data>
+  <data name="Reason.SiliconDarkSubtractionChanged" xml:space="preserve"><value>硅暗电流扣除设置已改变</value></data>
+  <data name="Reason.SiliconDelayChanged" xml:space="preserve"><value>硅标称延时已改变</value></data>
+  <data name="Reason.SiliconEndChanged" xml:space="preserve"><value>硅终止波长已改变</value></data>
+  <data name="Reason.SiliconFixedStartChanged" xml:space="preserve"><value>硅固定起点已改变</value></data>
+  <data name="Reason.SiliconInputUpdated" xml:space="preserve"><value>硅测量输入已更新</value></data>
+  <data name="Reason.SiliconStartChanged" xml:space="preserve"><value>硅起始波长已改变</value></data>
+  <data name="Reason.SiliconStepChanged" xml:space="preserve"><value>硅波长步长已改变</value></data>
+  <data name="Reason.SpectrumUpdated" xml:space="preserve"><value>太阳光谱已更新</value></data>
+  <data name="Status.Importing" xml:space="preserve"><value>正在导入…</value></data>
   <data name="Startup.Failed" xml:space="preserve"><value>默认数据加载失败：{0}</value></data>
   <data name="Startup.Loaded" xml:space="preserve"><value>默认校准、硅轨迹、锚点和太阳光谱已加载</value></data>
   <data name="Startup.Loading" xml:space="preserve"><value>正在加载内置默认数据…</value></data>
   <data name="Status.IntegrationCompleted" xml:space="preserve"><value>积分完成：{0:G6} mA cm⁻²</value></data>
+  <data name="Status.ExternalIpceImported" xml:space="preserve"><value>已导入 {0} 个外部 IPCE 点</value></data>
+  <data name="Status.FilesExported" xml:space="preserve"><value>已导出 {0} 个文件</value></data>
   <data name="Status.SpectrumImported" xml:space="preserve"><value>已导入 {0} 个光谱点</value></data>
+  <data name="Status.SpectrumSummary" xml:space="preserve"><value>{0} · 表: {1} · {2} / {3} · {4} 点 · {5:G6}–{6:G6} nm</value></data>
+  <data name="Status.TraceSummary" xml:space="preserve"><value>{0} · {1} 点 · {2:G6}–{3:G6} s · {4}/{5} 已换算为 s/A</value></data>
+  <data name="Validation.FiniteNumber" xml:space="preserve"><value>请输入有限数值。</value></data>
+  <data name="Workflow.CalculatePowerDensity" xml:space="preserve"><value>计算功率密度</value></data>
+  <data name="Workflow.AlignmentAnchors" xml:space="preserve"><value>锚点</value></data>
+  <data name="Workflow.AlignmentFixedDelay" xml:space="preserve"><value>固定延时</value></data>
+  <data name="Workflow.AreaCm2" xml:space="preserve"><value>面积 cm²</value></data>
+  <data name="Workflow.AverageSeconds" xml:space="preserve"><value>平均时长 s</value></data>
+  <data name="Workflow.CalculatedIpce" xml:space="preserve"><value>计算得到的 IPCE</value></data>
+  <data name="Workflow.CalibrationFile" xml:space="preserve"><value>标准硅校准文件</value></data>
+  <data name="Workflow.CalculateSampleIpce" xml:space="preserve"><value>计算样品 IPCE</value></data>
+  <data name="Workflow.DarkEndSeconds" xml:space="preserve"><value>暗区终点 s</value></data>
+  <data name="Workflow.DarkStartSeconds" xml:space="preserve"><value>暗区起点 s</value></data>
+  <data name="Workflow.EndNm" xml:space="preserve"><value>终止 nm</value></data>
+  <data name="Workflow.ExportExternalIpce" xml:space="preserve"><value>外部 IPCE</value></data>
+  <data name="Workflow.ExportIntegration" xml:space="preserve"><value>积分汇总和曲线</value></data>
+  <data name="Workflow.ExportItems" xml:space="preserve"><value>导出项目</value></data>
+  <data name="Workflow.ExportPowerDensity" xml:space="preserve"><value>硅功率密度</value></data>
+  <data name="Workflow.ExportSampleIpce" xml:space="preserve"><value>样品 IPCE</value></data>
+  <data name="Workflow.ExportSelected" xml:space="preserve"><value>导出所选结果…</value></data>
+  <data name="Workflow.ExternalIpce" xml:space="preserve"><value>外部 IPCE</value></data>
+  <data name="Workflow.ExternalIpceFile" xml:space="preserve"><value>外部 IPCE（TXT/CSV）</value></data>
+  <data name="Workflow.FixedStartSeconds" xml:space="preserve"><value>固定起点 s</value></data>
+  <data name="Workflow.FormatCsv" xml:space="preserve"><value>CSV 文本 (.csv)</value></data>
+  <data name="Workflow.FormatMat" xml:space="preserve"><value>MATLAB 数据 (.mat)</value></data>
+  <data name="Workflow.FormatXlsx" xml:space="preserve"><value>Excel 工作簿 (.xlsx)</value></data>
+  <data name="Workflow.ImportCalibration" xml:space="preserve"><value>导入校准</value></data>
+  <data name="Workflow.ImportExternalIpce" xml:space="preserve"><value>导入外部 IPCE</value></data>
+  <data name="Workflow.ImportSampleAnchors" xml:space="preserve"><value>导入样品锚点</value></data>
+  <data name="Workflow.ImportSampleTrace" xml:space="preserve"><value>导入样品 i-t</value></data>
+  <data name="Workflow.ImportSiliconAnchors" xml:space="preserve"><value>导入硅锚点</value></data>
+  <data name="Workflow.ImportSiliconTrace" xml:space="preserve"><value>导入硅 i-t</value></data>
+  <data name="Workflow.ImportSpectrum" xml:space="preserve"><value>导入太阳光谱</value></data>
+  <data name="Workflow.IntegrationEndNm" xml:space="preserve"><value>积分终点 nm</value></data>
+  <data name="Workflow.IntegrationStartNm" xml:space="preserve"><value>积分起点 nm</value></data>
+  <data name="Workflow.IpceSource" xml:space="preserve"><value>积分使用的 IPCE 来源</value></data>
+  <data name="Workflow.NominalDelaySeconds" xml:space="preserve"><value>标称延时 s</value></data>
+  <data name="Workflow.RunIntegration" xml:space="preserve"><value>执行光谱积分</value></data>
+  <data name="Workflow.SampleAnchorFile" xml:space="preserve"><value>样品时间锚点文件</value></data>
+  <data name="Workflow.SampleSection" xml:space="preserve"><value>2. 样品 IPCE</value></data>
+  <data name="Workflow.SampleTraceFile" xml:space="preserve"><value>样品 i-t 文件</value></data>
+  <data name="Workflow.SiliconAnchorFile" xml:space="preserve"><value>硅时间锚点文件</value></data>
+  <data name="Workflow.SiliconSection" xml:space="preserve"><value>1. 硅标定与单色光功率密度</value></data>
+  <data name="Workflow.SiliconTraceFile" xml:space="preserve"><value>硅 i-t 文件</value></data>
+  <data name="Workflow.SpectrumFile" xml:space="preserve"><value>太阳光谱（XLS/XLSX）</value></data>
+  <data name="Workflow.SpectrumSection" xml:space="preserve"><value>3. 光谱积分与导出</value></data>
+  <data name="Workflow.StartNm" xml:space="preserve"><value>起始 nm</value></data>
+  <data name="Workflow.StepNm" xml:space="preserve"><value>步长 nm</value></data>
+  <data name="Workflow.SubtractDark" xml:space="preserve"><value>扣除暗电流</value></data>
+  <data name="Workflow.TimeAlignment" xml:space="preserve"><value>时间对齐</value></data>
+  <data name="Workflow.Title" xml:space="preserve"><value>测量与后处理流程</value></data>
 </root>

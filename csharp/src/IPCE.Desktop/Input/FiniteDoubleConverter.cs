@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Windows.Data;
+using IPCE.Desktop.Localization;
 
 namespace IPCE.Desktop.Input;
 
@@ -10,6 +11,16 @@ public sealed class FiniteDoubleConverter : IValueConverter
         NumberStyles.AllowLeadingSign |
         NumberStyles.AllowDecimalPoint |
         NumberStyles.AllowExponent;
+    private readonly ILocalizationService _localization;
+
+    public FiniteDoubleConverter()
+        : this(LocalizationService.Current)
+    {
+    }
+
+    public FiniteDoubleConverter(ILocalizationService localization) =>
+        _localization = localization ??
+            throw new ArgumentNullException(nameof(localization));
 
     public object Convert(
         object value,
@@ -57,6 +68,6 @@ public sealed class FiniteDoubleConverter : IValueConverter
         double.TryParse(text, Styles, culture, out number) &&
         double.IsFinite(number);
 
-    private static ValidationException InvalidValue() =>
-        new("请输入有限数值。");
+    private ValidationException InvalidValue() =>
+        new(_localization["Validation.FiniteNumber"]);
 }
