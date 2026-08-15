@@ -1,4 +1,4 @@
-# C# Bilingual Acceptance Checklist
+# IPCE Bilingual Acceptance Checklist
 
 Last updated: 2026-08-15
 
@@ -45,9 +45,35 @@ Last updated: 2026-08-15
 - [x] Fresh archive bytes, SHA-256, entries, test counts, and smoke results are
   copied from `csharp/dist/IPCEApp_Windows_x64.build.json`.
 
+## MATLAB bilingual gates
+
+- [x] The real programmatic UI switches live between `English` and `中文`
+  without recreating the figure or measurement state.
+- [x] Static controls, dynamic statuses, file dialogs, unit prompts, alerts,
+  anchor/dark-current workflows, export UI, axes, legends, and calculated plot
+  labels use the selected language.
+- [x] Imported filenames and spectrum worksheet/header values remain source
+  data and are not translated or reset during a switch.
+- [x] Scan profiles, file selections, spectrum-column items/data/values,
+  imported tables, result tables, and integration source survive
+  English ↔ Chinese switching unchanged.
+- [x] First launch follows `zh-*` versus other system locales; valid saved
+  preference wins; corrupt/inaccessible settings recover safely; writes are
+  atomic.
+- [x] Complete MATLAB numerical self-test and real-UI smoke pass.
+- [x] C# Release build remains at 0 warnings/errors and all 230 tests pass
+  (Core 58, IO 44, Desktop 128).
+- [x] MATLAB Compiler build, archive extraction verification, Runtime-payload
+  rejection, and compiled `--smoke-test` pass.
+- [x] Fresh MATLAB ZIP: 784,491 bytes, 7 entries, Runtime markers 0,
+  SHA-256 `9197e6ed85ed2b32a0e910f9aaa32c16c89dc44df22fb9e9346ddf7475ff49e7`.
+
 ## External gates
 
 - [ ] Pending: complete exact-ZIP workflow on clean Windows 10/11 x64 with
   neither MATLAB nor .NET Runtime.
+- [ ] Pending: complete the exact MATLAB ZIP/hash workflow on clean Windows
+  10/11 x64 with no MATLAB installation and matching 64-bit MATLAB Runtime
+  R2023b Update 6 or later R2023b update.
 - [ ] Pending: inspect representative plots and both languages at Windows
   scaling 100%, 125%, and 150% on representative 16–24 inch displays.

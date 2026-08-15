@@ -334,6 +334,97 @@ assert(all(isfile(packageConfig.DefaultFiles)));
 assert(isfile(packageConfig.PortableReadme));
 fprintf("  Portable package manifest: passed\n");
 
+% 14) Verify bilingual catalog integrity and safe preference behavior.
+englishCatalog = ipceLanguageCatalog("en-US");
+chineseCatalog = ipceLanguageCatalog("zh-CN");
+assert(englishCatalog.Language == "en-US");
+assert(chineseCatalog.Language == "zh-CN");
+assert(isequal(englishCatalog.Keys, chineseCatalog.Keys));
+assert(numel(englishCatalog.Keys) >= 8);
+assert(all(strlength(englishCatalog.Values) > 0));
+assert(all(strlength(chineseCatalog.Values) > 0));
+assert(ipceLanguageCatalog("fr-FR", "App.Title") == ...
+    "IPCE Measurement and Analysis");
+assert(ipceLanguageCatalog("zh-CN", "App.Title") == ...
+    "IPCE 测量与分析");
+assert(ipceLanguageCatalog("en-US", "Missing.Key") == ...
+    "[Missing.Key]");
+
+preferenceFolder = tempname;
+mkdir(preferenceFolder);
+cleanupPreference = onCleanup( ...
+    @()removeFolderIfPresent(preferenceFolder));
+preferencePath = fullfile(preferenceFolder, "settings.json");
+assert(ipceLanguagePreference( ...
+    "resolve", preferencePath, "zh-TW") == "zh-CN");
+assert(ipceLanguagePreference( ...
+    "resolve", preferencePath, "de-DE") == "en-US");
+ipceLanguagePreference("save", preferencePath, "en-US");
+assert(ipceLanguagePreference("load", preferencePath) == "en-US");
+assert(ipceLanguagePreference( ...
+    "resolve", preferencePath, "zh-CN") == "en-US");
+writelines("not json", preferencePath);
+assert(ipceLanguagePreference("load", preferencePath) == "");
+assert(ipceLanguagePreference( ...
+    "resolve", preferencePath, "zh-CN") == "zh-CN");
+fprintf("  Bilingual catalog and language preference: passed\n");
+
+runtimeFormats = [ ...
+    "导出成功：%s"; ...
+    "已读取标探响应度：%d 点，%.6g–%.6g nm。"; ...
+    "请先导入标准光谱数据。"; ...
+    "无法完成计算"; ...
+    "光谱积分完成（%s）：%.6g–%.6g nm，J = %.6g mA cm^{-2}。" ...
+    ];
+for formatIndex = 1:numel(runtimeFormats)
+    translatedFormat = ipceLocalizeLiteral("en-US", runtimeFormats(formatIndex));
+    assert(isempty(regexp(translatedFormat, '[\x{4e00}-\x{9fff}]', 'once')));
+end
+assert(ipceLocalizeLiteral("en-US", "导出成功：%s") == ...
+    "Export successful: %s");
+assert(ipceLocalizeLiteral("en-US", "无法完成计算") == ...
+    "Unable to complete calculation");
+fprintf("  Runtime message localization: passed\n");
+
+% 15) Verify the real UI switches language without recreating state.
+localizationApp = IPCEApp;
+cleanupLocalizationApp = onCleanup(@()closeIfValid(localizationApp));
+drawnow;
+hooks = localizationApp.UserData;
+assert(isfield(hooks, "SetLanguage"));
+assert(isfield(hooks, "StateSignature"));
+assert(isfield(hooks, "VisibleTexts"));
+assert(isfield(hooks, "SetStatusForTest"));
+assert(isfield(hooks, "SetDynamicSurfaceForTest"));
+assert(isfield(hooks, "DynamicSurfaceSnapshot"));
+beforeLanguageSwitch = hooks.StateSignature();
+hooks.SetLanguage("en-US");
+hooks.SetStatusForTest("导出成功：%s", "result.xlsx");
+drawnow;
+assert(localizationApp.Name == "IPCE Measurement and Analysis");
+englishVisible = string(hooks.VisibleTexts());
+englishVisible(englishVisible == "中文") = [];
+assert(isempty(regexp(join(englishVisible, newline), ...
+    '[\x{4e00}-\x{9fff}]', 'once')));
+assert(any(englishVisible == "Export successful: result.xlsx"));
+assert(isequaln(beforeLanguageSwitch, hooks.StateSignature()));
+hooks.SetLanguage("zh-CN");
+drawnow;
+assert(localizationApp.Name == "IPCE 测量与分析");
+assert(any(string(hooks.VisibleTexts()) == "导出成功：result.xlsx"));
+assert(isequaln(beforeLanguageSwitch, hooks.StateSignature()));
+hooks.SetDynamicSurfaceForTest( ...
+    "C:\data\calibration.xlsx", ["Lambda", "Irradiance"], [1, 3]);
+dynamicSurfaceBefore = hooks.DynamicSurfaceSnapshot();
+hooks.SetLanguage("en-US");
+drawnow;
+assert(localizationApp.Name == "IPCE Measurement and Analysis");
+assert(isequaln(dynamicSurfaceBefore, hooks.DynamicSurfaceSnapshot()));
+assert(isequaln(beforeLanguageSwitch, hooks.StateSignature()));
+close(localizationApp);
+clear cleanupLocalizationApp
+fprintf("  Live bilingual UI state preservation: passed\n");
+
 fprintf("All IPCE self-tests passed.\n");
 end
 
@@ -359,5 +450,11 @@ end
 function removeFolderIfPresent(folderPath)
 if isfolder(folderPath)
     rmdir(folderPath, "s");
+end
+end
+
+function closeIfValid(figureHandle)
+if isvalid(figureHandle)
+    close(figureHandle);
 end
 end

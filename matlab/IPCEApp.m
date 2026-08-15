@@ -4,6 +4,10 @@ function appFigure = IPCEApp
 %   MATLAB UI and does not require an App Designer .mlapp file.
 
 defaults = ipceDefaultConfig();
+languagePreferencePath = ipceLanguagePreference("defaultpath");
+currentLanguage = ipceLanguagePreference( ...
+    "resolve", languagePreferencePath, localSystemLocale());
+localizationRegistry = cell(0, 3);
 state = struct( ...
     "calibration", table(), ...
     "calibrationFile", "", ...
@@ -55,7 +59,14 @@ controlGrid.Padding = [8, 8, 8, 8];
 titleLabel = uilabel(controlGrid, ...
     "Text", "硅基标探 → 单色光功率密度 → 样品 IPCE", ...
     "FontSize", 16, "FontWeight", "bold");
-setLayout(titleLabel, 1, [1, 4]);
+setLayout(titleLabel, 1, [1, 2]);
+languageDropDown = uidropdown(controlGrid, ...
+    "Items", ["English", "中文"], ...
+    "ItemsData", ["en-US", "zh-CN"], ...
+    "Value", currentLanguage, ...
+    "ValueChangedFcn", @onLanguageChanged, ...
+    "Tooltip", "语言 / Language");
+setLayout(languageDropDown, 1, [3, 4]);
 
 % 1. 在 IPCE 之前加入 <br> 强制换行
 % 2. 使用 style="white-space: nowrap" 确保 IPCE(%) 作为一个整体绝不中途断行
@@ -215,6 +226,8 @@ statusLabel = uilabel(controlGrid, ...
     "Text", "请先导入标探响应度和硅标探 i-t。", ...
     "WordWrap", "on", "FontColor", [0.10, 0.25, 0.50]);
 setLayout(statusLabel, 21, [1, 4]);
+statusSource = "请先导入标探响应度和硅标探 i-t。";
+statusArguments = {};
 
 usageLabel = uilabel(controlGrid, ...
     "Text", ["提示：在“时间对齐”页输入波长–时间锚点，或选择锚点行后到图上确认。" ...
@@ -537,18 +550,214 @@ addAnalysisToolbar(ipceAxes);
 addAnalysisToolbar(spectrumAxes);
 addAnalysisToolbar(cumulativeAxes);
 
+dynamicComponents = { ...
+    statusLabel, parameterTitle, ...
+    calibrationPathLabel, siliconPathLabel, samplePathLabel, ...
+    externalIPCEPathLabel, spectrumPathLabel, ...
+    spectrumWavelengthColumnDropDown, ...
+    spectrumIrradianceColumnDropDown, ...
+    resultTable, spectrumResultTable};
+localizationRegistry = captureLocalizationRegistry( ...
+    appFigure, dynamicComponents);
+applyLanguage(currentLanguage, false);
+appFigure.UserData = struct( ...
+    "SetLanguage", @setLanguageForTest, ...
+    "GetLanguage", @()currentLanguage, ...
+    "StateSignature", @()state, ...
+    "VisibleTexts", @()visibleTextsForTest(), ...
+    "SetStatusForTest", @setLocalizedStatus, ...
+    "SetDynamicSurfaceForTest", @setDynamicSurfaceForTest, ...
+    "DynamicSurfaceSnapshot", @dynamicSurfaceSnapshot);
+
 onAlignmentModeChanged();
 plotAlignmentPreview();
 autoLoadWorkspaceFiles();
 loadAxisSettings();
+applyLanguage(currentLanguage, false);
 if isdeployed && nargout == 0
     waitfor(appFigure);
 end
 
+    function onLanguageChanged(~, ~)
+        applyLanguage(string(languageDropDown.Value), true);
+    end
+
+    function setLanguageForTest(language)
+        applyLanguage(language, false);
+    end
+
+    function applyLanguage(language, persistPreference)
+        if startsWith(lower(string(language)), "zh")
+            currentLanguage = "zh-CN";
+        else
+            currentLanguage = "en-US";
+        end
+        applyLocalizationRegistry(localizationRegistry, currentLanguage);
+        refreshDynamicControls();
+        renderLocalizedStatus();
+        refreshLocalizedPlots();
+        languageDropDown.Items = ["English", "中文"];
+        languageDropDown.ItemsData = ["en-US", "zh-CN"];
+        languageDropDown.Value = currentLanguage;
+        if persistPreference
+            ipceLanguagePreference( ...
+                "save", languagePreferencePath, currentLanguage);
+        end
+        drawnow limitrate
+    end
+
+    function output = localized(source, varargin)
+        output = ipceLocalizeLiteral(currentLanguage, source);
+        if ~isempty(varargin)
+            arguments = varargin;
+            localizableArguments = [ ...
+                "标探", "硅标探", "样品", ...
+                "本软件计算结果", "外部导入 IPCE"];
+            for argumentIndex = 1:numel(arguments)
+                argument = arguments{argumentIndex};
+                if (ischar(argument) || (isstring(argument) && isscalar(argument))) && ...
+                        any(string(argument) == localizableArguments)
+                    arguments{argumentIndex} = ...
+                        ipceLocalizeLiteral(currentLanguage, argument);
+                end
+            end
+            output = string(sprintf(char(output), arguments{:}));
+        end
+    end
+
+    function setLocalizedStatus(source, varargin)
+        statusSource = string(source);
+        statusArguments = varargin;
+        renderLocalizedStatus();
+    end
+
+    function renderLocalizedStatus()
+        statusLabel.Text = localized(statusSource, statusArguments{:});
+    end
+
+    function refreshDynamicControls()
+        refreshFilePlaceholder(calibrationPathLabel, "尚未导入");
+        refreshFilePlaceholder(siliconPathLabel, "尚未导入");
+        refreshFilePlaceholder(samplePathLabel, "尚未导入");
+        refreshFilePlaceholder(externalIPCEPathLabel, "尚未导入外部 IPCE");
+        refreshFilePlaceholder(spectrumPathLabel, "尚未导入");
+        refreshSpectrumHeaderPlaceholder(spectrumWavelengthColumnDropDown);
+        refreshSpectrumHeaderPlaceholder(spectrumIrradianceColumnDropDown);
+        loadScanProfile(string(scanTargetDropDown.Value));
+    end
+
+    function refreshFilePlaceholder(label, chineseSource)
+        currentText = string(label.Text);
+        englishText = string(ipceLocalizeLiteral("en-US", chineseSource));
+        if currentText == chineseSource || currentText == englishText
+            label.Text = localized(chineseSource);
+        end
+    end
+
+    function refreshSpectrumHeaderPlaceholder(dropDown)
+        items = string(dropDown.Items);
+        chineseSource = "尚未读取表头";
+        englishText = string(ipceLocalizeLiteral("en-US", chineseSource));
+        if numel(items) == 1 && ...
+                (items(1) == chineseSource || items(1) == englishText)
+            dropDown.Items = localized(chineseSource);
+        end
+    end
+
+    function setDynamicSurfaceForTest(filePath, labels, indices)
+        updateFileLabel(calibrationPathLabel, string(filePath));
+        spectrumWavelengthColumnDropDown.Items = string(labels);
+        spectrumWavelengthColumnDropDown.ItemsData = indices;
+        spectrumWavelengthColumnDropDown.Value = indices(1);
+        spectrumIrradianceColumnDropDown.Items = string(labels);
+        spectrumIrradianceColumnDropDown.ItemsData = indices;
+        spectrumIrradianceColumnDropDown.Value = indices(end);
+    end
+
+    function snapshot = dynamicSurfaceSnapshot()
+        snapshot = struct( ...
+            "CalibrationText", string(calibrationPathLabel.Text), ...
+            "CalibrationTooltip", string(calibrationPathLabel.Tooltip), ...
+            "WavelengthItems", string(spectrumWavelengthColumnDropDown.Items), ...
+            "WavelengthItemsData", spectrumWavelengthColumnDropDown.ItemsData, ...
+            "WavelengthValue", spectrumWavelengthColumnDropDown.Value, ...
+            "IrradianceItems", string(spectrumIrradianceColumnDropDown.Items), ...
+            "IrradianceItemsData", spectrumIrradianceColumnDropDown.ItemsData, ...
+            "IrradianceValue", spectrumIrradianceColumnDropDown.Value);
+    end
+
+    function refreshLocalizedPlots()
+        refreshTracePlots();
+        plotAlignmentPreview();
+        plotSpectrumPreview();
+        if isempty(state.lightResult)
+            xlabel(powerAxes, localized("波长 (nm)"));
+            ylabel(powerAxes, localized("入射功率密度 (\muW cm^{-2})"));
+            title(powerAxes, localized("由硅标探反算的单色光功率密度"));
+        else
+            plotPower();
+        end
+        if isempty(state.ipceResult)
+            xlabel(ipceAxes, localized("波长 (nm)"));
+            ylabel(ipceAxes, localized("IPCE (%)"));
+            if isempty(state.lightResult)
+                title(ipceAxes, localized("样品 IPCE"));
+            else
+                title(ipceAxes, localized("请导入样品 i-t 后计算 IPCE"));
+            end
+        else
+            plot(ipceAxes, state.ipceResult.Wavelength_nm, ...
+                state.ipceResult.IPCE_percent, "-o", ...
+                "LineWidth", 1.3, "MarkerSize", 3.5);
+            xlabel(ipceAxes, localized("波长 (nm)"));
+            ylabel(ipceAxes, localized("IPCE (%)"));
+            title(ipceAxes, localized("样品 IPCE"));
+            grid(ipceAxes, "on");
+        end
+    end
+
+    function texts = visibleTextsForTest()
+        texts = collectLocalizedTexts(localizationRegistry);
+        texts = [texts; ...
+            string(statusLabel.Text); string(parameterTitle.Text); ...
+            placeholderTextForAudit(calibrationPathLabel, "尚未导入"); ...
+            placeholderTextForAudit(siliconPathLabel, "尚未导入"); ...
+            placeholderTextForAudit(samplePathLabel, "尚未导入"); ...
+            placeholderTextForAudit(externalIPCEPathLabel, "尚未导入外部 IPCE"); ...
+            placeholderTextForAudit(spectrumPathLabel, "尚未导入"); ...
+            spectrumPlaceholderForAudit(spectrumWavelengthColumnDropDown); ...
+            spectrumPlaceholderForAudit(spectrumIrradianceColumnDropDown); ...
+            string(resultTable.ColumnName(:)); ...
+            string(spectrumResultTable.ColumnName(:))];
+    end
+
+    function output = placeholderTextForAudit(label, chineseSource)
+        currentText = string(label.Text);
+        englishText = string(ipceLocalizeLiteral("en-US", chineseSource));
+        if currentText == chineseSource || currentText == englishText
+            output = currentText;
+        else
+            output = "";
+        end
+    end
+
+    function output = spectrumPlaceholderForAudit(dropDown)
+        items = string(dropDown.Items);
+        chineseSource = "尚未读取表头";
+        englishText = string(ipceLocalizeLiteral("en-US", chineseSource));
+        if numel(items) == 1 && ...
+                (items(1) == chineseSource || items(1) == englishText)
+            output = items(1);
+        else
+            output = "";
+        end
+    end
+
     function onLoadCalibration(~, ~)
         [fileName, folder] = uigetfile( ...
+            ipceLocalizeLiteral(currentLanguage, ...
             {'*.xlsx;*.xls;*.csv', '标探校准表 (*.xlsx, *.xls, *.csv)'; ...
-            '*.*', '所有文件'}, '选择硅标探响应度校准表');
+            '*.*', '所有文件'}), localized('选择硅标探响应度校准表'));
         if isequal(fileName, 0)
             return
         end
@@ -557,8 +766,9 @@ end
 
     function onLoadSilicon(~, ~)
         [fileName, folder] = uigetfile( ...
-            {'*.txt;*.csv;*.xlsx;*.xls', 'i-t 数据'; '*.*', '所有文件'}, ...
-            '选择硅标探 i-t 文件');
+            ipceLocalizeLiteral(currentLanguage, ...
+            {'*.txt;*.csv;*.xlsx;*.xls', 'i-t 数据'; '*.*', '所有文件'}), ...
+            localized('选择硅标探 i-t 文件'));
         if isequal(fileName, 0)
             return
         end
@@ -567,8 +777,9 @@ end
 
     function onLoadSample(~, ~)
         [fileName, folder] = uigetfile( ...
-            {'*.txt;*.csv;*.xlsx;*.xls', 'i-t 数据'; '*.*', '所有文件'}, ...
-            '选择样品 i-t 文件');
+            ipceLocalizeLiteral(currentLanguage, ...
+            {'*.txt;*.csv;*.xlsx;*.xls', 'i-t 数据'; '*.*', '所有文件'}), ...
+            localized('选择样品 i-t 文件'));
         if isequal(fileName, 0)
             return
         end
@@ -577,10 +788,11 @@ end
 
     function onLoadExternalIPCE(~, ~)
         [fileName, folder] = uigetfile( ...
+            ipceLocalizeLiteral(currentLanguage, ...
             {'*.txt;*.csv;*.xlsx;*.xls', ...
             '两列 IPCE 数据 (*.txt, *.csv, *.xlsx, *.xls)'; ...
-            '*.*', '所有文件'}, ...
-            '选择外部 IPCE 文件（第 1 列 nm，第 2 列 %）');
+            '*.*', '所有文件'}), ...
+            localized('选择外部 IPCE 文件（第 1 列 nm，第 2 列 %）'));
         if isequal(fileName, 0)
             return
         end
@@ -589,8 +801,9 @@ end
 
     function onLoadSpectrum(~, ~)
         [fileName, folder] = uigetfile( ...
+            ipceLocalizeLiteral(currentLanguage, ...
             {'*.xls;*.xlsx;*.csv', '光谱数据 (*.xls, *.xlsx, *.csv)'; ...
-            '*.*', '所有文件'}, '选择标准光谱文件');
+            '*.*', '所有文件'}), localized('选择标准光谱文件'));
         if isequal(fileName, 0)
             return
         end
@@ -599,10 +812,12 @@ end
 
     function onLoadAnchors(target)
         [fileName, folder] = uigetfile( ...
+            ipceLocalizeLiteral(currentLanguage, ...
             {'*.txt;*.csv;*.xlsx;*.xls', ...
             '两列锚点数据 (*.txt, *.csv, *.xlsx, *.xls)'; ...
-            '*.*', '所有文件'}, ...
-            sprintf('选择%s波长–时间锚点文件', targetDisplayName(target)));
+            '*.*', '所有文件'}), ...
+            localized('选择%s波长–时间锚点文件', ...
+            localized(targetDisplayName(target))));
         if isequal(fileName, 0)
             return
         end
@@ -616,7 +831,7 @@ end
                 state.sampleAnchorRow = 1;
             end
             plotAlignmentPreview();
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 '已导入%s锚点：%d 行（第 1 列波长 nm，第 2 列确认时间 s）。', ...
                 targetDisplayName(target), size(anchors, 1));
         catch exception
@@ -629,7 +844,7 @@ end
             state.calibration = ipceReadReference(string(filePath));
             state.calibrationFile = string(filePath);
             updateFileLabel(calibrationPathLabel, state.calibrationFile);
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 "已读取标探响应度：%d 点，%.6g–%.6g nm。", ...
                 height(state.calibration), ...
                 min(state.calibration.Wavelength_nm), ...
@@ -658,9 +873,10 @@ end
             updateFileLabel(siliconPathLabel, state.siliconFile);
             plotTrace(siliconAxes, state.siliconTrace, table(), ...
                 traceStartForDisplay("silicon"), "硅标探 i-t", ...
-                darkRangeForTarget("silicon"), darkCheckBox.Value);
+                darkRangeForTarget("silicon"), darkCheckBox.Value, ...
+                currentLanguage);
             plotAlignmentPreview();
-            statusLabel.Text = traceSummary("硅标探", state.siliconTrace);
+            setLocalizedStatus(traceSummary("硅标探", state.siliconTrace));
             tabGroup.SelectedTab = siliconTab;
         catch exception
             if showDialog
@@ -685,9 +901,10 @@ end
             updateFileLabel(samplePathLabel, state.sampleFile);
             plotTrace(sampleAxes, state.sampleTrace, table(), ...
                 traceStartForDisplay("sample"), "样品 i-t", ...
-                darkRangeForTarget("sample"), darkCheckBox.Value);
+                darkRangeForTarget("sample"), darkCheckBox.Value, ...
+                currentLanguage);
             plotAlignmentPreview();
-            statusLabel.Text = traceSummary("样品", state.sampleTrace);
+            setLocalizedStatus(traceSummary("样品", state.sampleTrace));
             tabGroup.SelectedTab = sampleTab;
         catch exception
             if showDialog
@@ -710,7 +927,7 @@ end
             updateFileLabel(externalIPCEPathLabel, ...
                 state.externalIPCEFile);
             plotSpectrumPreview();
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 "已读取外部 IPCE：%d 点，%.6g–%.6g nm；数据源已切换为外部导入。", ...
                 height(importedIPCE), ...
                 min(importedIPCE.Wavelength_nm), ...
@@ -731,9 +948,9 @@ end
         spectrumResultTable.Data = table();
         plotSpectrumPreview();
         if state.spectrumIPCESource == "external"
-            statusLabel.Text = "光谱积分将使用外部导入 IPCE。";
+            setLocalizedStatus("光谱积分将使用外部导入 IPCE。");
         else
-            statusLabel.Text = "光谱积分将使用本软件计算的样品 IPCE。";
+            setLocalizedStatus("光谱积分将使用本软件计算的样品 IPCE。");
         end
     end
 
@@ -759,22 +976,23 @@ end
             end
         end
 
+        cancelText = localized("取消");
         timeUnit = string(uiconfirm(appFigure, ...
-            string(exception.message) + newline + ...
-            "请选择原始时间列单位。", ...
-            "选择时间单位", ...
-            "Options", ["s", "ms", "min", "h", "取消"], ...
-            "DefaultOption", "s", "CancelOption", "取消"));
-        if timeUnit == "取消"
+            localized(exception.message) + newline + ...
+            localized("请选择原始时间列单位。"), ...
+            localized("选择时间单位"), ...
+            "Options", ["s", "ms", "min", "h", cancelText], ...
+            "DefaultOption", "s", "CancelOption", cancelText));
+        if timeUnit == cancelText
             cancelled = true;
             return
         end
         currentUnit = string(uiconfirm(appFigure, ...
-            "请选择原始电流列单位。导入后将统一换算为 A。", ...
-            "选择电流单位", ...
-            "Options", ["A", "mA", "uA", "nA", "pA", "取消"], ...
-            "DefaultOption", "A", "CancelOption", "取消"));
-        if currentUnit == "取消"
+            localized("请选择原始电流列单位。导入后将统一换算为 A。"), ...
+            localized("选择电流单位"), ...
+            "Options", ["A", "mA", "uA", "nA", "pA", cancelText], ...
+            "DefaultOption", "A", "CancelOption", cancelText));
+        if currentUnit == cancelText
             cancelled = true;
             return
         end
@@ -805,7 +1023,7 @@ end
             updateFileLabel(spectrumPathLabel, state.spectrumFile);
             wavelengthHeader = selectedSpectrumHeader(wavelengthColumn);
             irradianceHeader = selectedSpectrumHeader(irradianceColumn);
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 "已读取光谱：%d 点，%.6g–%.6g nm；波长列“%s”，积分列“%s”。", ...
                 height(state.spectrum), min(state.spectrum.Wavelength_nm), ...
                 max(state.spectrum.Wavelength_nm), ...
@@ -926,7 +1144,7 @@ end
             plotSpectrumPreview();
             currentDensity = ...
                 state.spectrumSummary.IntegratedCurrentDensity_mA_cm2(1);
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 "光谱积分完成（%s）：%.6g–%.6g nm，J = %.6g mA cm^{-2}。", ...
                 sourceLabel, ...
                 integrationStartField.Value, integrationEndField.Value, ...
@@ -958,13 +1176,13 @@ end
             plotTrace(siliconAxes, state.siliconTrace, ...
                 state.siliconExtracted, state.siliconSchedule.ReferenceTime_s(1), ...
                 "硅标探 i-t", settings.SiliconDarkRange_s, ...
-                settings.SubtractDark);
+                settings.SubtractDark, currentLanguage);
             plotPower();
             cla(ipceAxes);
-            title(ipceAxes, "请导入样品 i-t 后计算 IPCE");
+            title(ipceAxes, localized("请导入样品 i-t 后计算 IPCE"));
             grid(ipceAxes, "on");
             resultTable.Data = state.lightResult;
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 "功率密度计算完成：%d 个波长，调度 %.3f–%.3f s，功率密度 %.4g–%.4g μW cm^{-2}。", ...
                 height(state.lightResult), ...
                 state.siliconSchedule.WindowStart_s(1), ...
@@ -1007,21 +1225,22 @@ end
             plotTrace(siliconAxes, state.siliconTrace, ...
                 state.siliconExtracted, state.siliconSchedule.ReferenceTime_s(1), ...
                 "硅标探 i-t", settings.SiliconDarkRange_s, ...
-                settings.SubtractDark);
+                settings.SubtractDark, currentLanguage);
             plotTrace(sampleAxes, state.sampleTrace, state.sampleExtracted, ...
                 state.sampleSchedule.ReferenceTime_s(1), "样品 i-t", ...
-                settings.SampleDarkRange_s, settings.SubtractDark);
+                settings.SampleDarkRange_s, settings.SubtractDark, ...
+                currentLanguage);
             plotPower();
             plotSpectrumPreview();
             plot(ipceAxes, state.ipceResult.Wavelength_nm, ...
                 state.ipceResult.IPCE_percent, "-o", ...
                 "LineWidth", 1.3, "MarkerSize", 3.5);
-            xlabel(ipceAxes, "波长 (nm)");
-            ylabel(ipceAxes, "IPCE (%)");
-            title(ipceAxes, "样品 IPCE");
+            xlabel(ipceAxes, localized("波长 (nm)"));
+            ylabel(ipceAxes, localized("IPCE (%)"));
+            title(ipceAxes, localized("样品 IPCE"));
             grid(ipceAxes, "on");
             resultTable.Data = state.ipceResult;
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 "IPCE 计算完成：%d 个波长。中位数 %.4g%%，最大值 %.4g%%。", ...
                 height(state.ipceResult), ...
                 median(state.ipceResult.IPCE_percent, "omitnan"), ...
@@ -1038,66 +1257,66 @@ end
                 isempty(state.externalIPCE) && ...
                 isempty(state.spectrumSummary)
             uialert(appFigure, ...
-                "请先计算功率密度/IPCE，或导入外部 IPCE。", ...
-                "没有可导出的结果");
+                localized("请先计算功率密度/IPCE，或导入外部 IPCE。"), ...
+                localized("没有可导出的结果"));
             return
         end
 
-        dialog = uifigure("Name", "选择导出内容", ...
+        dialog = uifigure("Name", localized("选择导出内容"), ...
             "Position", [430, 160, 440, 480], ...
             "WindowStyle", "modal", "Resize", "off");
         gridLayout = uigridlayout(dialog, [11, 2]);
         gridLayout.RowHeight = ...
             {34, 32, 32, 32, 32, 32, 32, 32, 32, 36, 40};
         gridLayout.ColumnWidth = {"1x", "1x"};
-        heading = uilabel(gridLayout, "Text", "选择文件格式和输出参数", ...
+        heading = uilabel(gridLayout, "Text", localized("选择文件格式和输出参数"), ...
             "FontSize", 15, "FontWeight", "bold");
         setLayout(heading, 1, [1, 2]);
-        formatLabel = uilabel(gridLayout, "Text", "文件格式");
+        formatLabel = uilabel(gridLayout, "Text", localized("文件格式"));
         setLayout(formatLabel, 2, 1);
         formatDropDown = uidropdown(gridLayout, ...
-            "Items", ["Excel 工作簿", "CSV", "MATLAB MAT"], ...
+            "Items", [localized("Excel 工作簿"), "CSV", "MATLAB MAT"], ...
             "ItemsData", ["xlsx", "csv", "mat"], "Value", "xlsx");
         setLayout(formatDropDown, 2, 2);
 
-        lightCheck = uicheckbox(gridLayout, "Text", "标探功率密度结果", ...
+        lightCheck = uicheckbox(gridLayout, "Text", localized("标探功率密度结果"), ...
             "Value", ~isempty(state.lightResult), ...
             "Enable", onOff(~isempty(state.lightResult)));
         setLayout(lightCheck, 3, [1, 2]);
-        ipceCheck = uicheckbox(gridLayout, "Text", "样品 IPCE 结果", ...
+        ipceCheck = uicheckbox(gridLayout, "Text", localized("样品 IPCE 结果"), ...
             "Value", ~isempty(state.ipceResult), ...
             "Enable", onOff(~isempty(state.ipceResult)));
         setLayout(ipceCheck, 4, [1, 2]);
         externalIPCECheck = uicheckbox(gridLayout, ...
-            "Text", "外部导入 IPCE", ...
+            "Text", localized("外部导入 IPCE"), ...
             "Value", ~isempty(state.externalIPCE), ...
             "Enable", onOff(~isempty(state.externalIPCE)));
         setLayout(externalIPCECheck, 5, [1, 2]);
         integrationCheck = uicheckbox(gridLayout, ...
-            "Text", "光谱积分汇总与积分曲线", ...
+            "Text", localized("光谱积分汇总与积分曲线"), ...
             "Value", ~isempty(state.spectrumSummary), ...
             "Enable", onOff(~isempty(state.spectrumSummary)));
         setLayout(integrationCheck, 6, [1, 2]);
         parameterCheck = uicheckbox(gridLayout, ...
-            "Text", "参数、源文件和可用锚点", "Value", true);
+            "Text", localized("参数、源文件和可用锚点"), "Value", true);
         setLayout(parameterCheck, 7, [1, 2]);
         extractedCheck = uicheckbox(gridLayout, ...
-            "Text", "标探/样品窗口提取统计", ...
+            "Text", localized("标探/样品窗口提取统计"), ...
             "Value", false, ...
             "Enable", onOff(~isempty(state.siliconExtracted) || ...
             ~isempty(state.sampleExtracted)));
         setLayout(extractedCheck, 8, [1, 2]);
         detailedCheck = uicheckbox(gridLayout, ...
-            "Text", "保留详细误差、符号电流和采样数列", "Value", true);
+            "Text", localized("保留详细误差、符号电流和采样数列"), "Value", true);
         setLayout(detailedCheck, 9, [1, 2]);
         note = uilabel(gridLayout, ...
-            "Text", "CSV 选择多项时会输出多个带后缀的文件。导出成功后会显示绝对路径。", ...
+            "Text", localized("CSV 选择多项时会输出多个带后缀的文件。导出成功后会显示绝对路径。"), ...
             "WordWrap", "on", "FontColor", [0.35, 0.35, 0.35]);
         setLayout(note, 10, [1, 2]);
-        cancelButton = uibutton(gridLayout, "Text", "取消", ...
+        cancelButton = uibutton(gridLayout, "Text", localized("取消"), ...
             "ButtonPushedFcn", @(~, ~)delete(dialog));
         setLayout(cancelButton, 11, 1);
-        confirmButton = uibutton(gridLayout, "Text", "选择路径并导出", ...
+        confirmButton = uibutton(gridLayout, "Text", localized("选择路径并导出"), ...
             "ButtonPushedFcn", @(~, ~)performExport(dialog, ...
             string(formatDropDown.Value), lightCheck.Value, ...
             ipceCheck.Value, externalIPCECheck.Value, ...
@@ -1185,8 +1404,9 @@ end
                 otherwise
                     error("IPCE:UnsupportedExport", "不支持的导出格式：%s", format);
             end
+            filter = ipceLocalizeLiteral(currentLanguage, filter);
             [fileName, folder] = uiputfile(filter, ...
-                '选择导出路径', char(defaultName));
+                localized('选择导出路径'), char(defaultName));
             if isequal(fileName, 0)
                 return
             end
@@ -1196,12 +1416,12 @@ end
                 delete(dialog);
             end
             pathText = strjoin(writtenPaths, newline);
-            statusLabel.Text = "导出成功：" + writtenPaths(1);
-            uialert(appFigure, "文件已写入：" + newline + pathText, ...
-                "导出成功", "Icon", "success");
+            setLocalizedStatus("导出成功：%s", writtenPaths(1));
+            uialert(appFigure, localized("文件已写入：") + newline + pathText, ...
+                localized("导出成功"), "Icon", "success");
         catch exception
             if isvalid(dialog)
-                uialert(dialog, exception.message, "导出失败");
+                uialert(dialog, localized(exception.message), localized("导出失败"));
             else
                 showError(exception);
             end
@@ -1245,10 +1465,10 @@ end
     function loadScanProfile(target)
         if target == "silicon"
             profile = state.siliconScan;
-            parameterTitle.Text = "扫描与取点参数（标探）";
+            parameterTitle.Text = localized("扫描与取点参数（标探）");
         else
             profile = state.sampleScan;
-            parameterTitle.Text = "扫描与取点参数（样品）";
+            parameterTitle.Text = localized("扫描与取点参数（样品）");
         end
         waveStartField.Value = profile.Start_nm;
         waveEndField.Value = profile.End_nm;
@@ -1298,7 +1518,7 @@ end
             sampleAnchorTable.Data = data;
             state.sampleAnchorRow = size(data, 1);
         end
-        statusLabel.Text = "已添加锚点行；请填写波长和时间，或填写波长后在图上确认时间。";
+        setLocalizedStatus("已添加锚点行；请填写波长和时间，或填写波长后在图上确认时间。");
     end
 
     function deleteAnchorRow(target)
@@ -1327,14 +1547,16 @@ end
     function beginAnchorPick(target)
         if target == "silicon"
             if isempty(state.siliconTrace)
-                uialert(appFigure, "请先导入硅标探 i-t。", "无法确认锚点");
+                uialert(appFigure, localized("请先导入硅标探 i-t。"), ...
+                    localized("无法确认锚点"));
                 return
             end
             data = siliconAnchorTable.Data;
             row = state.siliconAnchorRow;
         else
             if isempty(state.sampleTrace)
-                uialert(appFigure, "请先导入样品 i-t。", "无法确认锚点");
+                uialert(appFigure, localized("请先导入样品 i-t。"), ...
+                    localized("无法确认锚点"));
                 return
             end
             data = sampleAnchorTable.Data;
@@ -1343,8 +1565,8 @@ end
         if isempty(data) || row < 1 || row > size(data, 1) || ...
                 ~isfinite(data(row, 1))
             uialert(appFigure, ...
-                "请先选择一个锚点行，并在第一列填写波长。", ...
-                "锚点波长缺失");
+                localized("请先选择一个锚点行，并在第一列填写波长。"), ...
+                localized("锚点波长缺失"));
             return
         end
 
@@ -1355,17 +1577,19 @@ end
         else
             tabGroup.SelectedTab = sampleTab;
         end
-        statusLabel.Text = sprintf( ...
+        setLocalizedStatus( ...
             "请先放大曲线，再单击一个能确认 %.6g nm 已稳定输出的时间点（%s）。", ...
             data(row, 1), targetDisplayName(target));
     end
 
     function beginNewAnchorPick(target)
         if target == "silicon" && isempty(state.siliconTrace)
-            uialert(appFigure, "请先导入硅标探 i-t。", "无法新增锚点");
+            uialert(appFigure, localized("请先导入硅标探 i-t。"), ...
+                localized("无法新增锚点"));
             return
         elseif target == "sample" && isempty(state.sampleTrace)
-            uialert(appFigure, "请先导入样品 i-t。", "无法新增锚点");
+            uialert(appFigure, localized("请先导入样品 i-t。"), ...
+                localized("无法新增锚点"));
             return
         end
         state.pickTarget = target + "NewAnchor";
@@ -1375,26 +1599,28 @@ end
         else
             tabGroup.SelectedTab = sampleTab;
         end
-        statusLabel.Text = ...
-            "请先用图上工具栏或滚轮放大，再单击目标点；随后可确认/修改时间并输入波长。";
+        setLocalizedStatus( ...
+            "请先用图上工具栏或滚轮放大，再单击目标点；随后可确认/修改时间并输入波长。");
     end
 
     function beginPick(target)
         if target == "silicon" && isempty(state.siliconTrace)
-            uialert(appFigure, "请先导入硅标探 i-t。", "无法选点");
+            uialert(appFigure, localized("请先导入硅标探 i-t。"), ...
+                localized("无法选点"));
             return
         elseif target == "sample" && isempty(state.sampleTrace)
-            uialert(appFigure, "请先导入样品 i-t。", "无法选点");
+            uialert(appFigure, localized("请先导入样品 i-t。"), ...
+                localized("无法选点"));
             return
         end
         state.pickTarget = target;
         appFigure.Pointer = "crosshair";
         if target == "silicon"
             tabGroup.SelectedTab = siliconTab;
-            statusLabel.Text = "请在“标探 i-t”图上单击第一个波长驻留窗口的起始位置。";
+            setLocalizedStatus("请在“标探 i-t”图上单击第一个波长驻留窗口的起始位置。");
         else
             tabGroup.SelectedTab = sampleTab;
-            statusLabel.Text = "请在“样品 i-t”图上单击第一个波长驻留窗口的起始位置。";
+            setLocalizedStatus("请在“样品 i-t”图上单击第一个波长驻留窗口的起始位置。");
         end
     end
 
@@ -1404,10 +1630,12 @@ end
 
     function beginDarkRangePick(target)
         if target == "silicon" && isempty(state.siliconTrace)
-            uialert(appFigure, "请先导入硅标探 i-t。", "无法选择暗区间");
+            uialert(appFigure, localized("请先导入硅标探 i-t。"), ...
+                localized("无法选择暗区间"));
             return
         elseif target == "sample" && isempty(state.sampleTrace)
-            uialert(appFigure, "请先导入样品 i-t。", "无法选择暗区间");
+            uialert(appFigure, localized("请先导入样品 i-t。"), ...
+                localized("无法选择暗区间"));
             return
         end
         state.pickTarget = target + "DarkStart";
@@ -1417,7 +1645,7 @@ end
         else
             tabGroup.SelectedTab = sampleTab;
         end
-        statusLabel.Text = sprintf( ...
+        setLocalizedStatus( ...
             "请在%s i-t 图上单击暗电流区间的起点；随后再选择终点。", ...
             targetDisplayName(target));
     end
@@ -1426,10 +1654,10 @@ end
         refreshTracePlot(target);
         range = darkRangeForTarget(target);
         if range(2) > range(1)
-            statusLabel.Text = sprintf("%s暗电流区间：%.4f–%.4f s。", ...
+            setLocalizedStatus("%s暗电流区间：%.4f–%.4f s。", ...
                 targetDisplayName(target), range(1), range(2));
         else
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 "%s暗电流区间尚未定义：终点必须晚于起点。", ...
                 targetDisplayName(target));
         end
@@ -1456,7 +1684,7 @@ end
             plotTrace(siliconAxes, state.siliconTrace, ...
                 state.siliconExtracted, traceStartForDisplay("silicon"), ...
                 "硅标探 i-t", darkRangeForTarget("silicon"), ...
-                darkCheckBox.Value);
+                darkCheckBox.Value, currentLanguage);
         else
             if isempty(state.sampleTrace)
                 return
@@ -1464,7 +1692,7 @@ end
             plotTrace(sampleAxes, state.sampleTrace, ...
                 state.sampleExtracted, traceStartForDisplay("sample"), ...
                 "样品 i-t", darkRangeForTarget("sample"), ...
-                darkCheckBox.Value);
+                darkCheckBox.Value, currentLanguage);
         end
     end
 
@@ -1509,7 +1737,7 @@ end
             axesHandle.YScale = yScale;
             axesHandle.XLim = xLimits;
             axesHandle.YLim = yLimits;
-            statusLabel.Text = "已应用图形显示范围和刻度类型。";
+            setLocalizedStatus("已应用图形显示范围和刻度类型。");
         catch exception
             showError(exception);
         end
@@ -1526,7 +1754,7 @@ end
             ylim(axesHandle, "auto");
             drawnow;
             loadAxisSettings();
-            statusLabel.Text = "已按当前数据自动选择显示范围。";
+            setLocalizedStatus("已按当前数据自动选择显示范围。");
         catch exception
             showError(exception);
         end
@@ -1594,7 +1822,7 @@ end
                 sampleDarkStartField.Value = selectedTime;
             end
             state.pickTarget = target + "DarkEnd";
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 "已选择%s暗区间起点 %.4f s；请再单击终点。", ...
                 targetDisplayName(target), selectedTime);
             return
@@ -1603,7 +1831,7 @@ end
             range(2) = selectedTime;
             range = sort(range);
             if range(2) <= range(1)
-                statusLabel.Text = "暗区间起点和终点不能相同，请重新选择。";
+                setLocalizedStatus("暗区间起点和终点不能相同，请重新选择。");
                 state.pickTarget = target + "DarkEnd";
                 return
             end
@@ -1617,7 +1845,7 @@ end
             state.pickTarget = "";
             appFigure.Pointer = "arrow";
             refreshTracePlot(target);
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 "已从图上选择%s暗电流区间：%.4f–%.4f s。", ...
                 targetDisplayName(target), range(1), range(2));
             return
@@ -1640,7 +1868,7 @@ end
                 sampleAnchorTable.Data = data;
                 wavelengthValue = data(row, 1);
             end
-            statusLabel.Text = sprintf( ...
+            setLocalizedStatus( ...
                 "已确认%s锚点：%.6g nm → %.4f s。", ...
                 targetDisplayName(target), wavelengthValue, selectedTime);
             plotAlignmentPreview();
@@ -1648,17 +1876,19 @@ end
             siliconStartField.Value = selectedTime;
             plotTrace(siliconAxes, state.siliconTrace, ...
                 state.siliconExtracted, selectedTime, "硅标探 i-t", ...
-                darkRangeForTarget("silicon"), darkCheckBox.Value);
+                darkRangeForTarget("silicon"), darkCheckBox.Value, ...
+                currentLanguage);
         else
             sampleStartField.Value = selectedTime;
             plotTrace(sampleAxes, state.sampleTrace, ...
                 state.sampleExtracted, selectedTime, "样品 i-t", ...
-                darkRangeForTarget("sample"), darkCheckBox.Value);
+                darkRangeForTarget("sample"), darkCheckBox.Value, ...
+                currentLanguage);
         end
         state.pickTarget = "";
         appFigure.Pointer = "arrow";
         if legacyPick
-            statusLabel.Text = sprintf("已从图上选择固定模式起始时间：%.4f s。", selectedTime);
+            setLocalizedStatus("已从图上选择固定模式起始时间：%.4f s。", selectedTime);
         end
     end
 
@@ -1729,7 +1959,7 @@ end
             delete(dialog);
         end
         plotAlignmentPreview();
-        statusLabel.Text = sprintf( ...
+        setLocalizedStatus( ...
             "已加入%s锚点：%.6g nm → %.4f s。", ...
             targetDisplayName(target), wavelengthValue, timeValue);
         tabGroup.SelectedTab = alignmentTab;
@@ -1811,9 +2041,9 @@ end
         plot(powerAxes, state.lightResult.Wavelength_nm, ...
             state.lightResult.IncidentPowerDensity_W_cm2 * 1e6, "-o", ...
             "LineWidth", 1.3, "MarkerSize", 3.5);
-        xlabel(powerAxes, "波长 (nm)");
-        ylabel(powerAxes, "入射功率密度 (\muW cm^{-2})");
-        title(powerAxes, "由硅标探反算的单色光功率密度");
+        xlabel(powerAxes, localized("波长 (nm)"));
+        ylabel(powerAxes, localized("入射功率密度 (\muW cm^{-2})"));
+        title(powerAxes, localized("由硅标探反算的单色光功率密度"));
         grid(powerAxes, "on");
     end
 
@@ -1833,9 +2063,10 @@ end
                 sourceLabel = "本软件计算结果";
             end
         end
+        sourceLabel = localized(sourceLabel);
         if isempty(state.spectrum)
-            title(spectrumAxes, "请导入标准光谱");
-            title(cumulativeAxes, "计算积分后显示累计电流密度");
+            title(spectrumAxes, localized("请导入标准光谱"));
+            title(cumulativeAxes, localized("计算积分后显示累计电流密度"));
             return
         end
         spectrumColor = [0.90, 0.45, 0.05];
@@ -1844,8 +2075,8 @@ end
         plot(spectrumAxes, state.spectrum.Wavelength_nm, ...
             state.spectrum.Irradiance_W_m2_nm, ...
             "Color", spectrumColor, "LineWidth", 1.1, ...
-            "DisplayName", "光谱辐照度");
-        ylabel(spectrumAxes, "辐照度 (W m^{-2} nm^{-1})");
+            "DisplayName", localized("光谱辐照度"));
+        ylabel(spectrumAxes, localized("辐照度 (W m^{-2} nm^{-1})"));
         spectrumAxes.YAxis(1).Color = spectrumColor;
         hold(spectrumAxes, "on");
         if ~isempty(state.spectrumCurve)
@@ -1856,7 +2087,7 @@ end
             area(spectrumAxes, state.spectrum.Wavelength_nm(selected), ...
                 state.spectrum.Irradiance_W_m2_nm(selected), ...
                 "FaceColor", [1.00, 0.82, 0.35], "FaceAlpha", 0.25, ...
-                "EdgeColor", "none", "DisplayName", "积分范围");
+                "EdgeColor", "none", "DisplayName", localized("积分范围"));
         end
         hold(spectrumAxes, "off");
 
@@ -1869,14 +2100,14 @@ end
                 previewIPCE.IPCE_percent, "-o", ...
                 "Color", ipceColor, "LineWidth", 1.2, ...
                 "MarkerSize", 3, "DisplayName", sourceLabel);
-            ylabel(spectrumAxes, "IPCE (%)");
+            ylabel(spectrumAxes, localized("IPCE (%)"));
             spectrumAxes.YAxis(2).Color = ipceColor;
         elseif numel(spectrumAxes.YAxis) >= 2
             spectrumAxes.YAxis(2).Visible = "off";
         end
-        xlabel(spectrumAxes, "波长 (nm)");
-        title(spectrumAxes, "光谱与 " + sourceLabel + ...
-            "（积分前进行波长插值）");
+        xlabel(spectrumAxes, localized("波长 (nm)"));
+        title(spectrumAxes, localized("光谱与 %s（积分前进行波长插值）", ...
+            sourceLabel));
         grid(spectrumAxes, "on");
 
         if ~isempty(state.spectrumCurve)
@@ -1884,21 +2115,21 @@ end
             plot(cumulativeAxes, state.spectrumCurve.Wavelength_nm, ...
                 state.spectrumCurve.CumulativeCurrentDensity_mA_cm2, ...
                 "-", "Color", cumulativeColor, "LineWidth", 1.6, ...
-                "DisplayName", "累计积分 J");
+                "DisplayName", localized("累计积分 J"));
             hold(cumulativeAxes, "on");
             plot(cumulativeAxes, state.spectrumCurve.Wavelength_nm(end), ...
                 state.spectrumCurve.CumulativeCurrentDensity_mA_cm2(end), ...
                 "o", "Color", cumulativeColor, ...
                 "MarkerFaceColor", cumulativeColor, ...
-                "DisplayName", "最终积分 J");
+                "DisplayName", localized("最终积分 J"));
             hold(cumulativeAxes, "off");
-            ylabel(cumulativeAxes, "累计积分电流密度 (mA cm^{-2})");
-            title(cumulativeAxes, "累计积分电流密度随波长变化");
+            ylabel(cumulativeAxes, localized("累计积分电流密度 (mA cm^{-2})"));
+            title(cumulativeAxes, localized("累计积分电流密度随波长变化"));
             legend(cumulativeAxes, "Location", "best");
         else
-            title(cumulativeAxes, "计算积分后显示累计电流密度");
+            title(cumulativeAxes, localized("计算积分后显示累计电流密度"));
         end
-        xlabel(cumulativeAxes, "波长 (nm)");
+        xlabel(cumulativeAxes, localized("波长 (nm)"));
         grid(cumulativeAxes, "on");
     end
 
@@ -1969,35 +2200,35 @@ end
             if ~isempty(siliconPreview)
                 plot(alignmentAxes, siliconPreview.Wavelength_nm, ...
                     siliconPreview.ReferenceTime_s, "-", ...
-                    "LineWidth", 1.5, "DisplayName", "标探调度");
+                    "LineWidth", 1.5, "DisplayName", localized("标探调度"));
                 if ~isempty(settings.SiliconAnchors)
                     scatter(alignmentAxes, settings.SiliconAnchors(:, 1), ...
                         settings.SiliconAnchors(:, 2), 45, "filled", ...
-                        "DisplayName", "标探锚点");
+                        "DisplayName", localized("标探锚点"));
                 end
                 plotted = true;
             end
             if ~isempty(samplePreview)
                 plot(alignmentAxes, samplePreview.Wavelength_nm, ...
                     samplePreview.ReferenceTime_s, "-", ...
-                    "LineWidth", 1.5, "DisplayName", "样品调度");
+                    "LineWidth", 1.5, "DisplayName", localized("样品调度"));
                 if ~isempty(settings.SampleAnchors)
                     scatter(alignmentAxes, settings.SampleAnchors(:, 1), ...
                         settings.SampleAnchors(:, 2), 45, "filled", ...
-                        "DisplayName", "样品锚点");
+                        "DisplayName", localized("样品锚点"));
                 end
                 plotted = true;
             end
-            title(alignmentAxes, "由锚点生成的波长–时间调度");
+            title(alignmentAxes, localized("由锚点生成的波长–时间调度"));
         catch exception
-            title(alignmentAxes, "调度预览：请补全或检查锚点");
-            text(alignmentAxes, 0.5, 0.5, exception.message, ...
+            title(alignmentAxes, localized("调度预览：请补全或检查锚点"));
+            text(alignmentAxes, 0.5, 0.5, localized(exception.message), ...
                 "Units", "normalized", "HorizontalAlignment", "center", ...
                 "VerticalAlignment", "middle", "Color", [0.75, 0.15, 0.10]);
         end
         hold(alignmentAxes, "off");
-        xlabel(alignmentAxes, "波长 (nm)");
-        ylabel(alignmentAxes, "确认时间 (s)");
+        xlabel(alignmentAxes, localized("波长 (nm)"));
+        ylabel(alignmentAxes, localized("确认时间 (s)"));
         grid(alignmentAxes, "on");
         if plotted
             legend(alignmentAxes, "Location", "best");
@@ -2089,8 +2320,8 @@ end
             end
         end
         if ~isempty(messages)
-            statusLabel.Text = "启动检查：" + strjoin(messages, "；") + ...
-                "。请核对数据批次与参数。";
+            setLocalizedStatus("启动检查：" + strjoin(messages, "；") + ...
+                "。请核对数据批次与参数。");
         end
     end
 
@@ -2209,8 +2440,9 @@ end
     end
 
     function showError(exception)
-        statusLabel.Text = "错误：" + string(exception.message);
-        uialert(appFigure, exception.message, "无法完成计算");
+        setLocalizedStatus("错误：%s", exception.message);
+        uialert(appFigure, localized(exception.message), ...
+            localized("无法完成计算"));
     end
 end
 
@@ -2242,13 +2474,17 @@ end
 end
 
 function plotTrace(axesHandle, trace, extracted, startTime, axesTitle, ...
-        darkRange, showDark)
+        darkRange, showDark, language)
 if nargin < 6
     darkRange = [];
 end
 if nargin < 7
     showDark = false;
 end
+if nargin < 8
+    language = "zh-CN";
+end
+axesTitle = ipceLocalizeLiteral(language, axesTitle);
 cla(axesHandle);
 if isempty(trace)
     title(axesHandle, axesTitle);
@@ -2257,7 +2493,8 @@ end
 
 rawLine = plot(axesHandle, trace.Time_s, trace.Current_A, ...
     "Color", [0.10, 0.35, 0.70], "LineWidth", 0.8, ...
-    "DisplayName", "原始 i-t", "HitTest", "off");
+    "DisplayName", ipceLocalizeLiteral(language, "原始 i-t"), ...
+    "HitTest", "off");
 try
     rawLine.PickableParts = "none";
 catch
@@ -2272,7 +2509,8 @@ if showDark && numel(darkRange) == 2 && ...
         [yLimits(1), yLimits(1), yLimits(2), yLimits(2)], ...
         [0.35, 0.35, 0.35], ...
         "FaceAlpha", 0.13, "EdgeColor", [0.25, 0.25, 0.25], ...
-        "LineStyle", "--", "DisplayName", "暗电流区间", ...
+        "LineStyle", "--", "DisplayName", ...
+        ipceLocalizeLiteral(language, "暗电流区间"), ...
         "HitTest", "off");
     try
         darkPatch.PickableParts = "none";
@@ -2285,7 +2523,8 @@ if ~isempty(extracted)
         extracted.MeanCurrent_A, "o", ...
         "Color", [0.85, 0.20, 0.12], ...
         "MarkerFaceColor", [1.00, 0.78, 0.30], ...
-        "MarkerSize", 4, "DisplayName", "窗口均值", ...
+        "MarkerSize", 4, "DisplayName", ...
+        ipceLocalizeLiteral(language, "窗口均值"), ...
         "HitTest", "off");
     try
         marker.PickableParts = "none";
@@ -2293,7 +2532,8 @@ if ~isempty(extracted)
     end
 end
 
-startLine = xline(axesHandle, startTime, "--", "首个对齐参考", ...
+startLine = xline(axesHandle, startTime, "--", ...
+    ipceLocalizeLiteral(language, "首个对齐参考"), ...
     "Color", [0.15, 0.55, 0.20], "LineWidth", 1.2, ...
     "LabelVerticalAlignment", "bottom", "HitTest", "off", ...
     "HandleVisibility", "off");
@@ -2302,8 +2542,8 @@ try
 catch
 end
 hold(axesHandle, "off");
-xlabel(axesHandle, "时间 (s)");
-ylabel(axesHandle, "电流 (A)");
+xlabel(axesHandle, ipceLocalizeLiteral(language, "时间 (s)"));
+ylabel(axesHandle, ipceLocalizeLiteral(language, "电流 (A)"));
 title(axesHandle, axesTitle);
 grid(axesHandle, "on");
 legend(axesHandle, "Location", "best");
@@ -2338,4 +2578,76 @@ end
 function setLayout(component, row, column)
 component.Layout.Row = row;
 component.Layout.Column = column;
+end
+
+function locale = localSystemLocale()
+locale = string(getenv("LANG"));
+try
+    locale = string(get(0, "Language"));
+catch
+end
+if strlength(locale) == 0
+    locale = "en-US";
+end
+end
+
+function registry = captureLocalizationRegistry(figureHandle, excludedComponents)
+registry = cell(0, 3);
+propertyNames = ["Name", "Title", "Text", "Tooltip", "Items", "ColumnName"];
+handles = findall(figureHandle);
+for handleIndex = 1:numel(handles)
+    component = handles(handleIndex);
+    if any(cellfun(@(excluded)isequal(component, excluded), ...
+            excludedComponents))
+        continue
+    end
+    for propertyIndex = 1:numel(propertyNames)
+        propertyName = propertyNames(propertyIndex);
+        if ~isprop(component, propertyName)
+            continue
+        end
+        try
+            sourceValue = component.(propertyName);
+            if ischar(sourceValue) || isstring(sourceValue) || iscell(sourceValue)
+                registry(end + 1, :) = {component, char(propertyName), sourceValue}; %#ok<AGROW>
+            end
+        catch
+        end
+    end
+end
+end
+
+function applyLocalizationRegistry(registry, language)
+for index = 1:size(registry, 1)
+    component = registry{index, 1};
+    if ~isvalid(component)
+        continue
+    end
+    try
+        component.(registry{index, 2}) = ipceLocalizeLiteral( ...
+            language, registry{index, 3});
+    catch
+    end
+end
+end
+
+function texts = collectLocalizedTexts(registry)
+texts = strings(0, 1);
+for index = 1:size(registry, 1)
+    component = registry{index, 1};
+    if ~isvalid(component)
+        continue
+    end
+    try
+        value = component.(registry{index, 2});
+        if ischar(value)
+            texts = [texts; string(value)]; %#ok<AGROW>
+        elseif isstring(value)
+            texts = [texts; value(:)]; %#ok<AGROW>
+        elseif iscell(value)
+            texts = [texts; string(value(:))]; %#ok<AGROW>
+        end
+    catch
+    end
+end
 end

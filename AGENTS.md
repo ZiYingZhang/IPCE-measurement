@@ -43,6 +43,12 @@ work without calibration, silicon/sample i-t data, or anchors.
 - `matlab/run_ipce_selftest.m`: regression and numerical self-test.
 - `matlab/ipceRepositoryPaths.m`: repository, MATLAB, default-data, and example
   data roots.
+- `matlab/ipceLanguageCatalog.m`: stable bilingual catalog keys and first-level
+  UI strings.
+- `matlab/ipceLocalizeLiteral.m`: MATLAB static/runtime UI translation,
+  formatted messages, and English fallback guard.
+- `matlab/ipceLanguagePreference.m`: safe system-locale resolution and atomic
+  `%LOCALAPPDATA%/IPCEApp/settings.json` persistence.
 - `data/defaults/`: four exact startup files shared by MATLAB and C#.
 - `data/examples/`: MBVO example measurement and alignment files.
 - `README_CN.md`: complete Chinese user documentation and physical formulas.
