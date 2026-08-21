@@ -50,6 +50,26 @@ public sealed class BilingualPlotSurfaceTests
         Assert.AreEqual("太阳光谱", chinese.Irradiance.Title);
         Assert.AreEqual("Wavelength (nm)", english.Irradiance.XLabel);
         Assert.AreEqual("波长 (nm)", chinese.Irradiance.XLabel);
+        Assert.AreEqual(
+            "Irradiance (W/(m²·nm))",
+            english.Irradiance.YLabel);
+        Assert.AreEqual(
+            "辐照度 (W/(m²·nm))",
+            chinese.Irradiance.YLabel);
+        Assert.AreEqual(
+            "Cumulative Jsc (mA/cm²)",
+            english.Cumulative.YLabel);
+        Assert.AreEqual(
+            "累计 Jsc (mA/cm²)",
+            chinese.Cumulative.YLabel);
+        fixture.Service.CurrentLanguage = AppLanguage.English;
+        Assert.AreEqual(
+            "Power density (µW/cm²)",
+            fixture.Service["Plot.PowerDensityAxis"]);
+        fixture.Service.CurrentLanguage = AppLanguage.SimplifiedChinese;
+        Assert.AreEqual(
+            "功率密度 (µW/cm²)",
+            fixture.Service["Plot.PowerDensityAxis"]);
         AssertNumericParity(english.Irradiance, chinese.Irradiance);
         AssertNumericParity(english.SelectedIpce, chinese.SelectedIpce);
         AssertNumericParity(english.Cumulative, chinese.Cumulative);

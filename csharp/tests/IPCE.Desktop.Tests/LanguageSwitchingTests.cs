@@ -52,6 +52,7 @@ public sealed class LanguageSwitchingTests
                 Assert.AreEqual(
                     "IPCE Measurement and Spectrum Integration",
                     window.Title);
+                Assert.AreEqual("Arial", window.FontFamily.Source);
                 Assert.AreEqual("Ready", viewModel.StartupStatusMessage);
                 var selector = Assert.IsInstanceOfType<ComboBox>(
                     window.FindName("LanguageSelector"));
@@ -71,6 +72,12 @@ public sealed class LanguageSwitchingTests
                     window.FindName("ResultsPanel"));
                 var schedule = Assert.IsInstanceOfType<SchedulePlotView>(
                     results.FindName("SchedulePlotView"));
+                var hover = Assert.IsInstanceOfType<TextBlock>(
+                    schedule.FindName("HoverText"));
+                var toolbar = Assert.IsInstanceOfType<PlotToolbar>(
+                    schedule.FindName("Toolbar"));
+                Assert.AreEqual("Arial", hover.FontFamily.Source);
+                Assert.AreEqual("Arial", toolbar.FontFamily.Source);
                 Assert.AreEqual(
                     "Wavelength–time schedule preview",
                     schedule.InteractionController.Model?.Title);
@@ -88,6 +95,15 @@ public sealed class LanguageSwitchingTests
                     DispatcherPriority.DataBind);
 
                 Assert.AreEqual("IPCE 测量与光谱积分", window.Title);
+                Assert.AreEqual(
+                    "Microsoft YaHei",
+                    window.FontFamily.Source);
+                Assert.AreEqual(
+                    "Microsoft YaHei",
+                    hover.FontFamily.Source);
+                Assert.AreEqual(
+                    "Microsoft YaHei",
+                    toolbar.FontFamily.Source);
                 Assert.AreEqual("就绪", viewModel.StartupStatusMessage);
                 Assert.AreEqual(
                     AppLanguage.SimplifiedChinese,
@@ -111,6 +127,9 @@ public sealed class LanguageSwitchingTests
                 Assert.AreEqual(
                     "IPCE Measurement and Spectrum Integration",
                     window.Title);
+                Assert.AreEqual("Arial", window.FontFamily.Source);
+                Assert.AreEqual("Arial", hover.FontFamily.Source);
+                Assert.AreEqual("Arial", toolbar.FontFamily.Source);
                 Assert.AreEqual("Ready", viewModel.StartupStatusMessage);
             }
             catch (Exception exception)

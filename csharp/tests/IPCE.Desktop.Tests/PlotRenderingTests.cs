@@ -28,7 +28,7 @@ public sealed class PlotRenderingTests
                             "#1565C0"),
                     ],
                     [
-                        new PlotBand(0.1, 0.3, "暗电流区间", "#607D8B", 0.28),
+                        new PlotBand(0.1, 0.3, "暗电流区间", "#9E9E9E", 0.14),
                     ],
                     "empty");
                 PlotViewport viewport = new(
@@ -50,6 +50,28 @@ public sealed class PlotRenderingTests
                     .ToArray();
                 Assert.AreEqual(2, boundaries.Length);
                 Assert.IsTrue(boundaries.All(line => line.LineWidth == 3));
+                Assert.IsTrue(boundaries.All(line =>
+                    line.LinePattern.Equals(ScottPlot.LinePattern.Dashed)));
+                Assert.IsTrue(boundaries.All(line =>
+                    line.Color.R == 0x9E &&
+                    line.Color.G == 0x9E &&
+                    line.Color.B == 0x9E));
+
+                ScottPlot.Plottables.VerticalSpan span = target.Plot
+                    .GetPlottables<ScottPlot.Plottables.VerticalSpan>()
+                    .Single();
+                Assert.AreEqual(0x9E, span.FillColor.R);
+                Assert.AreEqual(0x9E, span.FillColor.G);
+                Assert.AreEqual(0x9E, span.FillColor.B);
+                Assert.AreEqual(36, span.FillColor.A);
+
+                ScottPlot.Plottables.Scatter curve = target.Plot
+                    .GetPlottables<ScottPlot.Plottables.Scatter>()
+                    .Single();
+                Assert.AreEqual(3f, curve.LineWidth);
+                Assert.AreEqual(0f, target.Plot.Legend.OutlineWidth);
+                Assert.AreEqual(24f, target.Plot.Legend.SymbolWidth);
+                Assert.AreEqual(12f, target.Plot.Legend.SymbolHeight);
             }
             catch (Exception exception)
             {
@@ -156,6 +178,50 @@ public sealed class PlotRenderingTests
         Assert.IsTrue(plot.Axes.Title.Label.FontSize >= 26);
         Assert.IsGreaterThanOrEqualTo(14d, PlotTheme.HoverFontSize);
         Assert.IsGreaterThanOrEqualTo(14d, PlotTheme.ToolbarFontSize);
+    }
+
+    [TestMethod]
+    public void Renderer_UsesLanguageSpecificFontsAndReadableTypography()
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var english = new ScottPlot.WPF.WpfPlot();
+                PlotModelRenderer.Render(
+                    english,
+                    TypographyModel(
+                        "Power density",
+                        "Wavelength (nm)",
+                        "Power density (µW/cm²)",
+                        "Power density"),
+                    new PlotViewport(0, 1, 0, 1, 0));
+                AssertTypography(english.Plot, "Arial");
+
+                var chinese = new ScottPlot.WPF.WpfPlot();
+                PlotModelRenderer.Render(
+                    chinese,
+                    TypographyModel(
+                        "单色入射功率密度",
+                        "波长 (nm)",
+                        "功率密度 (µW/cm²)",
+                        "入射功率密度"),
+                    new PlotViewport(0, 1, 0, 1, 0));
+                AssertTypography(chinese.Plot, "Microsoft YaHei");
+            }
+            catch (Exception exception)
+            {
+                failure = exception;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        Assert.IsTrue(thread.Join(TimeSpan.FromSeconds(10)));
+        if (failure is not null)
+        {
+            throw failure;
+        }
     }
 
     [TestMethod]
@@ -331,5 +397,62 @@ public sealed class PlotRenderingTests
             ],
             [],
             "暂无数据");
+    }
+
+    private static PlotModel TypographyModel(
+        string title,
+        string xLabel,
+        string yLabel,
+        string seriesLabel)
+    {
+        return new PlotModel(
+            title,
+            xLabel,
+            yLabel,
+            [
+                new PlotSeries(
+                    seriesLabel,
+                    [0d, 1d],
+                    [0d, 1d],
+                    PlotSeriesKind.Line,
+                    "#1565C0"),
+            ],
+            [],
+            "empty");
+    }
+
+    private static void AssertTypography(
+        ScottPlot.Plot plot,
+        string expectedFont)
+    {
+        Assert.AreEqual(expectedFont, plot.Axes.Title.Label.FontName);
+        Assert.AreEqual(expectedFont, plot.Axes.Bottom.Label.FontName);
+        Assert.AreEqual(expectedFont, plot.Axes.Left.Label.FontName);
+        Assert.AreEqual(expectedFont, plot.Axes.Top.Label.FontName);
+        Assert.AreEqual(expectedFont, plot.Axes.Right.Label.FontName);
+        Assert.AreEqual(
+            expectedFont,
+            plot.Axes.Bottom.TickLabelStyle.FontName);
+        Assert.AreEqual(
+            expectedFont,
+            plot.Axes.Left.TickLabelStyle.FontName);
+        Assert.AreEqual(
+            expectedFont,
+            plot.Axes.Top.TickLabelStyle.FontName);
+        Assert.AreEqual(
+            expectedFont,
+            plot.Axes.Right.TickLabelStyle.FontName);
+        Assert.AreEqual(expectedFont, plot.Legend.FontName);
+
+        Assert.AreEqual(28f, plot.Axes.Title.Label.FontSize);
+        Assert.AreEqual(30f, plot.Axes.Bottom.Label.FontSize);
+        Assert.AreEqual(30f, plot.Axes.Left.Label.FontSize);
+        Assert.AreEqual(30f, plot.Axes.Top.Label.FontSize);
+        Assert.AreEqual(30f, plot.Axes.Right.Label.FontSize);
+        Assert.AreEqual(24f, plot.Axes.Bottom.TickLabelStyle.FontSize);
+        Assert.AreEqual(24f, plot.Axes.Left.TickLabelStyle.FontSize);
+        Assert.AreEqual(24f, plot.Axes.Top.TickLabelStyle.FontSize);
+        Assert.AreEqual(24f, plot.Axes.Right.TickLabelStyle.FontSize);
+        Assert.AreEqual(24f, plot.Legend.FontSize);
     }
 }

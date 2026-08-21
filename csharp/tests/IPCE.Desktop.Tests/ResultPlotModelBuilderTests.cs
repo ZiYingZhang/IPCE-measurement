@@ -55,8 +55,8 @@ public sealed class ResultPlotModelBuilderTests
         Assert.AreEqual(1, enabled.Bands.Count);
         Assert.AreEqual(0.1, enabled.Bands[0].MinimumX);
         Assert.AreEqual(2d, enabled.Bands[0].MaximumX);
-        Assert.AreEqual(0.28, enabled.Bands[0].Opacity, 1e-12);
-        Assert.AreEqual("#607D8B", enabled.Bands[0].ColorHex);
+        Assert.AreEqual(0.14, enabled.Bands[0].Opacity, 1e-12);
+        Assert.AreEqual("#9E9E9E", enabled.Bands[0].ColorHex);
         Assert.AreEqual(2, enabled.Intervals.Count);
         Assert.AreEqual(6d, enabled.Intervals[0].MinimumX);
         Assert.AreEqual(10d, enabled.Intervals[0].MaximumX);
@@ -129,10 +129,11 @@ public sealed class ResultPlotModelBuilderTests
                 600);
 
         Assert.AreEqual(1, models.Irradiance.Bands.Count);
-        Assert.AreEqual(0.24, models.Irradiance.Bands[0].Opacity, 1e-12);
-        Assert.AreEqual("#90CAF9", models.Irradiance.Bands[0].ColorHex);
+        Assert.AreEqual(0.14, models.Irradiance.Bands[0].Opacity, 1e-12);
+        Assert.AreEqual("#9E9E9E", models.Irradiance.Bands[0].ColorHex);
         Assert.AreEqual(1, models.SelectedIpce.Bands.Count);
-        Assert.AreEqual(0.24, models.SelectedIpce.Bands[0].Opacity, 1e-12);
+        Assert.AreEqual(0.14, models.SelectedIpce.Bands[0].Opacity, 1e-12);
+        Assert.AreEqual("#9E9E9E", models.SelectedIpce.Bands[0].ColorHex);
         Assert.AreEqual(
             300d,
             models.Irradiance.ViewportPolicy.PreferredMinimumX);

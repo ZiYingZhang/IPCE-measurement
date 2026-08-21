@@ -4,6 +4,7 @@
         xmlns:localization="clr-namespace:IPCE.Desktop.Localization"
         xmlns:views="clr-namespace:IPCE.Desktop.Views"
         Title="{Binding Localization[App.Title]}"
+        FontFamily="{Binding Localization[Font.Family]}"
         Width="1500"
         Height="900"
         MinWidth="1100"

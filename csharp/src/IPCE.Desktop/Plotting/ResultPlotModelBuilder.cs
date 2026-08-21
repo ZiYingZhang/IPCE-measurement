@@ -66,8 +66,8 @@ public static class ResultPlotModelBuilder
                         darkStartSeconds,
                         darkEndSeconds,
                         text["Plot.DarkCurrentRange"],
-                        "#607D8B",
-                        0.28),
+                        PlotTheme.RangeFillColorHex,
+                        PlotTheme.RangeFillOpacity),
                 ]
                 : [];
         IReadOnlyList<PlotIntervalMarker> intervals =
@@ -107,8 +107,8 @@ public static class ResultPlotModelBuilder
                         requestedMinimumNm,
                         requestedMaximumNm,
                         text["Plot.IntegrationRange"],
-                        "#90CAF9",
-                        0.24),
+                        PlotTheme.RangeFillColorHex,
+                        PlotTheme.RangeFillOpacity),
                 ]
                 : [];
         PlotViewportPolicy focusPolicy = BuildFocusPolicy(

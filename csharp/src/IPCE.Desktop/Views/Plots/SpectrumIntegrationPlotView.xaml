@@ -32,11 +32,11 @@
                         BorderBrush="#455A64" BorderThickness="1"
                         CornerRadius="4" IsHitTestVisible="False">
                     <TextBlock x:Name="IrradianceHoverText"
-                               FontFamily="Microsoft YaHei UI" FontSize="14"
+                               FontFamily="{Binding Localization[Font.Family]}" FontSize="14"
                                Foreground="#263238" Visibility="Collapsed" />
                 </Border>
                 <TextBlock x:Name="IrradianceClippedText" Grid.Row="1"
-                           Margin="5" FontFamily="Microsoft YaHei UI"
+                           Margin="5" FontFamily="{Binding Localization[Font.Family]}"
                            FontSize="14" Foreground="#C62828"
                            Visibility="Collapsed" />
                 <plots:PlotToolbar x:Name="IrradianceToolbar" Grid.Row="2" />
@@ -55,11 +55,11 @@
                         BorderBrush="#455A64" BorderThickness="1"
                         CornerRadius="4" IsHitTestVisible="False">
                     <TextBlock x:Name="SelectedIpceHoverText"
-                               FontFamily="Microsoft YaHei UI" FontSize="14"
+                               FontFamily="{Binding Localization[Font.Family]}" FontSize="14"
                                Foreground="#263238" Visibility="Collapsed" />
                 </Border>
                 <TextBlock x:Name="SelectedIpceClippedText" Grid.Row="1"
-                           Margin="5" FontFamily="Microsoft YaHei UI"
+                           Margin="5" FontFamily="{Binding Localization[Font.Family]}"
                            FontSize="14" Foreground="#C62828"
                            Visibility="Collapsed" />
                 <plots:PlotToolbar x:Name="SelectedIpceToolbar"
@@ -80,11 +80,11 @@
                     BorderBrush="#455A64" BorderThickness="1"
                     CornerRadius="4" IsHitTestVisible="False">
                 <TextBlock x:Name="CumulativeHoverText"
-                           FontFamily="Microsoft YaHei UI" FontSize="14"
+                           FontFamily="{Binding Localization[Font.Family]}" FontSize="14"
                            Foreground="#263238" Visibility="Collapsed" />
             </Border>
             <TextBlock x:Name="CumulativeClippedText" Grid.Row="1"
-                       Margin="5" FontFamily="Microsoft YaHei UI"
+                       Margin="5" FontFamily="{Binding Localization[Font.Family]}"
                        FontSize="14" Foreground="#C62828"
                        Visibility="Collapsed" />
             <plots:PlotToolbar x:Name="CumulativeToolbar" Grid.Row="2" />

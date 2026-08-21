@@ -23,7 +23,7 @@
                 VerticalAlignment="Top" Background="#F2FFFFFF"
                 BorderBrush="#455A64" BorderThickness="1" CornerRadius="4"
                 IsHitTestVisible="False">
-            <TextBlock x:Name="HoverText" FontFamily="Microsoft YaHei UI"
+            <TextBlock x:Name="HoverText" FontFamily="{Binding Localization[Font.Family]}"
                        FontSize="14" Foreground="#263238"
                        Visibility="Collapsed" />
         </Border>
@@ -38,7 +38,7 @@
                       Content="{Binding Localization[Plot.AnchorsAndWindows]}" Checked="LayerBox_Changed"
                       Unchecked="LayerBox_Changed" />
             <TextBlock x:Name="ClippedText" Margin="16,5"
-                       FontFamily="Microsoft YaHei UI" FontSize="14"
+                       FontFamily="{Binding Localization[Font.Family]}" FontSize="14"
                        Foreground="#C62828" Visibility="Collapsed" />
         </StackPanel>
         <plots:PlotToolbar x:Name="Toolbar" Grid.Row="2" />

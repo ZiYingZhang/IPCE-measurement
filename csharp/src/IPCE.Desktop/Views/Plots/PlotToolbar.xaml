@@ -1,7 +1,7 @@
 <UserControl x:Class="IPCE.Desktop.Views.Plots.PlotToolbar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             FontFamily="Microsoft YaHei UI"
+             FontFamily="{Binding Localization[Font.Family]}"
              FontSize="14">
     <WrapPanel Margin="0,4,0,0" VerticalAlignment="Center">
         <TextBlock Margin="4" VerticalAlignment="Center" Text="{Binding Localization[PlotToolbar.XMinimum]}" />
