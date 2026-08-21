@@ -66,7 +66,7 @@ public sealed class PortablePackageTests
             0,
             result.ExitCode,
             result.CombinedOutput);
-        StringAssert.Contains(
+        AssertContainsIgnoringSoftWraps(
             result.CombinedOutput,
             "Portable archive validation passed");
     }
@@ -80,7 +80,7 @@ public sealed class PortablePackageTests
         ScriptResult result = Validate(archive);
 
         Assert.AreNotEqual(0, result.ExitCode);
-        StringAssert.Contains(
+        AssertContainsIgnoringSoftWraps(
             result.CombinedOutput,
             "Archive does not exist");
     }
@@ -102,7 +102,7 @@ public sealed class PortablePackageTests
         ScriptResult result = Validate(archive);
 
         Assert.AreNotEqual(0, result.ExitCode);
-        StringAssert.Contains(result.CombinedOutput, "200 MB");
+        AssertContainsIgnoringSoftWraps(result.CombinedOutput, "200 MB");
     }
 
     [TestMethod]
@@ -116,7 +116,7 @@ public sealed class PortablePackageTests
         ScriptResult result = Validate(archive);
 
         Assert.AreNotEqual(0, result.ExitCode);
-        StringAssert.Contains(
+        AssertContainsIgnoringSoftWraps(
             result.CombinedOutput,
             "Archive root is missing IPCEApp.exe");
     }
@@ -138,7 +138,7 @@ public sealed class PortablePackageTests
         ScriptResult result = Validate(archive);
 
         Assert.AreNotEqual(0, result.ExitCode);
-        StringAssert.Contains(
+        AssertContainsIgnoringSoftWraps(
             result.CombinedOutput,
             "Archive contains MATLAB Runtime marker");
     }
@@ -237,15 +237,23 @@ public sealed class PortablePackageTests
             output,
             MatlabRuntimeMarkerDiagnostic);
 
+    private static void AssertContainsIgnoringSoftWraps(
+        string output,
+        string phrase) =>
+        Assert.IsTrue(
+            Regex.IsMatch(
+                output,
+                BuildSoftWrapTolerantPattern(phrase),
+                RegexOptions.CultureInvariant),
+            $"Expected output to contain '{phrase}' after ignoring PowerShell soft wraps.{Environment.NewLine}{output}");
+
     private static string BuildSoftWrapTolerantPattern(string phrase)
     {
         var pattern = new StringBuilder();
         for (int index = 0; index < phrase.Length; index++)
         {
             pattern.Append(Regex.Escape(phrase[index].ToString()));
-            if (index + 1 < phrase.Length &&
-                IsAsciiLetter(phrase[index]) &&
-                IsAsciiLetter(phrase[index + 1]))
+            if (index + 1 < phrase.Length)
             {
                 pattern.Append("(?:\\r?\\n)?");
             }
@@ -253,9 +261,6 @@ public sealed class PortablePackageTests
 
         return pattern.ToString();
     }
-
-    private static bool IsAsciiLetter(char value) =>
-        value is >= 'A' and <= 'Z' or >= 'a' and <= 'z';
 
     private static string FindCSharpProjectRoot()
     {
