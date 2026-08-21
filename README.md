@@ -28,12 +28,6 @@ data/
 └── examples/   Reproducible example inputs for a complete calculation
 ```
 
-For the local checkout used to prepare this release:
-
-```text
-E:\Research Library\Data\Codes\IPCE measurement\data\defaults
-E:\Research Library\Data\Codes\IPCE measurement\data\examples
-```
 
 The default files are loaded by the application when available. Example files are optional; users can replace them with their own files while keeping the documented column and unit rules. Generated `dist/` folders are intentionally excluded from source history; compiled applications are published as Release assets.
 
