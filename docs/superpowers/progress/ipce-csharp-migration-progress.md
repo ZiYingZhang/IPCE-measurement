@@ -1,14 +1,14 @@
 # IPCE C# Migration Progress
 
-Last updated: 2026-08-15
+Last updated: 2026-08-21
 
 ## Current checkpoint
 
-- Last completed task: MATLAB and C# bilingual localization and portable
+- Last completed task: C# scientific-plot legibility update and fresh portable
   verification
 - Status: normalized repository and both bilingual applications pass all
-  automated gates; external clean-machine and physical-display gates remain
-  pending
+  automated gates, including the refreshed C# plot-style regressions; external
+  clean-machine and physical-display gates remain pending
 - Next tasks:
   1. prepare English-first public documentation;
   2. prepare the private GitHub repository and `v1.0.0` for public release
@@ -16,6 +16,49 @@ Last updated: 2026-08-15
   `matlab/` and shared startup files moved to `data/defaults/`
 - Git action taken: local commits on `main`; no remote push, tag, Release, or
   visibility change
+
+## 2026-08-21 C# plot-legibility verification
+
+Implemented presentation-only behavior:
+
+- English UI and ScottPlot text use Arial; Chinese UI and plot text use
+  Microsoft YaHei, including live language switching;
+- shared title/axis/tick/legend sizes are `28/30/24/24`;
+- primary scientific curves use width `3`;
+- dark, spectrum, and integration intervals use faint grey `#9E9E9E` fills at
+  opacity `0.14`, with grey dashed boundary lines at width `3`;
+- legends use `24 x 12` symbols, proportionally enlarged text, and no frame;
+- scientific units use readable Unicode typography, including `µW/cm²`,
+  `W/(m²·nm)`, and `mA/cm²`;
+- plot styling does not change calculations, viewport semantics, tables, or
+  exported values.
+
+Verification evidence:
+
+- Release build: 0 warnings, 0 errors;
+- .NET tests: Core 58, IO 44, Desktop 130, total 232; 0 failed, 0 skipped;
+- MATLAB numerical self-test and real-UI smoke: passed;
+- self-contained published and extracted C# executable smoke tests: passed;
+- independent code review found no critical, important, or minor findings.
+
+Fresh self-contained C# archive:
+
+- path: `csharp/dist/IPCEApp_Windows_x64.zip`;
+- bytes: `85,511,462`;
+- SHA-256:
+  `3cb9c734503599b4ea29ab27378a398b7c59493db088019c9fbb537e1bfc56c1`;
+- entries: 441;
+- self-contained `win-x64`: true;
+- MATLAB Runtime included: false;
+- published and extracted smoke exit codes: `0` and `0`;
+- manifest generated UTC: `2026-08-21T04:01:36.7893543Z`.
+
+External gates still pending for this exact ZIP/hash:
+
+1. Complete the workflow on clean Windows 10/11 x64 with neither MATLAB nor
+   .NET Runtime installed.
+2. Inspect both languages and representative plots at Windows scaling 100%,
+   125%, and 150% on representative 16-24 inch displays.
 
 ## 2026-08-15 C# bilingualization start
 
