@@ -171,7 +171,7 @@ public sealed class LanguageSwitchingTests
                     sourceBadge.FontFamily.Source);
                 Assert.IsTrue(emptyOverlays.All(overlay =>
                     overlay.FontFamily.Source == "Arial"));
-                using var arialTypeface = ScottPlot.Fonts.GetTypeface(
+                var arialTypeface = ScottPlot.Fonts.GetTypeface(
                     "Arial",
                     bold: false,
                     italic: false);
