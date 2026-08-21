@@ -23,12 +23,16 @@ public static class PlotModelRenderer
             span.FillColor = WithOpacity(
                 ScottPlot.Color.FromHex(band.ColorHex),
                 band.Opacity);
+            span.LineWidth = 0;
             span.LegendText = band.Label;
             var left = target.Plot.Add.VerticalLine(minimum);
             var right = target.Plot.Add.VerticalLine(maximum);
             left.Color = right.Color =
                 ScottPlot.Color.FromHex(band.ColorHex);
-            left.LineWidth = right.LineWidth = 3;
+            left.LineWidth = right.LineWidth =
+                PlotTheme.RangeBoundaryLineWidth;
+            left.LinePattern = right.LinePattern =
+                ScottPlot.LinePattern.Dashed;
         }
 
         foreach (PlotSeries series in model.Series)
@@ -49,7 +53,7 @@ public static class PlotModelRenderer
             }
             else
             {
-                scatter.LineWidth = 2;
+                scatter.LineWidth = PlotTheme.SeriesLineWidth;
                 scatter.MarkerSize = 3;
             }
         }
@@ -87,7 +91,7 @@ public static class PlotModelRenderer
         target.Plot.YLabel(settings?.LogarithmicY == true
             ? $"log10({model.YLabel})"
             : model.YLabel);
-        PlotTheme.Apply(target.Plot);
+        PlotTheme.Apply(target.Plot, PlotTheme.FontFor(model));
         if (model.Series.Any(series => !string.IsNullOrWhiteSpace(series.Label)) ||
             model.Bands.Any(band => !string.IsNullOrWhiteSpace(band.Label)))
         {

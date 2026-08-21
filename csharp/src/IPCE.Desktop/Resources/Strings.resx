@@ -84,6 +84,7 @@
   <data name="FileFilter.IpceAll" xml:space="preserve"><value>IPCE data|*.txt;*.csv;*.xls;*.xlsx|All files|*.*</value></data>
   <data name="FileFilter.Png" xml:space="preserve"><value>PNG image (*.png)|*.png</value></data>
   <data name="FileFilter.SpectrumAll" xml:space="preserve"><value>Excel workbooks|*.xls;*.xlsx|All files|*.*</value></data>
+  <data name="Font.Family" xml:space="preserve"><value>Arial</value></data>
   <data name="FileFilter.TextAll" xml:space="preserve"><value>Text data|*.txt;*.csv|All files|*.*</value></data>
   <data name="Operation.CalculatePowerDensity" xml:space="preserve"><value>Calculate incident power density</value></data>
   <data name="Operation.CalculateSampleIpce" xml:space="preserve"><value>Calculate sample IPCE</value></data>
@@ -114,7 +115,7 @@
   <data name="Plot.CalculatedIpceSeries" xml:space="preserve"><value>Calculated IPCE</value></data>
   <data name="Plot.ClippedPoints" xml:space="preserve"><value>Showing the main range by default; {0} extreme points are outside the view. Select “Show all”.</value></data>
   <data name="Plot.ConfirmedTimeAxis" xml:space="preserve"><value>Confirmed time (s)</value></data>
-  <data name="Plot.CumulativeAxis" xml:space="preserve"><value>Cumulative Jsc (mA cm⁻²)</value></data>
+  <data name="Plot.CumulativeAxis" xml:space="preserve"><value>Cumulative Jsc (mA/cm²)</value></data>
   <data name="Plot.CumulativeSeries" xml:space="preserve"><value>Cumulative Jsc</value></data>
   <data name="Plot.CumulativeTitle" xml:space="preserve"><value>Cumulative current density</value></data>
   <data name="Plot.CurrentAxis" xml:space="preserve"><value>Current (A)</value></data>
@@ -128,11 +129,11 @@
   <data name="Plot.EmptyTrace" xml:space="preserve"><value>Import i-t data to display the trace.</value></data>
   <data name="Plot.IntegrationRange" xml:space="preserve"><value>Integration range</value></data>
   <data name="Plot.IntegrationSource" xml:space="preserve"><value>Integration source: {0}</value></data>
-  <data name="Plot.IrradianceAxis" xml:space="preserve"><value>Irradiance (W m⁻² nm⁻¹)</value></data>
+  <data name="Plot.IrradianceAxis" xml:space="preserve"><value>Irradiance (W/(m²·nm))</value></data>
   <data name="Plot.IrradianceSeries" xml:space="preserve"><value>Irradiance</value></data>
   <data name="Plot.ExternalIpceSeries" xml:space="preserve"><value>External IPCE</value></data>
   <data name="Plot.IpceComparisonTitle" xml:space="preserve"><value>IPCE comparison</value></data>
-  <data name="Plot.PowerDensityAxis" xml:space="preserve"><value>Power density (µW cm⁻²)</value></data>
+  <data name="Plot.PowerDensityAxis" xml:space="preserve"><value>Power density (µW/cm²)</value></data>
   <data name="Plot.PowerDensitySeries" xml:space="preserve"><value>Incident power density</value></data>
   <data name="Plot.PowerDensityTitle" xml:space="preserve"><value>Monochromatic incident power density</value></data>
   <data name="Plot.OwnerAnchors" xml:space="preserve"><value>{0} anchors</value></data>

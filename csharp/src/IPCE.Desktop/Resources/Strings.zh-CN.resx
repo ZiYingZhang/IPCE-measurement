@@ -84,6 +84,7 @@
   <data name="FileFilter.IpceAll" xml:space="preserve"><value>IPCE 数据|*.txt;*.csv;*.xls;*.xlsx|所有文件|*.*</value></data>
   <data name="FileFilter.Png" xml:space="preserve"><value>PNG 图像 (*.png)|*.png</value></data>
   <data name="FileFilter.SpectrumAll" xml:space="preserve"><value>Excel 工作簿|*.xls;*.xlsx|所有文件|*.*</value></data>
+  <data name="Font.Family" xml:space="preserve"><value>Microsoft YaHei</value></data>
   <data name="FileFilter.TextAll" xml:space="preserve"><value>文本数据|*.txt;*.csv|所有文件|*.*</value></data>
   <data name="Operation.CalculatePowerDensity" xml:space="preserve"><value>计算入射光功率密度</value></data>
   <data name="Operation.CalculateSampleIpce" xml:space="preserve"><value>计算样品 IPCE</value></data>
@@ -114,7 +115,7 @@
   <data name="Plot.CalculatedIpceSeries" xml:space="preserve"><value>计算 IPCE</value></data>
   <data name="Plot.ClippedPoints" xml:space="preserve"><value>默认显示主体范围；视野外 {0} 个极端点。可点“显示全部”。</value></data>
   <data name="Plot.ConfirmedTimeAxis" xml:space="preserve"><value>确认时间 (s)</value></data>
-  <data name="Plot.CumulativeAxis" xml:space="preserve"><value>累计 Jsc (mA cm⁻²)</value></data>
+  <data name="Plot.CumulativeAxis" xml:space="preserve"><value>累计 Jsc (mA/cm²)</value></data>
   <data name="Plot.CumulativeSeries" xml:space="preserve"><value>累计 Jsc</value></data>
   <data name="Plot.CumulativeTitle" xml:space="preserve"><value>累计电流密度</value></data>
   <data name="Plot.CurrentAxis" xml:space="preserve"><value>电流 (A)</value></data>
@@ -128,11 +129,11 @@
   <data name="Plot.EmptyTrace" xml:space="preserve"><value>导入 i-t 数据后显示轨迹。</value></data>
   <data name="Plot.IntegrationRange" xml:space="preserve"><value>积分范围</value></data>
   <data name="Plot.IntegrationSource" xml:space="preserve"><value>积分来源：{0}</value></data>
-  <data name="Plot.IrradianceAxis" xml:space="preserve"><value>辐照度 (W m⁻² nm⁻¹)</value></data>
+  <data name="Plot.IrradianceAxis" xml:space="preserve"><value>辐照度 (W/(m²·nm))</value></data>
   <data name="Plot.IrradianceSeries" xml:space="preserve"><value>辐照度</value></data>
   <data name="Plot.ExternalIpceSeries" xml:space="preserve"><value>外部 IPCE</value></data>
   <data name="Plot.IpceComparisonTitle" xml:space="preserve"><value>IPCE 对比</value></data>
-  <data name="Plot.PowerDensityAxis" xml:space="preserve"><value>功率密度 (µW cm⁻²)</value></data>
+  <data name="Plot.PowerDensityAxis" xml:space="preserve"><value>功率密度 (µW/cm²)</value></data>
   <data name="Plot.PowerDensitySeries" xml:space="preserve"><value>入射功率密度</value></data>
   <data name="Plot.PowerDensityTitle" xml:space="preserve"><value>单色入射功率密度</value></data>
   <data name="Plot.OwnerAnchors" xml:space="preserve"><value>{0}锚点</value></data>

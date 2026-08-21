@@ -159,11 +159,15 @@ silently change the user's selected alignment mode.
 
 ## C# plotting invariants
 
-- Shared title/axis/tick/legend font sizes are `26/24/20/20`.
+- Shared title/axis/tick/legend font sizes are `28/30/24/24`.
+- English UI and plot text use Arial; Chinese UI and plot text use Microsoft
+  YaHei.
 - Hover and toolbar text remain size `14`.
-- Dark-current bands are grey `#607D8B` at opacity `0.28`.
-- Spectrum-integration bands are blue `#90CAF9` at opacity `0.24`.
-- Each band has two visible boundary lines at width `3`.
+- Primary scientific plot series use line width `3`.
+- Dark-current, spectrum, and integration ranges use grey `#9E9E9E` at
+  opacity `0.14`.
+- Each range has two grey dashed boundary lines at width `3`.
+- Plot legends use proportional `24 x 12` symbols and no outer border.
 - Plot styling, viewport controls, and display layers must never change
   calculation or export values.
 
@@ -211,8 +215,8 @@ dotnet build "csharp/IPCE.slnx" -c Release --no-restore
 dotnet test "csharp/IPCE.slnx" -c Release --no-build --no-restore
 ```
 
-The current expected test counts are Core `58`, IO `44`, Desktop `129`, total
-`231`, with zero failures and skips.
+The current expected test counts are Core `58`, IO `44`, Desktop `130`, total
+`232`, with zero failures and skips.
 
 For release work, run:
 

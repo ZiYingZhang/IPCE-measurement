@@ -25,12 +25,12 @@
                 Background="#F2FFFFFF" BorderBrush="#455A64"
                 BorderThickness="1" CornerRadius="4"
                 IsHitTestVisible="False">
-            <TextBlock x:Name="HoverText" FontFamily="Microsoft YaHei UI"
+            <TextBlock x:Name="HoverText" FontFamily="{Binding Localization[Font.Family]}"
                        FontSize="14" Foreground="#263238"
                        Visibility="Collapsed" />
         </Border>
         <TextBlock x:Name="ClippedText" Grid.Row="2" Margin="5"
-                   FontFamily="Microsoft YaHei UI" FontSize="14"
+                   FontFamily="{Binding Localization[Font.Family]}" FontSize="14"
                    Foreground="#C62828" Visibility="Collapsed" />
         <plots:PlotToolbar x:Name="Toolbar" Grid.Row="3" />
     </Grid>
