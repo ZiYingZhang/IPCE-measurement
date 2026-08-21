@@ -13,6 +13,7 @@
                           MouseMove="PlotSurface_MouseMove"
                           MouseLeave="PlotSurface_MouseLeave" />
         <TextBlock x:Name="EmptyMessage"
+                   FontFamily="Arial"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    Foreground="#607D8B" FontSize="15" />

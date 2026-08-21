@@ -160,8 +160,11 @@ silently change the user's selected alignment mode.
 ## C# plotting invariants
 
 - Shared title/axis/tick/legend font sizes are `28/30/24/24`.
-- English UI and plot text use Arial; Chinese UI and plot text use Microsoft
-  YaHei.
+- WPF controls use Arial in English and Microsoft YaHei in Chinese; all
+  ScottPlot-internal titles, axes, units, legends, ranges, and annotations
+  remain English and use Arial in both UI languages.
+- Plot units use glyph-safe Arial text: `W·m^-2·nm^-1`, `µW·cm^-2`, and
+  `mA·cm^-2`; model-owned empty overlays also use Arial.
 - Hover and toolbar text remain size `14`.
 - Primary scientific plot series use line width `3`.
 - Dark-current, spectrum, and integration ranges use grey `#9E9E9E` at
