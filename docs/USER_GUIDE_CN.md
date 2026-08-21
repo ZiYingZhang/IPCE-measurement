@@ -6,11 +6,11 @@
 
 ### C# WPF 版（Windows 推荐）
 
-从 `csharp/dist/IPCEApp_Windows_x64.zip` 解压后运行 `IPCEApp.exe`。该压缩包是 self-contained 版本，不需要 MATLAB 或单独安装 .NET Runtime。
+从 [GitHub Release 下载 IPCEApp_Windows_x64.zip](https://github.com/ZiYingZhang/IPCE-measurement/releases/download/v1.0.0/IPCEApp_Windows_x64.zip)，解压后运行 `IPCEApp.exe`。该压缩包是 self-contained 版本，不需要 MATLAB 或单独安装 .NET Runtime。
 
 ### MATLAB 版
 
-MATLAB 源代码位于 `matlab/`。编译后的 MATLAB 便携版需要 64 位 MATLAB Runtime R2023b。MATLAB 版是数值参考实现，适合二次开发和核对计算结果。
+MATLAB 源代码位于 `matlab/`。可从 [GitHub Release 下载 MATLAB 便携版](https://github.com/ZiYingZhang/IPCE-measurement/releases/download/v1.0.0/IPCEApp_R2023b_Windows_x64.zip)。该版本需要 64 位 MATLAB Runtime R2023b。MATLAB 版是数值参考实现，适合二次开发和核对计算结果。
 
 ## 2. 数据目录
 
@@ -28,7 +28,7 @@ E:\Research Library\Data\Codes\IPCE measurement\data\defaults
 E:\Research Library\Data\Codes\IPCE measurement\data\examples
 ```
 
-`data/defaults/` 中的默认文件由 MATLAB 和 C# 共用，程序启动时会尝试自动加载。`data/examples/` 中的文件用于演示完整流程；文件名会随版本调整，实际使用时以目录中的文件为准。示例数据不是程序运行的必需条件，用户可以随时替换为自己的数据。
+`data/defaults/` 中的默认文件由 MATLAB 和 C# 共用，程序启动时会尝试自动加载。`data/examples/` 中的文件用于演示完整流程；文件名会随版本调整，实际使用时以目录中的文件为准。示例数据不是程序运行的必需条件，用户可以随时替换为自己的数据。生成的 `dist/` 文件夹不会提交到源代码历史，编译程序统一放在 GitHub Release 附件中。
 
 ## 3. 完整计算流程
 

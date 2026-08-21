@@ -6,11 +6,11 @@ This project provides a complete workflow for photoelectrochemical measurements:
 
 ### C# WPF application (recommended on Windows)
 
-Extract `csharp/dist/IPCEApp_Windows_x64.zip` and run `IPCEApp.exe`. This is a self-contained Windows package; MATLAB and a separately installed .NET Runtime are not required.
+Download [IPCEApp_Windows_x64.zip from the GitHub Release](https://github.com/ZiYingZhang/IPCE-measurement/releases/download/v1.0.0/IPCEApp_Windows_x64.zip), extract it, and run `IPCEApp.exe`. This is a self-contained Windows package; MATLAB and a separately installed .NET Runtime are not required.
 
 ### MATLAB application
 
-MATLAB source code is under `matlab/`. The compiled MATLAB portable package requires 64-bit MATLAB Runtime R2023b. MATLAB is the numerical reference implementation and is useful for development and result cross-checking.
+MATLAB source code is under `matlab/`. Download the [MATLAB portable package from the GitHub Release](https://github.com/ZiYingZhang/IPCE-measurement/releases/download/v1.0.0/IPCEApp_R2023b_Windows_x64.zip); it requires 64-bit MATLAB Runtime R2023b. MATLAB is the numerical reference implementation and is useful for development and result cross-checking.
 
 ## 2. Data directories
 
@@ -28,7 +28,7 @@ E:\Research Library\Data\Codes\IPCE measurement\data\defaults
 E:\Research Library\Data\Codes\IPCE measurement\data\examples
 ```
 
-The files in `data/defaults/` are shared by MATLAB and C#. The application attempts to load them at startup when they are available. The files in `data/examples/` are optional and demonstrate a full calculation; filenames may change between releases, so use the files actually present in the directory. Replace them with your own inputs when needed.
+The files in `data/defaults/` are shared by MATLAB and C#. The application attempts to load them at startup when they are available. The files in `data/examples/` are optional and demonstrate a full calculation; filenames may change between releases, so use the files actually present in the directory. Replace them with your own inputs when needed. Generated `dist/` folders are intentionally excluded from source history; compiled applications are published as GitHub Release assets.
 
 ## 3. Complete calculation workflow
 

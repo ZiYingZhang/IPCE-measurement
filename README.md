@@ -12,13 +12,13 @@ An offline toolkit for measuring incident power density, calculating sample IPCE
 
 ### C# WPF application (recommended for Windows users)
 
-Download `csharp/dist/IPCEApp_Windows_x64.zip`, extract it, and run `IPCEApp.exe`. The package is self-contained and does not require MATLAB or a separately installed .NET Runtime.
+Download [IPCEApp_Windows_x64.zip](https://github.com/ZiYingZhang/IPCE-measurement/releases/download/v1.0.0/IPCEApp_Windows_x64.zip), extract it, and run `IPCEApp.exe`. The package is self-contained and does not require MATLAB or a separately installed .NET Runtime.
 
 The complete workflow is available from the application: import calibration data, silicon and sample i-t traces, time anchors, and a solar spectrum; calculate power density and IPCE; integrate against the spectrum; and export the results.
 
 ### MATLAB application
 
-The MATLAB source is under `matlab/`. The portable MATLAB package requires MATLAB Runtime R2023b (64-bit). See [README_CN.md](README_CN.md) for the reference workflow and formulas.
+The MATLAB source is under `matlab/`. Download [IPCEApp_R2023b_Windows_x64.zip](https://github.com/ZiYingZhang/IPCE-measurement/releases/download/v1.0.0/IPCEApp_R2023b_Windows_x64.zip) for the portable MATLAB package; it requires MATLAB Runtime R2023b (64-bit). See [README_CN.md](README_CN.md) for the reference workflow and formulas.
 
 ## Data layout
 
@@ -35,7 +35,7 @@ E:\Research Library\Data\Codes\IPCE measurement\data\defaults
 E:\Research Library\Data\Codes\IPCE measurement\data\examples
 ```
 
-The default files are loaded by the application when available. Example files are optional; users can replace them with their own files while keeping the documented column and unit rules.
+The default files are loaded by the application when available. Example files are optional; users can replace them with their own files while keeping the documented column and unit rules. Generated `dist/` folders are intentionally excluded from source history; compiled applications are published as Release assets.
 
 ## Repository structure
 
