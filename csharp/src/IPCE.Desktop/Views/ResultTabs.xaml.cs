@@ -307,9 +307,9 @@ public partial class ResultTabs : UserControl
         IpcePlotView.SetSelectedSource(
             _subscribedViewModel?.Session.SelectedIpceSource ==
                 IpceSource.External
-                ? PlotText["Plot.ExternalIpceSeries"]
-                : PlotText["Plot.CalculatedIpceSeries"],
-            PlotText);
+                ? Text["Plot.ExternalIpceSeries"]
+                : Text["Plot.CalculatedIpceSeries"],
+            Text);
     }
 
     private void RenderSpectrumIntegration()

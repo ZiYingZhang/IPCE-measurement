@@ -70,6 +70,10 @@ public sealed class LanguageSwitchingTests
                     selector.SelectedValue);
                 var results = Assert.IsInstanceOfType<ResultTabs>(
                     window.FindName("ResultsPanel"));
+                var siliconTrace = Assert.IsInstanceOfType<TracePlotView>(
+                    results.FindName("SiliconTraceView"));
+                var sampleTrace = Assert.IsInstanceOfType<TracePlotView>(
+                    results.FindName("SampleTraceView"));
                 var schedule = Assert.IsInstanceOfType<SchedulePlotView>(
                     results.FindName("SchedulePlotView"));
                 var powerDensity =
@@ -84,6 +88,21 @@ public sealed class LanguageSwitchingTests
                     schedule.FindName("HoverText"));
                 var toolbar = Assert.IsInstanceOfType<PlotToolbar>(
                     schedule.FindName("Toolbar"));
+                var sourceBadge = Assert.IsInstanceOfType<TextBlock>(
+                    ipcePlot.FindName("SourceBadge"));
+                TextBlock[] emptyOverlays =
+                [
+                    Assert.IsInstanceOfType<TextBlock>(
+                        siliconTrace.FindName("EmptyMessage")),
+                    Assert.IsInstanceOfType<TextBlock>(
+                        sampleTrace.FindName("EmptyMessage")),
+                    Assert.IsInstanceOfType<TextBlock>(
+                        schedule.FindName("EmptyMessage")),
+                    Assert.IsInstanceOfType<TextBlock>(
+                        powerDensity.FindName("EmptyMessage")),
+                    Assert.IsInstanceOfType<TextBlock>(
+                        ipcePlot.FindName("EmptyMessage")),
+                ];
                 Assert.AreEqual("Arial", hover.FontFamily.Source);
                 Assert.AreEqual("Arial", toolbar.FontFamily.Source);
                 Assert.AreEqual(
@@ -126,7 +145,7 @@ public sealed class LanguageSwitchingTests
                     "Monochromatic incident power density",
                     powerDensity.InteractionController.Model?.Title);
                 Assert.AreEqual(
-                    "Power density (µW·cm⁻²)",
+                    "Power density (µW·cm^-2)",
                     powerDensity.InteractionController.Model?.YLabel);
                 Assert.AreEqual(
                     "Arial",
@@ -141,11 +160,32 @@ public sealed class LanguageSwitchingTests
                     "Solar spectrum",
                     spectrum.IrradiancePlotControl.Plot.Axes.Title.Label.Text);
                 Assert.AreEqual(
-                    "Irradiance (W·m⁻²·nm⁻¹)",
+                    "Irradiance (W·m^-2·nm^-1)",
                     spectrum.IrradiancePlotControl.Plot.Axes.Left.Label.Text);
                 Assert.AreEqual(
                     "Arial",
                     spectrum.IrradiancePlotControl.Plot.Axes.Left.Label.FontName);
+                StringAssert.Contains(sourceBadge.Text, "积分来源：");
+                Assert.AreEqual(
+                    "Microsoft YaHei",
+                    sourceBadge.FontFamily.Source);
+                Assert.IsTrue(emptyOverlays.All(overlay =>
+                    overlay.FontFamily.Source == "Arial"));
+                using var arialTypeface = ScottPlot.Fonts.GetTypeface(
+                    "Arial",
+                    bold: false,
+                    italic: false);
+                string visibleCanvasText = string.Join(
+                    " ",
+                    schedule.InteractionController.Model?.Title,
+                    powerDensity.InteractionController.Model?.YLabel,
+                    ipcePlot.InteractionController.Model?.Title,
+                    spectrum.IrradiancePlotControl.Plot.Axes.Title.Label.Text,
+                    spectrum.IrradiancePlotControl.Plot.Axes.Left.Label.Text,
+                    "Cumulative Jsc (mA·cm^-2)");
+                Assert.IsTrue(
+                    arialTypeface.ContainsGlyphs(visibleCanvasText),
+                    "Arial must contain every glyph used by plot-canvas text.");
                 Assert.AreSame(originalDataContext, window.DataContext);
                 Assert.AreSame(originalSession, viewModel.Session);
                 Assert.AreSame(

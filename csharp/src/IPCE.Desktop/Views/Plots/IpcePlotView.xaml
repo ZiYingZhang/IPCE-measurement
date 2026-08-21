@@ -18,6 +18,7 @@
                           MouseMove="PlotSurface_MouseMove"
                           MouseLeave="PlotSurface_MouseLeave" />
         <TextBlock x:Name="EmptyMessage" Grid.Row="1"
+                   FontFamily="Arial"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    Foreground="#607D8B" FontSize="15" />
         <Border Grid.Row="1" Margin="12" Padding="9,6"
