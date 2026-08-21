@@ -12,6 +12,8 @@ namespace IPCE.Desktop.Views;
 
 public partial class ResultTabs : UserControl
 {
+    private static readonly ILocalizationService PlotText =
+        EnglishPlotLocalizationService.Instance;
     private MainViewModel? _subscribedViewModel;
 
     public ResultTabs()
@@ -188,7 +190,7 @@ public partial class ResultTabs : UserControl
                     point.SampleCount))
                 .ToArray() ?? [];
         SiliconTraceView.Render(ResultPlotModelBuilder.BuildTrace(
-            Text["Plot.SiliconTraceTitle"],
+            PlotText["Plot.SiliconTraceTitle"],
             viewModel?.Silicon.Trace,
             viewModel?.Silicon.Anchors,
             viewModel?.Silicon.SubtractDark ?? false,
@@ -199,9 +201,9 @@ public partial class ResultTabs : UserControl
             siliconMeans,
             viewModel?.Session.PowerDensityStatus ??
                 new ResultStatus(ResultFreshness.Missing, ""),
-            Text));
+            PlotText));
         SampleTraceView.Render(ResultPlotModelBuilder.BuildTrace(
-            Text["Plot.SampleTraceTitle"],
+            PlotText["Plot.SampleTraceTitle"],
             viewModel?.Sample.Trace,
             viewModel?.Sample.Anchors,
             viewModel?.Sample.SubtractDark ?? false,
@@ -212,7 +214,7 @@ public partial class ResultTabs : UserControl
             sampleMeans,
             viewModel?.Session.CalculatedIpceStatus ??
                 new ResultStatus(ResultFreshness.Missing, ""),
-            Text));
+            PlotText));
     }
 
     private void RenderSchedule()
@@ -220,21 +222,21 @@ public partial class ResultTabs : UserControl
         List<PlotSeries> series = [];
         AddScheduleSeries(
             series,
-            Text["Plot.SiliconOwner"],
+            PlotText["Plot.SiliconOwner"],
             "#1976D2",
             _subscribedViewModel?.Silicon.Preview);
         AddScheduleSeries(
             series,
-            Text["Plot.SampleOwner"],
+            PlotText["Plot.SampleOwner"],
             "#00897B",
             _subscribedViewModel?.Sample.Preview);
         SchedulePlotView.Render(new PlotModel(
-            Text["Plot.ScheduleTitle"],
-            Text["Plot.WavelengthAxis"],
-            Text["Plot.ConfirmedTimeAxis"],
+            PlotText["Plot.ScheduleTitle"],
+            PlotText["Plot.WavelengthAxis"],
+            PlotText["Plot.ConfirmedTimeAxis"],
             series,
             [],
-            Text["Plot.EmptySchedule"]));
+            PlotText["Plot.EmptySchedule"]));
     }
 
     private void RenderPowerDensity()
@@ -245,7 +247,7 @@ public partial class ResultTabs : UserControl
             ?
             [
                 new PlotSeries(
-                    Text["Plot.PowerDensitySeries"],
+                    PlotText["Plot.PowerDensitySeries"],
                     points.Select(point => point.WavelengthNm).ToArray(),
                     points.Select(point =>
                         point.IncidentPowerDensityWattsPerSquareCentimetre *
@@ -258,12 +260,12 @@ public partial class ResultTabs : UserControl
             ]
             : [];
         PowerDensityPlotView.Render(new PlotModel(
-            Text["Plot.PowerDensityTitle"],
-            Text["Plot.WavelengthAxis"],
-            Text["Plot.PowerDensityAxis"],
+            PlotText["Plot.PowerDensityTitle"],
+            PlotText["Plot.WavelengthAxis"],
+            PlotText["Plot.PowerDensityAxis"],
             series,
             [],
-            Text["Plot.EmptyPowerDensity"]));
+            PlotText["Plot.EmptyPowerDensity"]));
     }
 
     private void RenderIpce()
@@ -274,7 +276,7 @@ public partial class ResultTabs : UserControl
         if (calculated is { Count: > 0 })
         {
             series.Add(new PlotSeries(
-                Text["Plot.CalculatedIpceSeries"],
+                PlotText["Plot.CalculatedIpceSeries"],
                 calculated.Select(point => point.WavelengthNm).ToArray(),
                 calculated.Select(point => point.IpcePercent).ToArray(),
                 PlotSeriesKind.Line,
@@ -288,7 +290,7 @@ public partial class ResultTabs : UserControl
         if (external?.Points is { Count: > 0 } externalPoints)
         {
             series.Add(new PlotSeries(
-                Text["Plot.ExternalIpceSeries"],
+                PlotText["Plot.ExternalIpceSeries"],
                 externalPoints.Select(point => point.WavelengthNm).ToArray(),
                 externalPoints.Select(point => point.IpcePercent).ToArray(),
                 PlotSeriesKind.Line,
@@ -296,18 +298,18 @@ public partial class ResultTabs : UserControl
         }
 
         IpcePlotView.Render(new PlotModel(
-            Text["Plot.IpceComparisonTitle"],
-            Text["Plot.WavelengthAxis"],
+            PlotText["Plot.IpceComparisonTitle"],
+            PlotText["Plot.WavelengthAxis"],
             "IPCE (%)",
             series,
             [],
-            Text["Plot.EmptyIpce"]));
+            PlotText["Plot.EmptyIpce"]));
         IpcePlotView.SetSelectedSource(
             _subscribedViewModel?.Session.SelectedIpceSource ==
                 IpceSource.External
-                ? Text["Plot.ExternalIpceSeries"]
-                : Text["Plot.CalculatedIpceSeries"],
-            Text);
+                ? PlotText["Plot.ExternalIpceSeries"]
+                : PlotText["Plot.CalculatedIpceSeries"],
+            PlotText);
     }
 
     private void RenderSpectrumIntegration()
@@ -329,7 +331,7 @@ public partial class ResultTabs : UserControl
                 integration,
                 minimum,
                 maximum,
-                Text);
+                PlotText);
         SpectrumIntegrationPlotView.Render(
             models.Irradiance,
             models.SelectedIpce,
@@ -358,7 +360,7 @@ public partial class ResultTabs : UserControl
         if (valid.Length > 0)
         {
             target.Add(new PlotSeries(
-                Text.Format("Plot.OwnerSchedule", owner),
+                PlotText.Format("Plot.OwnerSchedule", owner),
                 valid.Select(point => point.WavelengthNm).ToArray(),
                 valid.Select(point => point.ReferenceTimeSeconds).ToArray(),
                 PlotSeriesKind.Line,
@@ -367,7 +369,7 @@ public partial class ResultTabs : UserControl
         if (invalid.Length > 0)
         {
             target.Add(new PlotSeries(
-                Text.Format("Plot.OwnerOutOfRange", owner),
+                PlotText.Format("Plot.OwnerOutOfRange", owner),
                 invalid.Select(point => point.WavelengthNm).ToArray(),
                 invalid.Select(point => point.ReferenceTimeSeconds).ToArray(),
                 PlotSeriesKind.Scatter,
@@ -376,7 +378,7 @@ public partial class ResultTabs : UserControl
         if (preview.Anchors.Count > 0)
         {
             target.Add(new PlotSeries(
-                Text.Format("Plot.OwnerAnchors", owner),
+                PlotText.Format("Plot.OwnerAnchors", owner),
                 preview.Anchors.Select(point => point.WavelengthNm).ToArray(),
                 preview.Anchors.Select(point =>
                     point.ConfirmedTimeSeconds).ToArray(),

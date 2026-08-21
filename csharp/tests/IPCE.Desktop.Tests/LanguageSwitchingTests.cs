@@ -16,7 +16,7 @@ namespace IPCE.Desktop.Tests;
 public sealed class LanguageSwitchingTests
 {
     [TestMethod]
-    public void MainWindow_LiveSwitchPreservesViewModelSessionAndResults()
+    public void MainWindow_LiveSwitchPreservesStateAndKeepsPlotCanvasEnglishArial()
     {
         Exception? failure = null;
         string preferencePath = Path.Combine(
@@ -72,6 +72,14 @@ public sealed class LanguageSwitchingTests
                     window.FindName("ResultsPanel"));
                 var schedule = Assert.IsInstanceOfType<SchedulePlotView>(
                     results.FindName("SchedulePlotView"));
+                var powerDensity =
+                    Assert.IsInstanceOfType<PowerDensityPlotView>(
+                        results.FindName("PowerDensityPlotView"));
+                var ipcePlot = Assert.IsInstanceOfType<IpcePlotView>(
+                    results.FindName("IpcePlotView"));
+                var spectrum =
+                    Assert.IsInstanceOfType<SpectrumIntegrationPlotView>(
+                        results.FindName("SpectrumIntegrationPlotView"));
                 var hover = Assert.IsInstanceOfType<TextBlock>(
                     schedule.FindName("HoverText"));
                 var toolbar = Assert.IsInstanceOfType<PlotToolbar>(
@@ -109,8 +117,35 @@ public sealed class LanguageSwitchingTests
                     AppLanguage.SimplifiedChinese,
                     selector.SelectedValue);
                 Assert.AreEqual(
-                    "波长—时间调度预览",
+                    "Wavelength–time schedule preview",
                     schedule.InteractionController.Model?.Title);
+                Assert.AreEqual(
+                    "Arial",
+                    schedule.PlotControl.Plot.Axes.Title.Label.FontName);
+                Assert.AreEqual(
+                    "Monochromatic incident power density",
+                    powerDensity.InteractionController.Model?.Title);
+                Assert.AreEqual(
+                    "Power density (µW·cm⁻²)",
+                    powerDensity.InteractionController.Model?.YLabel);
+                Assert.AreEqual(
+                    "Arial",
+                    powerDensity.PlotControl.Plot.Axes.Left.Label.FontName);
+                Assert.AreEqual(
+                    "IPCE comparison",
+                    ipcePlot.InteractionController.Model?.Title);
+                Assert.AreEqual(
+                    "Arial",
+                    ipcePlot.PlotControl.Plot.Axes.Title.Label.FontName);
+                Assert.AreEqual(
+                    "Solar spectrum",
+                    spectrum.IrradiancePlotControl.Plot.Axes.Title.Label.Text);
+                Assert.AreEqual(
+                    "Irradiance (W·m⁻²·nm⁻¹)",
+                    spectrum.IrradiancePlotControl.Plot.Axes.Left.Label.Text);
+                Assert.AreEqual(
+                    "Arial",
+                    spectrum.IrradiancePlotControl.Plot.Axes.Left.Label.FontName);
                 Assert.AreSame(originalDataContext, window.DataContext);
                 Assert.AreSame(originalSession, viewModel.Session);
                 Assert.AreSame(

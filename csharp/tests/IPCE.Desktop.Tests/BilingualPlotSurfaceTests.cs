@@ -51,20 +51,20 @@ public sealed class BilingualPlotSurfaceTests
         Assert.AreEqual("Wavelength (nm)", english.Irradiance.XLabel);
         Assert.AreEqual("波长 (nm)", chinese.Irradiance.XLabel);
         Assert.AreEqual(
-            "Irradiance (W/(m²·nm))",
+            "Irradiance (W·m⁻²·nm⁻¹)",
             english.Irradiance.YLabel);
         Assert.AreEqual(
             "辐照度 (W/(m²·nm))",
             chinese.Irradiance.YLabel);
         Assert.AreEqual(
-            "Cumulative Jsc (mA/cm²)",
+            "Cumulative Jsc (mA·cm⁻²)",
             english.Cumulative.YLabel);
         Assert.AreEqual(
             "累计 Jsc (mA/cm²)",
             chinese.Cumulative.YLabel);
         fixture.Service.CurrentLanguage = AppLanguage.English;
         Assert.AreEqual(
-            "Power density (µW/cm²)",
+            "Power density (µW·cm⁻²)",
             fixture.Service["Plot.PowerDensityAxis"]);
         fixture.Service.CurrentLanguage = AppLanguage.SimplifiedChinese;
         Assert.AreEqual(
