@@ -21,12 +21,6 @@ data/defaults/   默认导入数据
 data/examples/   可完成完整计算的示例数据
 ```
 
-本机目录对应为：
-
-```text
-E:\Research Library\Data\Codes\IPCE measurement\data\defaults
-E:\Research Library\Data\Codes\IPCE measurement\data\examples
-```
 
 `data/defaults/` 中的默认文件由 MATLAB 和 C# 共用，程序启动时会尝试自动加载。`data/examples/` 中的文件用于演示完整流程；文件名会随版本调整，实际使用时以目录中的文件为准。示例数据不是程序运行的必需条件，用户可以随时替换为自己的数据。生成的 `dist/` 文件夹不会提交到源代码历史，编译程序统一放在 GitHub Release 附件中。
 
