@@ -4,8 +4,8 @@ Last updated: 2026-08-21
 
 ## Current checkpoint
 
-- Last completed task: C# scientific-plot legibility update and fresh portable
-  verification
+- Last completed task: C# plot-canvas language/font correction and fresh
+  portable verification
 - Status: normalized repository and both bilingual applications pass all
   automated gates, including the refreshed C# plot-style regressions; external
   clean-machine and physical-display gates remain pending
@@ -16,6 +16,48 @@ Last updated: 2026-08-21
   `matlab/` and shared startup files moved to `data/defaults/`
 - Git action taken: local commits on `main`; no remote push, tag, Release, or
   visibility change
+
+## 2026-08-21 C# plot-canvas language/font correction
+
+- Chinese WPF controls, tables, toolbars, source badges, and workflow text
+  remain Chinese with Microsoft YaHei;
+- all ScottPlot canvas titles, axes, legends, range/interval annotations, and
+  model-owned empty overlays are English with Arial in both UI languages;
+- plot units use Arial-safe scientific notation: `W·m^-2·nm^-1`,
+  `µW·cm^-2`, and `mA·cm^-2`;
+- the English plot text service is presentation-only and does not alter
+  calculations, data, viewports, state, exports, or numeric values.
+
+Verification evidence:
+
+- Release build: 0 warnings, 0 errors;
+- .NET tests: Core 58, IO 44, Desktop 130, total 232; 0 failed, 0 skipped;
+- real-window Chinese-language assertions passed for schedule, power-density,
+  IPCE, irradiance, source badge, empty overlays, Arial glyph coverage, and
+  state/session preservation;
+- MATLAB numerical self-test, real UI smoke, C# published smoke, and archive
+  extraction smoke all passed;
+- independent code review: Ready to merge, no remaining Critical/Important/
+  Minor issues.
+
+Fresh self-contained C# archive:
+
+- path: `csharp/dist/IPCEApp_Windows_x64.zip`;
+- bytes: `85,511,830`;
+- SHA-256:
+  `df7998e581d8125dfd38498f7bc5d34d75750bf87b7f509270c83be427871326`;
+- entries: 441;
+- self-contained `win-x64`: true;
+- MATLAB Runtime included: false;
+- published and extracted smoke exit codes: `0` and `0`;
+- manifest generated UTC: `2026-08-21T09:15:49.5541590Z`.
+
+External gates still pending for this exact ZIP/hash:
+
+1. Complete the workflow on clean Windows 10/11 x64 with neither MATLAB nor
+   .NET Runtime installed.
+2. Inspect both languages and representative plots at Windows scaling 100%,
+   125%, and 150% on representative 16-24 inch displays.
 
 ## 2026-08-21 C# plot-legibility verification
 
