@@ -46,11 +46,11 @@ public sealed class RealFileRegressionTests
 
         TraceData sampleTrace = ItTraceReader.Read(Path.Combine(
             TestPaths.ExamplesRoot,
-            "MBVO-IT-300-600 nm.txt"));
+            "sample-IT-300-600 nm.txt"));
         IReadOnlyList<AnchorPoint> sampleAnchors = AnchorReader.Read(
             Path.Combine(
                 TestPaths.ExamplesRoot,
-                "MBVO-300-600-match time.txt"));
+                "sample-300-600-match time.txt"));
         double[] sampleWavelengths = Enumerable.Range(0, 61)
             .Select(index => 300d + 5 * index)
             .ToArray();
